@@ -1,0 +1,6 @@
+[submodule "lib-projs/MonoMod"]
+	path = lib-projs/MonoMod
+	url = https://github.com/0x0ade/MonoMod.git
+[submodule "lib-projs/cecil"]
+	path = lib-projs/cecil
+	url = https://github.com/jbevain/cecil.git

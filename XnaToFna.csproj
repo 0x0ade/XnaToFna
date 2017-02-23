@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{11CE9AC5-C2D3-456D-8132-8A8FD9B78D1E}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XnaToFna</RootNamespace>
+    <AssemblyName>XnaToFna</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="src\Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\XnaToFnaUtil.cs" />
+  </ItemGroup>
+    <!--cecil-->
+  <ItemGroup>
+    <Compile Include="lib-projs\cecil\Mono\*.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\ArrayType.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyDefinition.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyFlags.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyHashAlgorithm.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyLinkedResource.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyNameDefinition.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyNameReference.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyReader.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyWriter.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\BaseAssemblyResolver.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\CallSite.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\CustomAttribute.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\DefaultAssemblyResolver.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\EmbeddedResource.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\EventAttributes.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\EventDefinition.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\EventReference.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\ExportedType.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\FieldAttributes.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\FieldDefinition.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\FieldReference.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\FileAttributes.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\FunctionPointerType.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\GenericInstanceMethod.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\GenericInstanceType.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\GenericParameter.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\GenericParameterAttributes.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\IConstantProvider.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\ICustomAttributeProvider.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\IGenericInstance.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\IGenericParameterProvider.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\IMarshalInfoProvider.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\IMemberDefinition.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\IMetadataScope.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\IMetadataTokenProvider.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\IMethodSignature.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\Import.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\LinkedResource.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\ManifestResourceAttributes.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MarshalInfo.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MemberDefinitionCollection.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MemberReference.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MetadataResolver.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MetadataSystem.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodAttributes.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodCallingConvention.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodDefinition.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodImplAttributes.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodReference.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodReturnType.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodSemanticsAttributes.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodSpecification.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\Modifiers.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\ModuleDefinition.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\ModuleKind.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\ModuleReference.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\NativeType.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\ParameterAttributes.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\ParameterDefinition.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\ParameterDefinitionCollection.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\ParameterReference.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\PinnedType.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\PInvokeAttributes.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\PInvokeInfo.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\PointerType.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\PropertyAttributes.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\PropertyDefinition.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\PropertyReference.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\ReferenceType.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\Resource.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\SecurityDeclaration.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\SentinelType.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\TargetRuntime.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\Treatments.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeAttributes.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeDefinition.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeDefinitionCollection.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeParser.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeReference.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeSpecification.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeSystem.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\VariantType.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil\WindowsRuntimeProjections.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil.Cil\*.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil.Metadata\*.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Cecil.PE\*.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Collections.Generic\*.cs" />
+    <Compile Include="lib-projs\cecil\Mono.Security.Cryptography\*.cs" />
+    <Compile Include="lib-projs\cecil\System.Security.Cryptography\*.cs" />
+  </ItemGroup>
+  <!--MonoMod-->
+  <ItemGroup>
+    <Compile Include="lib-projs\MonoMod\MonoMod\InlineRT\MMILExec.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\InlineRT\MMILProxy.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\InlineRT\MMILRT.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\InlineRT\MMILProxyManager.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\InlineRT\ReflectionHelper.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModHook.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModIfFlag.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModNoNew.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModOnPlatform.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModAdded.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModOriginal.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModOriginalName.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\MonoModder.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\MonoModExt.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Platform.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\PlatformHelper.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\StringInjectExtension.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModIgnore.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModRemove.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModReplace.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModConstructor.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModLinkTo.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModBlacklisted.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModEnumReplace.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModInline.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
