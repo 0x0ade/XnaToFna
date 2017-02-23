@@ -51,11 +51,22 @@ namespace XnaToFna {
 
             Modder.AssemblyResolver = AssemblyResolver;
             Modder.DependencyDirs = DependencyDirs;
+
+            Modder.Logger = LogMonoMod;
         }
         public XnaToFnaUtil(params string[] paths)
             : this() {
 
             ScanPaths(paths);
+        }
+
+        public void LogMonoMod(string txt) {
+            Console.Write("[XnaToFna] [MonoMod] ");
+            Console.WriteLine(txt);
+        }
+        public void Log(string txt) {
+            Console.Write("[XnaToFna] ");
+            Console.WriteLine(txt);
         }
 
         public void ScanPaths(params string[] paths) {
@@ -69,6 +80,7 @@ namespace XnaToFna {
                 if (DependencyDirs.Contains(path))
                     // No need to scan the dir if the dir is scanned...
                     return;
+                Log($"[ScanPath] Scanning directory {path}");
                 DependencyDirs.Add(path);
                 AssemblyResolver.AddSearchDirectory(path); // Needs to be added manually as DependencyDirs was already added
                 ScanPaths(Directory.GetFiles(path));
@@ -84,8 +96,9 @@ namespace XnaToFna {
                 File.Copy(pathOrig, path, true);
 
             // Check if .dll is CLR assembly
+            AssemblyName name;
             try {
-                AssemblyName.GetAssemblyName(path);
+                name = AssemblyName.GetAssemblyName(path);
             } catch {
                 return;
             }
@@ -94,7 +107,8 @@ namespace XnaToFna {
             // Don't ReadWrite if the module being read is XnaToFna or a relink target.
             modReaderParams.ReadWrite =
                 path != ThisAssembly.Location &&
-                !Mappings.Exists(mappings => Path.GetFileNameWithoutExtension(path) == mappings.Item1);
+                !Mappings.Exists(mappings => name.Name == mappings.Item1);
+            Log($"[ScanPath] Loading assembly {name.Name} ({(modReaderParams.ReadWrite ? "rw" : "r-")})");
             ModuleDefinition mod = ModuleDefinition.ReadModule(path, modReaderParams);
             if ((mod.Attributes & ModuleAttributes.ILOnly) != ModuleAttributes.ILOnly) {
                 // Mono.Cecil can't handle mixed mode assemblies.
@@ -103,23 +117,34 @@ namespace XnaToFna {
             Modules.Add(mod);
 
             foreach (Tuple<string, string[]> mappings in Mappings)
-                if (mod.Assembly.Name.Name == mappings.Item1)
-                    foreach (string from in mappings.Item2)
+                if (name.Name == mappings.Item1)
+                    foreach (string from in mappings.Item2) {
+                        Log($"[ScanPath] Mapping {from} -> {name.Name}");
                         Modder.RelinkModuleMap[from] = mod;
+                    }
         }
 
         public void OrderModules() {
             List<ModuleDefinition> ordered = new List<ModuleDefinition>(Modules);
 
+            Log("[OrderModules] Unordered: ");
+            for (int i = 0; i < Modules.Count; i++)
+                Log($"[OrderModules] #{i + 1}: {Modules[i].Assembly.Name.Name}");
+
             ModuleDefinition dep = null;
             foreach (ModuleDefinition mod in Modules)
                 foreach (AssemblyNameReference depName in mod.AssemblyReferences)
                     if (Modules.Exists(other => (dep = other).Assembly.Name.Name == depName.Name)) {
-                        ordered.Remove(mod);
-                        ordered.Insert(ordered.IndexOf(dep) + 1, mod);
+                        Log($"[OrderModules] Reordering {mod.Assembly.Name.Name} dependency {dep.Name}");
+                        ordered.Remove(dep);
+                        ordered.Insert(ordered.IndexOf(mod), dep);
                     }
 
             Modules = ordered;
+
+            Log("[OrderModules] Reordered: ");
+            for (int i = 0; i < Modules.Count; i++)
+                Log($"[OrderModules] #{i + 1}: {Modules[i].Assembly.Name.Name}");
         }
 
         public void RelinkAll() {
@@ -139,8 +164,10 @@ namespace XnaToFna {
             if (mod.Assembly.Name.Name == ThisAssemblyName)
                 return;
 
+            Log($"[Relink] Relinking {mod.Assembly.Name.Name}");
             Modder.Module = mod;
 
+            Log($"[Relink] Updating dependencies");
             for (int i = 0; i < mod.AssemblyReferences.Count; i++) {
                 AssemblyNameReference dep = mod.AssemblyReferences[i];
                 foreach (Tuple<string, string[]> mappings in Mappings)
@@ -159,10 +186,13 @@ namespace XnaToFna {
                     }
             }
 
+            Log($"[Relink] Applying MonoMod PatchRefs pass");
             Modder.PatchRefs();
 
+            // Log($"[Relink] Post-processing (XnaToFnaHelper)");
             // TODO XnaToFnaHelper
 
+            Log($"[Relink] Rewriting and disposing module");
             Modder.Module.Write();
             // Dispose the module so other modules can read it as a dependency again.
             Modder.Module.Dispose();

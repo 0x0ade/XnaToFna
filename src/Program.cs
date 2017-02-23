@@ -12,11 +12,19 @@ namespace XnaToFna {
 
         public static void Main(string[] args) {
             XnaToFnaUtil xtf = new XnaToFnaUtil(args);
+
             xtf.ScanPath(Assembly.GetExecutingAssembly().Location);
             if (!Debugger.IsAttached) // Otherwise catches XnaToFna.vshost.exe
                 xtf.ScanPath(Directory.GetCurrentDirectory());
+
             xtf.OrderModules();
+
             xtf.RelinkAll();
+
+            xtf.Log("[Main] Done!");
+
+            if (Debugger.IsAttached) // Keep window open when running in IDE
+                Console.ReadKey();
         }
 
     }
