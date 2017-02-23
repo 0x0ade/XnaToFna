@@ -80,6 +80,9 @@ namespace XnaToFna {
                 if (DependencyDirs.Contains(path))
                     // No need to scan the dir if the dir is scanned...
                     return;
+
+                RestoreBackup(path);
+
                 Log($"[ScanPath] Scanning directory {path}");
                 DependencyDirs.Add(path);
                 AssemblyResolver.AddSearchDirectory(path); // Needs to be added manually as DependencyDirs was already added
@@ -89,11 +92,6 @@ namespace XnaToFna {
 
             if (!path.EndsWith(".dll") && !path.EndsWith(".exe"))
                 return;
-
-            // Restore any backup if existing
-            string pathOrig = Path.Combine(Directory.GetParent(path).FullName, "orig", Path.GetFileName(path));
-            if (File.Exists(pathOrig))
-                File.Copy(pathOrig, path, true);
 
             // Check if .dll is CLR assembly
             AssemblyName name;
@@ -122,6 +120,19 @@ namespace XnaToFna {
                         Log($"[ScanPath] Mapping {from} -> {name.Name}");
                         Modder.RelinkModuleMap[from] = mod;
                     }
+        }
+
+        public void RestoreBackup(string root) {
+            string origRoot = Path.Combine(root, "orig");
+            // Check for an "orig" folder to restore any backups from
+            if (!Directory.Exists(root))
+                return;
+            RestoreBackup(root, origRoot);
+        }
+        public void RestoreBackup(string root, string origRoot) {
+            Log($"[RestoreBackup] Restoring from {origRoot} to {root}");
+            foreach (string origPath in Directory.EnumerateFiles(origRoot, "*", SearchOption.AllDirectories))
+                File.Copy(origPath, root + origPath.Substring(origRoot.Length), true);
         }
 
         public void OrderModules() {
