@@ -27,8 +27,8 @@ namespace XnaToFna {
                     xtf.ScanPath(arg);
             }
 
-            // FIXME detect if ffmpeg exists
-            if (xtf.PatchWaveBanks && false)
+            // Only patch the WaveBanks if FFMPEG is available.
+            if (xtf.PatchWaveBanks && !ContentHelper.IsFFMPEGAvailable)
                 xtf.PatchWaveBanks = false;
 
             xtf.ScanPath(Assembly.GetExecutingAssembly().Location);

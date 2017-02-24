@@ -13,9 +13,25 @@ using System.Threading.Tasks;
 namespace XnaToFna {
     public static partial class ContentHelper {
 
-        public static class XWMAInfo {
-            public static int[] BytesPerSecond = { 12000, 24000, 4000, 6000, 8000, 20000 };
-            public static short[] BlockAlign = { 929, 1487, 1280, 2230, 8917, 8192, 4459, 5945, 2304, 1536, 1485, 1008, 2731, 4096, 6827, 5462 };
+        public static bool IsFFMPEGAvailable {
+            get {
+                try {
+                    Process which = new Process();
+                    which.StartInfo = new ProcessStartInfo {
+                        FileName =
+                            (PlatformHelper.Current & Platform.Windows) != 0 ? "where" :
+                            "which",
+                        Arguments = "ffmpeg",
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    };
+                    which.Start();
+                    which.WaitForExit();
+                    return which.ExitCode == 0;
+                } catch {
+                    return false;
+                }
+            }
         }
 
         public static void Log(string txt) {
