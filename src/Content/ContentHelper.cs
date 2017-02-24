@@ -11,11 +11,40 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace XnaToFna {
-    public static class ContentHelper {
+    public static partial class ContentHelper {
 
         public static class XWMAInfo {
             public static int[] BytesPerSecond = { 12000, 24000, 4000, 6000, 8000, 20000 };
             public static short[] BlockAlign = { 929, 1487, 1280, 2230, 8917, 8192, 4459, 5945, 2304, 1536, 1485, 1008, 2731, 4096, 6827, 5462 };
+        }
+
+        public static void Log(string txt) {
+            Console.Write("[XnaToFna] [ContentHelper] ");
+            Console.WriteLine(txt);
+        }
+
+        public static void UpdateContent(string path, bool patchWaveBanks = true, bool patchXACTSettings = true) {
+            if (patchWaveBanks && path.EndsWith(".xwb")) {
+                PatchContent(path, UpdateWaveBank);
+                return;
+            }
+
+            if (patchXACTSettings && path.EndsWith(".xgs")) {
+                PatchContent(path, UpdateXACTSettings);
+                return;
+            }
+
+        }
+
+        public static void PatchContent(string path, Action<string, BinaryReader, BinaryWriter> patcher) {
+            File.Delete(path + ".tmp");
+            using (Stream input = File.OpenRead(path))
+            using (BinaryReader reader = new BinaryReader(input))
+            using (Stream output = File.OpenWrite(path + ".tmp"))
+            using (BinaryWriter writer = new BinaryWriter(output))
+                patcher(path, reader, writer);
+            File.Delete(path);
+            File.Move(path + ".tmp", path);
         }
 
         public static void RunFFMPEG(string args, Stream input, Stream output, Action<Process> feeder = null, long inputLength = 0) {

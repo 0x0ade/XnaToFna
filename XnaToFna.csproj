@@ -44,11 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\Content\XACTGlobalSettings.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\XnaToFnaExt.cs" />
-    <Compile Include="src\ContentHelper.cs" />
-    <Compile Include="src\XnaToFnaUtil.Content.cs" />
+    <Compile Include="src\Content\ContentHelper.cs" />
+    <Compile Include="src\Content\WaveBank.cs" />
     <Compile Include="src\XnaToFnaUtil.cs" />
   </ItemGroup>
   <!--cecil-->

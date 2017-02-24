@@ -11,42 +11,14 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace XnaToFna {
-    public partial class XnaToFnaUtil : IDisposable {
+    public static partial class ContentHelper {
 
-        public void UpdateContent() {
-            // Verify ContentDirectory path
-            if (ContentDirectory != null && !Directory.Exists(ContentDirectory))
-                ContentDirectory = null;
-
-            if (ContentDirectory == null) {
-                Log("[UpdateContent] No content directory found!");
-                return;
-            }
-
-            // List all content files and update accordingly.
-            foreach (string path in Directory.EnumerateFiles(ContentDirectory, "*", SearchOption.AllDirectories))
-                UpdateContent(path);
-        }
-
-        public void UpdateContent(string path) {
-            if (ConvertAudio && path.EndsWith(".xwb")) {
-                File.Delete(path + ".tmp");
-                using (Stream input = File.OpenRead(path))
-                using (BinaryReader reader = new BinaryReader(input))
-                using (Stream output = File.OpenWrite(path + ".tmp"))
-                using (BinaryWriter writer = new BinaryWriter(output))
-                    UpdateWaveBank(path, reader, writer);
-                File.Delete(path);
-                File.Move(path + ".tmp", path);
-                return;
-            }
-
-        }
-
-        public void UpdateWaveBank(string path, BinaryReader reader, BinaryWriter writer) {
+        public static void UpdateWaveBank(string path, BinaryReader reader, BinaryWriter writer) {
             Log($"[UpdateWaveBank] Updating wave bank {path}");
 
-            // wave bank header and versions
+            uint offset;
+
+            // WaveBank header and versions
             writer.Write(reader.ReadBytes(3 * 4));
 
             uint[] regionOffsets = new uint[5];
@@ -99,7 +71,7 @@ namespace XnaToFna {
             uint[] align = new uint[count];
             uint[] depth = new uint[count];
 
-            uint offset = regionOffsets[1];
+            offset = regionOffsets[1];
             uint durationRaw;
             uint format = 0;
             // Metadata
@@ -159,9 +131,9 @@ namespace XnaToFna {
 
                         using (BinaryWriter ffmpegWriter = new BinaryWriter(ffmpegStream, Encoding.ASCII, true)) {
                             short blockAlign =
-                                align[i] > ContentHelper.XWMAInfo.BlockAlign.Length ?
-                                ContentHelper.XWMAInfo.BlockAlign[align[i] & 0xF] :
-                                ContentHelper.XWMAInfo.BlockAlign[align[i]];
+                                align[i] > XWMAInfo.BlockAlign.Length ?
+                                XWMAInfo.BlockAlign[align[i] & 0x0F] :
+                                XWMAInfo.BlockAlign[align[i]];
                             int packets = playLength[i] / blockAlign;
                             int blocks = (int) Math.Ceiling(duration[i] / 2048D);
                             int blocksPerPacket = blocks / packets;
@@ -171,16 +143,16 @@ namespace XnaToFna {
                             ffmpegWriter.Write(playLength[i] + 4 + 4 + 8 + 4 + 2 + 2 + 4 + 4 + 2 + 4 + 4 + 4 + packets * 4 + 4 + 4 - 8);
                             ffmpegWriter.Write("XWMAfmt ".ToCharArray());
                             ffmpegWriter.Write(0x12);
-                            ffmpegWriter.Write((short) 0x161);
+                            ffmpegWriter.Write((short) 0x0161);
                             ffmpegWriter.Write((short) channels[i]);
                             ffmpegWriter.Write(rate[i]);
                             ffmpegWriter.Write(
-                                align[i] > ContentHelper.XWMAInfo.BytesPerSecond.Length ?
-                                ContentHelper.XWMAInfo.BytesPerSecond[align[i] >> 5] :
-                                ContentHelper.XWMAInfo.BytesPerSecond[align[i]]
+                                align[i] >= XWMAInfo.BytesPerSecond.Length ?
+                                XWMAInfo.BytesPerSecond[align[i] >> 5] :
+                                XWMAInfo.BytesPerSecond[align[i]]
                             );
                             ffmpegWriter.Write(blockAlign);
-                            ffmpegWriter.Write(0xF);
+                            ffmpegWriter.Write(0x0F);
                             ffmpegWriter.Write("dpds".ToCharArray());
                             ffmpegWriter.Write(packets * 4);
                             for (int packet = 0, accu = 0; packet < packets; packet++) {

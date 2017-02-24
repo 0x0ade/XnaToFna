@@ -19,15 +19,17 @@ namespace XnaToFna {
                 string arg = args[i];
                 if (arg == "--skip-content")
                     updateContent = false;
-                else if (arg == "--skip-audio")
-                    xtf.ConvertAudio = false;
+                else if (arg == "--skip-wavebanks" || arg == "--skip-xwb")
+                    xtf.PatchWaveBanks = false;
+                else if (arg == "--skip-xactsettings" || arg == "--skip-xgs")
+                    xtf.PatchXACTSettings = false;
                 else
                     xtf.ScanPath(arg);
             }
 
             // FIXME detect if ffmpeg exists
-            if (xtf.ConvertAudio && false)
-                xtf.ConvertAudio = false;
+            if (xtf.PatchWaveBanks && false)
+                xtf.PatchWaveBanks = false;
 
             xtf.ScanPath(Assembly.GetExecutingAssembly().Location);
             if (!Debugger.IsAttached) // Otherwise catches XnaToFna.vshost.exe

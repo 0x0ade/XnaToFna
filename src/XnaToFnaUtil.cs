@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace XnaToFna {
-    public partial class XnaToFnaUtil : IDisposable {
+    public class XnaToFnaUtil : IDisposable {
 
         protected static Assembly ThisAssembly = Assembly.GetExecutingAssembly();
         protected static string ThisAssemblyName = ThisAssembly.GetName().Name;
@@ -49,7 +49,8 @@ namespace XnaToFna {
         public string ContentDirectory;
         public List<ModuleDefinition> Modules = new List<ModuleDefinition>();
 
-        public bool ConvertAudio = true;
+        public bool PatchWaveBanks = true;
+        public bool PatchXACTSettings = true;
 
         public XnaToFnaUtil() {
             Modder.ReadingMode = ReadingMode.Immediate;
@@ -221,6 +222,21 @@ namespace XnaToFna {
             Modder.Module.Dispose();
             Modder.Module = null;
             Modder.ClearCaches(moduleSpecific: true);
+        }
+
+        public void UpdateContent() {
+            // Verify ContentDirectory path
+            if (ContentDirectory != null && !Directory.Exists(ContentDirectory))
+                ContentDirectory = null;
+
+            if (ContentDirectory == null) {
+                Log("[UpdateContent] No content directory found!");
+                return;
+            }
+
+            // List all content files and update accordingly.
+            foreach (string path in Directory.EnumerateFiles(ContentDirectory, "*", SearchOption.AllDirectories))
+                ContentHelper.UpdateContent(path, PatchWaveBanks, PatchXACTSettings);
         }
 
         public void Dispose() {
