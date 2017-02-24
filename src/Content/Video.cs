@@ -23,7 +23,7 @@ namespace XnaToFna {
 
             string pathOutput = Path.ChangeExtension(path, "ogv");
             // If not writing to a stream and the ogv already exists, keep the ogv.
-            if (writer != null && (!string.IsNullOrEmpty(path) && File.Exists(pathOutput)))
+            if (writer == null && (!string.IsNullOrEmpty(path) && File.Exists(pathOutput)))
                 return;
 
             Log($"[UpdateVideo] Updating video {path}");
