@@ -39,7 +39,7 @@ namespace XnaToFna {
             Console.WriteLine(txt);
         }
 
-        public static void UpdateContent(string path, bool patchWaveBanks = true, bool patchXACTSettings = true) {
+        public static void UpdateContent(string path, bool patchWaveBanks = true, bool patchXACTSettings = true, bool patchVideo = true) {
             if (patchWaveBanks && path.EndsWith(".xwb")) {
                 PatchContent(path, UpdateWaveBank);
                 return;
@@ -50,17 +50,32 @@ namespace XnaToFna {
                 return;
             }
 
+            if (patchVideo && path.EndsWith(".wmv")) {
+                UpdateVideo(path); // FFMPEG reads from a file and needs to write to another file; Just use the path.
+                return;
+            }
+
         }
 
-        public static void PatchContent(string path, Action<string, BinaryReader, BinaryWriter> patcher) {
-            File.Delete(path + ".tmp");
+        public static void PatchContent(string path, Action<string, BinaryReader, BinaryWriter> patcher, bool writeToTmp = true) {
+            if (writeToTmp) {
+                File.Delete(path + ".tmp");
+            }
+
             using (Stream input = File.OpenRead(path))
             using (BinaryReader reader = new BinaryReader(input))
-            using (Stream output = File.OpenWrite(path + ".tmp"))
-            using (BinaryWriter writer = new BinaryWriter(output))
-                patcher(path, reader, writer);
-            File.Delete(path);
-            File.Move(path + ".tmp", path);
+                if (writeToTmp) {
+                    using (Stream output = File.OpenWrite(path + ".tmp"))
+                    using (BinaryWriter writer = new BinaryWriter(output))
+                        patcher(path, reader, writer);
+                } else {
+                    patcher(path, reader, null);
+                }
+
+            if (writeToTmp) {
+                File.Delete(path);
+                File.Move(path + ".tmp", path);
+            }
         }
 
         public static void RunFFMPEG(string args, Stream input, Stream output, Action<Process> feeder = null, long inputLength = 0) {
@@ -77,21 +92,41 @@ namespace XnaToFna {
 
             ffmpeg.AsyncPipeErr();
 
-            Thread inputPipeThread = new Thread((ThreadStart) (() => feeder(ffmpeg)) ?? delegate () {
-                byte[] dataRaw = new byte[4096];
-                int sizeRaw;
-                Stream ffmpegInStream = ffmpeg.StandardInput.BaseStream;
-                long offset = 0;
-                while (!ffmpeg.HasExited && offset < inputLength) {
-                    offset += sizeRaw = input.Read(dataRaw, 0, Math.Min(dataRaw.Length, (int) (inputLength - offset)));
-                    ffmpegInStream.Write(dataRaw, 0, sizeRaw);
-                    ffmpegInStream.Flush();
+            Thread inputPipeThread = input == null ? null : new Thread(
+                // Reading from feeder
+                feeder != null ? (() => feeder(ffmpeg)) :
+
+                // Reading until the end of input
+                inputLength == 0 ? delegate () {
+                    input.CopyTo(ffmpeg.StandardInput.BaseStream);
+                    ffmpeg.StandardInput.BaseStream.Flush();
+                    ffmpeg.StandardInput.BaseStream.Close();
+                } :
+
+                // Reading a section from input only
+                (ThreadStart) delegate () {
+                    byte[] dataRaw = new byte[4096];
+                    int sizeRaw;
+                    Stream ffmpegInStream = ffmpeg.StandardInput.BaseStream;
+                    long offset = 0;
+                    while (!ffmpeg.HasExited && offset < inputLength) {
+                        offset += sizeRaw = input.Read(dataRaw, 0, Math.Min(dataRaw.Length, (int) (inputLength - offset)));
+                        ffmpegInStream.Write(dataRaw, 0, sizeRaw);
+                        ffmpegInStream.Flush();
+                    }
+                    // ffmpegInStream.Close();
                 }
-                ffmpegInStream.Close();
-            }) {
+            ) {
                 IsBackground = true
             };
-            inputPipeThread.Start();
+            inputPipeThread?.Start();
+
+            // Probably writing to file instead.
+            if (output == null) {
+                ffmpeg.AsyncPipeOut();
+                ffmpeg.WaitForExit();
+                return;
+            }
 
             Stream ffmpegStream = ffmpeg.StandardOutput.BaseStream;
 

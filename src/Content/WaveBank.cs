@@ -19,6 +19,7 @@ namespace XnaToFna {
         }
 
         public static void UpdateWaveBank(string path, BinaryReader reader, BinaryWriter writer) {
+            if (!IsFFMPEGAvailable) return;
             Log($"[UpdateWaveBank] Updating wave bank {path}");
 
             uint offset;
@@ -188,7 +189,7 @@ namespace XnaToFna {
                 // What about xma?
 
                 Log($"[UpdateWaveBank] Converting #{i}");
-                ContentHelper.RunFFMPEG($"-y -i - -acodec pcm_u8 -f wav -", reader.BaseStream, writer.BaseStream, feeder: feeder, inputLength: playLength[i]);
+                RunFFMPEG($"-y -i - -acodec pcm_u8 -f wav -", reader.BaseStream, writer.BaseStream, feeder: feeder, inputLength: playLength[i]);
 
                 uint length = (uint) writer.BaseStream.Position - offset;
                 offset = (uint) writer.BaseStream.Position;

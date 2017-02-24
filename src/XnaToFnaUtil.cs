@@ -51,6 +51,7 @@ namespace XnaToFna {
 
         public bool PatchWaveBanks = true;
         public bool PatchXACTSettings = true;
+        public bool PatchVideo = true;
 
         public XnaToFnaUtil() {
             Modder.ReadingMode = ReadingMode.Immediate;
@@ -236,7 +237,7 @@ namespace XnaToFna {
 
             // List all content files and update accordingly.
             foreach (string path in Directory.EnumerateFiles(ContentDirectory, "*", SearchOption.AllDirectories))
-                ContentHelper.UpdateContent(path, PatchWaveBanks, PatchXACTSettings);
+                ContentHelper.UpdateContent(path, PatchWaveBanks, PatchXACTSettings, PatchVideo);
         }
 
         public void Dispose() {

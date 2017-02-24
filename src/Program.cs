@@ -23,13 +23,11 @@ namespace XnaToFna {
                     xtf.PatchWaveBanks = false;
                 else if (arg == "--skip-xactsettings" || arg == "--skip-xgs")
                     xtf.PatchXACTSettings = false;
+                else if (arg == "--skip-video" || arg == "--skip-wma")
+                    xtf.PatchVideo = false;
                 else
                     xtf.ScanPath(arg);
             }
-
-            // Only patch the WaveBanks if FFMPEG is available.
-            if (xtf.PatchWaveBanks && !ContentHelper.IsFFMPEGAvailable)
-                xtf.PatchWaveBanks = false;
 
             xtf.ScanPath(Assembly.GetExecutingAssembly().Location);
             if (!Debugger.IsAttached) // Otherwise catches XnaToFna.vshost.exe
