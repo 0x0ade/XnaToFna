@@ -2,14 +2,16 @@
 using MonoMod;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace XnaToFna {
-    public class XnaToFnaUtil : IDisposable {
+    public partial class XnaToFnaUtil : IDisposable {
 
         protected static Assembly ThisAssembly = Assembly.GetExecutingAssembly();
         protected static string ThisAssemblyName = ThisAssembly.GetName().Name;
@@ -43,14 +45,17 @@ namespace XnaToFna {
         public MonoModder Modder = new MonoModder();
 
         public DefaultAssemblyResolver AssemblyResolver = new DefaultAssemblyResolver();
-        public List<string> DependencyDirs = new List<string>();
+        public List<string> Directories = new List<string>();
+        public string ContentDirectory;
         public List<ModuleDefinition> Modules = new List<ModuleDefinition>();
+
+        public bool ConvertAudio = true;
 
         public XnaToFnaUtil() {
             Modder.ReadingMode = ReadingMode.Immediate;
 
             Modder.AssemblyResolver = AssemblyResolver;
-            Modder.DependencyDirs = DependencyDirs;
+            Modder.DependencyDirs = Directories;
 
             Modder.Logger = LogMonoMod;
         }
@@ -77,15 +82,22 @@ namespace XnaToFna {
         public void ScanPath(string path) {
             if (Directory.Exists(path)) {
                 // Use the directory as "dependency directory" and scan in it.
-                if (DependencyDirs.Contains(path))
+                if (Directories.Contains(path))
                     // No need to scan the dir if the dir is scanned...
                     return;
 
                 RestoreBackup(path);
 
                 Log($"[ScanPath] Scanning directory {path}");
-                DependencyDirs.Add(path);
+                Directories.Add(path);
                 AssemblyResolver.AddSearchDirectory(path); // Needs to be added manually as DependencyDirs was already added
+
+                if (ContentDirectory == null)
+                    if (Directory.Exists(ContentDirectory = Path.Combine(path, "Content")))
+                        Log($"[ScanPath] Found Content directory:: {ContentDirectory}");
+                    else
+                        ContentDirectory = null;
+
                 ScanPaths(Directory.GetFiles(path));
                 return;
             }
@@ -217,7 +229,7 @@ namespace XnaToFna {
             foreach (ModuleDefinition mod in Modules)
                 mod.Dispose();
             Modules.Clear();
-            DependencyDirs.Clear();
+            Directories.Clear();
         }
 
     }
