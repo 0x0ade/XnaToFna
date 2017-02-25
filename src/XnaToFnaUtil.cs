@@ -209,6 +209,7 @@ namespace XnaToFna {
         }
 
         public void Relink(ModuleDefinition mod) {
+            // TODO Dispose those?
             // Don't relink the relink targets!
             if (Mappings.Exists(mappings => mod.Assembly.Name.Name == mappings.Item1))
                 return;

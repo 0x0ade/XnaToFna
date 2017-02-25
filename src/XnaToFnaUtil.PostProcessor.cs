@@ -11,13 +11,23 @@ namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
         
         public void SetupHelperRelinkMap() {
-            // To use XnaToFnaGame properly, the actual game constructor needs to call XnaToFnaGame::.ctor instead.
+            // To use XnaToFnaGame properly, the actual game override needs to call XnaToFnaGame:: as "base" instead.
             Modder.RelinkMap["System.Void Microsoft.Xna.Framework.Game::.ctor()"] =
                 Tuple.Create("XnaToFna.XnaToFnaGame", "System.Void .ctor()");
+            foreach (MethodInfo method in typeof(XnaToFnaGame).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) {
+                Modder.RelinkMap[method.GetFindableID(type: "Microsoft.Xna.Framework.Game")] =
+                    Tuple.Create("XnaToFna.XnaToFnaGame", method.GetFindableID(withType: false));
+            }
 
             // XNA games expect a WinForms handle. Give it a "proxy" handle instead.
             Modder.RelinkMap["System.IntPtr Microsoft.Xna.Framework.GameWindow::get_Handle()"] =
                 Tuple.Create("XnaToFna.XnaToFnaHelper", "System.IntPtr GetProxyFormHandle(Microsoft.Xna.Framework.GameWindow)");
+
+            // Let's just completely wreck everything.
+            Modder.RelinkMap["System.Windows.Forms.Control"] = "XnaToFna.Forms.ProxyControl";
+            Modder.RelinkMap["System.Windows.Forms.Form"] = "XnaToFna.Forms.ProxyForm";
+            Modder.RelinkMap["System.Windows.Forms.FormBorderStyle"] = "XnaToFna.Forms.FormBorderStyle";
+            Modder.RelinkMap["System.Windows.Forms.FormWindowState"] = "XnaToFna.Forms.FormWindowState";
         }
 
         public void PreProcessType(TypeDefinition type) {

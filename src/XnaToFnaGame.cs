@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XnaToFna.Forms;
 
 namespace XnaToFna {
     /// <summary>
@@ -13,6 +14,11 @@ namespace XnaToFna {
 
         public XnaToFnaGame() {
             XnaToFnaHelper.Initialize(this);
+        }
+
+        protected override void EndDraw() {
+            base.EndDraw();
+            ProxyControl.Form.ApplyChanges();
         }
         
     }

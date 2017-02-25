@@ -38,20 +38,20 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\Content\Video.cs" />
     <Compile Include="src\Content\XACTGlobalSettings.cs" />
+    <Compile Include="src\Forms\Enums.cs" />
+    <Compile Include="src\Forms\ProxyControl.cs" />
     <Compile Include="src\XnaToFnaGame.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\XnaToFnaExt.cs" />
     <Compile Include="src\Content\ContentHelper.cs" />
     <Compile Include="src\Content\WaveBank.cs" />
-    <Compile Include="src\XnaToFnaProxyForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="src\Forms\ProxyForm.cs" />
     <Compile Include="src\XnaToFnaHelper.cs" />
     <Compile Include="src\XnaToFnaUtil.PostProcessor.cs" />
     <Compile Include="src\XnaToFnaUtil.cs" />
