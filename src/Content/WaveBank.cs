@@ -186,25 +186,29 @@ namespace XnaToFna {
                         ffmpegStream.Close();
                     };
                 
-                // What about xma?
+                // What about XMA?
 
                 Log($"[UpdateWaveBank] Converting #{i}");
-                RunFFMPEG($"-y -i - -acodec pcm_u8 -f wav -", reader.BaseStream, writer.BaseStream, feeder: feeder, inputLength: playLength[i]);
+                // FIXME stereo causes "Hell Yeah!" to sound horrible with pcm_u8 and OpenAL to simply fail everywhere with pcm_s16le
+                channels[i] = 1;
+                RunFFMPEG($"-y -i - -acodec pcm_u8 -ac 1 -f wav -", reader.BaseStream, writer.BaseStream, feeder: feeder, inputLength: playLength[i]);
 
                 uint length = (uint) writer.BaseStream.Position - offset;
                 offset = (uint) writer.BaseStream.Position;
                 uint lengthOffset = length - (uint) playLength[i];
 
-                // Update codec
+                // Update codec and format
                 codec[i] = 0;
+                depth[i] = 0; // 0: pcm_u8; 1: pcm_s16le
+                align[i] = 0;
                 if (formatPos[i] != 0) {
                     writer.BaseStream.Seek(formatPos[i], SeekOrigin.Begin);
-                    writer.Write(format =
-                        (codec[i] << 0) |
-                        (channels[i] << 2) |
-                        (rate[i] << (2 + 3)) |
-                        (align[i] << (2 + 3 + 18)) |
-                        (depth[i] << (2 + 3 + 18 + 8))
+                    writer.Write(
+                        ((codec[i] & ((1 << 2) - 1))    << 0) |
+                        ((channels[i] & ((1 << 3) - 1)) << 2) |
+                        ((rate[i] & ((1 << 18) - 1))    << (2 + 3)) |
+                        ((align[i] & ((1 << 8) - 1))    << (2 + 3 + 18)) |
+                        (depth[i]                       << (2 + 3 + 18 + 8))
                     );
                 }
 

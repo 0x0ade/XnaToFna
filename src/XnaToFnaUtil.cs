@@ -96,7 +96,7 @@ namespace XnaToFna {
 
                 if (ContentDirectory == null)
                     if (Directory.Exists(ContentDirectory = Path.Combine(path, "Content")))
-                        Log($"[ScanPath] Found Content directory:: {ContentDirectory}");
+                        Log($"[ScanPath] Found Content directory: {ContentDirectory}");
                     else
                         ContentDirectory = null;
 
