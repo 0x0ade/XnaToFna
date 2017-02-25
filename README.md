@@ -9,16 +9,10 @@ Relinker making <sup>an untested bunch of</sup> games using XNA 4.0 run on Linux
 
 * [Download release](https://github.com/0x0ade/XnaToFna/releases) OR compile using Visual Studio, MonoDevelop, `xbuild` or something that compiles C# code.
 * Put `XnaToFna.exe` into the game directory.
-* Put `FNA.dll` into the game directory.
+* Put `FNA.dll` and the [native libs](http://fna.flibitijibibo.com/archive/fnalibs.tar.bz2) into the game directory.
 * Run `XnaToFna.exe` with Mono on Linux / macOS or .NET Framework on Windows.
 * Keep `XnaToFna.exe` in the game directory because the game now also links to the `XnaToFnaHelper` inside it, whoops.
 * Complain about broken paths, unconverted sound / video assets, Windows-specific P/Invokes and unsupported, closed-source native libraries.
-
-----
-
-#### Note: XnaToFnaHelper hasn't been pushed yet.
-
-----
 
 #### How?
 
@@ -30,7 +24,7 @@ It sets up the relinking map in MonoMod to relink all `Microsoft.Xna.Framework` 
 
 It can relink from `Microsoft.Xna.Framework.Net` and `Microsoft.Xna.Framework.GamerServices` to either `MonoGame.Framework.Net` or `FNA.Steamworks`, depending on which of those two exists in the game directory.
 
-Finally, it applies some pepper and salt here and there (`XmlIgnore` this, `XnaToFnaHelper.ProxyWindowHandle` that).
+Finally, it applies some pepper and salt here and there (`XmlIgnore` this, `XnaToFnaHelper.GetProxyFormHandle` that).
 
 #### What's up with XnaToFna-Legacy?
 

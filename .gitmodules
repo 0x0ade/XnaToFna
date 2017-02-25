@@ -4,3 +4,6 @@
 [submodule "lib-projs/cecil"]
 	path = lib-projs/cecil
 	url = https://github.com/jbevain/cecil.git
+[submodule "lib-projs/FNA"]
+	path = lib-projs/FNA
+	url = https://github.com/FNA-XNA/FNA.git

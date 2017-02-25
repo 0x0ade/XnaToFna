@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace XnaToFna {
-    public class XnaToFnaUtil : IDisposable {
+    public partial class XnaToFnaUtil : IDisposable {
 
         protected static Assembly ThisAssembly = Assembly.GetExecutingAssembly();
         protected static string ThisAssemblyName = ThisAssembly.GetName().Name;
@@ -60,6 +60,9 @@ namespace XnaToFna {
             Modder.DependencyDirs = Directories;
 
             Modder.Logger = LogMonoMod;
+            Modder.MissingDependencyResolver = MissingDependencyResolver;
+
+            SetupHelperRelinkMap();
         }
         public XnaToFnaUtil(params string[] paths)
             : this() {
@@ -68,12 +71,21 @@ namespace XnaToFna {
         }
 
         public void LogMonoMod(string txt) {
+            // MapDependency clutters the output too much; It's useful for MonoMod itself, but not here.
+            if (txt.StartsWith("[MapDependency]"))
+                return;
+
             Console.Write("[XnaToFna] [MonoMod] ");
             Console.WriteLine(txt);
         }
         public void Log(string txt) {
             Console.Write("[XnaToFna] ");
             Console.WriteLine(txt);
+        }
+
+        public ModuleDefinition MissingDependencyResolver(ModuleDefinition main, string name, string fullName) {
+            LogMonoMod($"Cannot map dependency {main.Name} -> (({fullName}), ({name})) - not found");
+            return null;
         }
 
         public void ScanPaths(params string[] paths) {
@@ -94,11 +106,27 @@ namespace XnaToFna {
                 Directories.Add(path);
                 AssemblyResolver.AddSearchDirectory(path); // Needs to be added manually as DependencyDirs was already added
 
-                if (ContentDirectory == null)
-                    if (Directory.Exists(ContentDirectory = Path.Combine(path, "Content")))
-                        Log($"[ScanPath] Found Content directory: {ContentDirectory}");
-                    else
-                        ContentDirectory = null;
+                if (ContentDirectory == null && Directory.Exists(ContentDirectory = Path.Combine(path, "Content"))) {
+                    // Most probably the actual game directory - let's just copy XnaToFna.exe to there to be referenced properly.
+                    string xtfPath = Path.Combine(path, Path.GetFileName(ThisAssembly.Location));
+                    if (Path.GetDirectoryName(ThisAssembly.Location) != path) {
+                        Log($"[ScanPath] Found separate game directory - copying XnaToFna.exe");
+                        File.Copy(ThisAssembly.Location, xtfPath, true);
+
+                        string dbExt = null;
+                        if (File.Exists(Path.ChangeExtension(ThisAssembly.Location, "pdb")))
+                            dbExt = "pdb";
+                        if (File.Exists(Path.ChangeExtension(ThisAssembly.Location, "mdb")))
+                            dbExt = "mdb";
+
+                        if (dbExt != null)
+                            File.Copy(Path.ChangeExtension(ThisAssembly.Location, dbExt), Path.ChangeExtension(xtfPath, dbExt), true);
+
+                    }
+                    Log($"[ScanPath] Found Content directory: {ContentDirectory}");
+                } else {
+                    ContentDirectory = null;
+                }
 
                 ScanPaths(Directory.GetFiles(path));
                 return;
@@ -210,12 +238,25 @@ namespace XnaToFna {
                         break;
                     }
             }
+            if (!mod.AssemblyReferences.Any(dep => dep.Name == ThisAssemblyName)) {
+                // Add XnaToFna as dependency
+                mod.AssemblyReferences.Add(new AssemblyNameReference(ThisAssemblyName, ThisAssembly.GetName().Version));
+            }
+
+            // MonoMod needs to relink some types (f.e. XnaToFnaHelper) via FindType, which requires a dependency map.
+            Log("[Relink] Mapping dependencies in MonoMod (FindType)");
+            Modder.MapDependencies(mod);
+
+            Log($"[Relink] Pre-processing (XnaToFnaHelper)");
+            foreach (TypeDefinition type in mod.Types)
+                PreProcessType(type);
 
             Log($"[Relink] Applying MonoMod PatchRefs pass");
             Modder.PatchRefs();
 
-            // Log($"[Relink] Post-processing (XnaToFnaHelper)");
-            // TODO XnaToFnaHelper
+            Log($"[Relink] Post-processing (XnaToFnaHelper)");
+            foreach (TypeDefinition type in mod.Types)
+                PostProcessType(type);
 
             Log($"[Relink] Rewriting and disposing module");
             Modder.Module.Write();

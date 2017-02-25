@@ -21,7 +21,7 @@ namespace XnaToFna {
 
         public static void UpdateXACTSettings(string path, BinaryReader reader, BinaryWriter writer) {
             Log($"[UpdateXACTSettings] Updating XACT global settings {path}");
-            Log($"[UpdateXACTSettings] This is required as FNA doesn't yet support all crossfade types.");
+            // This is required as FNA doesn't yet support all crossfade types.
 
             // Settings header and versions
             writer.Write(reader.ReadBytes(4 + 3 * 2 + 8 + 1));

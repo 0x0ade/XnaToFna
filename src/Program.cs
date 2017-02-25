@@ -29,7 +29,6 @@ namespace XnaToFna {
                     xtf.ScanPath(arg);
             }
 
-            xtf.ScanPath(Assembly.GetExecutingAssembly().Location);
             if (!Debugger.IsAttached) // Otherwise catches XnaToFna.vshost.exe
                 xtf.ScanPath(Directory.GetCurrentDirectory());
 
