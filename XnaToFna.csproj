@@ -43,10 +43,13 @@
   <ItemGroup>
     <Compile Include="src\Content\Video.cs" />
     <Compile Include="src\Content\XACTGlobalSettings.cs" />
-    <Compile Include="src\Helper\Forms\Enums.cs" />
-    <Compile Include="src\Helper\Forms\Events.cs" />
-    <Compile Include="src\Helper\Forms\Control.cs" />
-    <Compile Include="src\Helper\Forms\Message.cs" />
+    <Compile Include="src\Helper\DeviceEvents.cs" />
+    <Compile Include="src\Helper\ProxyForms\Application.cs" />
+    <Compile Include="src\Helper\ProxyForms\Enums.cs" />
+    <Compile Include="src\Helper\ProxyForms\Events.cs" />
+    <Compile Include="src\Helper\ProxyForms\Control.cs" />
+    <Compile Include="src\Helper\ProxyForms\GameForm.cs" />
+    <Compile Include="src\Helper\ProxyForms\Message.cs" />
     <Compile Include="src\Helper\PInvokeHooks.cs" />
     <Compile Include="src\Helper\KeyboardEvents.cs" />
     <Compile Include="src\XnaToFnaGame.cs" />
@@ -55,7 +58,7 @@
     <Compile Include="src\XnaToFnaExt.cs" />
     <Compile Include="src\Content\ContentHelper.cs" />
     <Compile Include="src\Content\WaveBank.cs" />
-    <Compile Include="src\Helper\Forms\Form.cs" />
+    <Compile Include="src\Helper\ProxyForms\Form.cs" />
     <Compile Include="src\Helper\XnaToFnaHelper.cs" />
     <Compile Include="src\XnaToFnaUtil.PostProcessor.cs" />
     <Compile Include="src\XnaToFnaUtil.cs" />

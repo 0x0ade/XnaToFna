@@ -15,19 +15,22 @@ namespace XnaToFna {
 
         public static XnaToFnaGame Game;
 
-        // The call contains the game window as the instance parameter.
-        public static IntPtr GetProxyFormHandle(this GameWindow window) {
-            if (Form.GameForm == null) {
-                Log("[ProxyForms] Creating game ProxyForms.Form");
-                Form.GameForm = new Form();
-            }
-            return Form.GameForm.Handle;
-        }
+        public static int MaximumGamepadCount;
 
         public static void Initialize(XnaToFnaGame game) {
             Game = game;
 
             game.Window.ClientSizeChanged += SDLWindowSizeChanged;
+
+            string maximumGamepadCountStr = Environment.GetEnvironmentVariable(
+                "FNA_GAMEPAD_NUM_GAMEPADS"
+            );
+            if (string.IsNullOrEmpty(maximumGamepadCountStr) ||
+                !int.TryParse(maximumGamepadCountStr, out MaximumGamepadCount) ||
+                MaximumGamepadCount < 0) {
+                MaximumGamepadCount = Enum.GetNames(typeof(PlayerIndex)).Length;
+            }
+            DeviceEvents.IsGamepadConnected = new bool[MaximumGamepadCount];
 
             PlatformHook("ApplyWindowChanges");
         }
@@ -35,6 +38,15 @@ namespace XnaToFna {
         public static void Log(string s) {
             Console.Write("[XnaToFnaHelper] ");
             Console.WriteLine(s);
+        }
+
+        // The call contains the game window as the instance parameter.
+        public static IntPtr GetProxyFormHandle(this GameWindow window) {
+            if (GameForm.Instance == null) {
+                Log("[ProxyForms] Creating game ProxyForms.GameForm");
+                GameForm.Instance = new GameForm();
+            }
+            return GameForm.Instance.Handle;
         }
 
         public static T GetService<T>() where T : class
@@ -57,7 +69,7 @@ namespace XnaToFna {
 
 
         public static void SDLWindowSizeChanged(object sender, EventArgs e)
-            => Form.GameForm?.SDLWindowSizeChanged(sender, e);
+            => GameForm.Instance?.SDLWindowSizeChanged(sender, e);
 
         public static MulticastDelegate fna_ApplyWindowChanges;
         public static void ApplyWindowChanges(
@@ -72,7 +84,11 @@ namespace XnaToFna {
             fna_ApplyWindowChanges.DynamicInvoke(args);
             resultDeviceName = (string) args[5];
 
-            Form.GameForm?.SDLWindowChanged(window, clientWidth, clientHeight, wantsFullscreen, screenDeviceName, ref resultDeviceName);
+            GameForm.Instance?.SDLWindowChanged(window, clientWidth, clientHeight, wantsFullscreen, screenDeviceName, ref resultDeviceName);
+
+            if (resultDeviceName != screenDeviceName) {
+
+            }
         }
 
     }

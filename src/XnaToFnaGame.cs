@@ -21,12 +21,14 @@ namespace XnaToFna {
             base.Update(gameTime);
             // Don't ask me why some games use Win32 calls instead of Keyboard.GetState()...
             KeyboardEvents.Update();
+            // ... or listening to ALL SYSTEM DEVICE CHANGES instead of GamePad.GetState()...
+            DeviceEvents.Update();
         }
 
         protected override void EndDraw() {
             base.EndDraw();
             // ProxyForm batches the changes and then applies them all at once to f.e. detect being a borderless fullscreen window.
-            Form.GameForm?.ApplyChanges();
+            GameForm.Instance?.ApplyChanges();
         }
         
     }

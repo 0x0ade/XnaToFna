@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 namespace XnaToFna.ProxyForms {
     public class Control {
 
-        internal static List<WeakReference<Control>> INTERNAL_AllControls = new List<WeakReference<Control>>();
+        public static List<WeakReference<Control>> AllControls = new List<WeakReference<Control>>();
 
-        internal int _GlobalIndex;
+        public int GlobalIndex;
         public IntPtr Handle {
             get {
-                return (IntPtr) _GlobalIndex;
+                return (IntPtr) GlobalIndex;
             }
         }
 
@@ -20,23 +20,23 @@ namespace XnaToFna.ProxyForms {
         public virtual Rectangle Bounds { get; set; }
 
         public Control() {
-            _GlobalIndex = INTERNAL_AllControls.Count;
-            XnaToFnaHelper.Log($"[ProxyForms] Creating control {GetType().Name}, globally #{_GlobalIndex}");
-            INTERNAL_AllControls.Add(new WeakReference<Control>(this));
+            GlobalIndex = AllControls.Count;
+            XnaToFnaHelper.Log($"[ProxyForms] Creating control {GetType().Name}, globally #{GlobalIndex}");
+            AllControls.Add(new WeakReference<Control>(this));
         }
 
         public static Control FromHandle(IntPtr ptr) {
-            WeakReference<Control> weakref = INTERNAL_AllControls[(int) ptr];
+            WeakReference<Control> weakref = AllControls[(int) ptr];
             Control control;
             if (weakref == null || !weakref.TryGetTarget(out control)) {
-                INTERNAL_AllControls[(int) ptr] = null;
+                AllControls[(int) ptr] = null;
                 return null;
             }
             return control;
         }
 
         public Form FindForm()
-            => Form ?? Form.GameForm;
+            => Form ?? GameForm.Instance;
 
         public void SetBounds(int x, int y, int w, int h) {
             Bounds = new Rectangle(x, y, w, h);

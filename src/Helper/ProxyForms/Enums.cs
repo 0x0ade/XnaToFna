@@ -29,7 +29,7 @@ namespace XnaToFna.ProxyForms {
     }
 
     // Created from https://wiki.winehq.org/List_Of_Windows_Messages
-    public enum ProxyMessages {
+    public enum Messages {
         WM_NULL = 0x0000,
         WM_CREATE = 0x0001,
         WM_DESTROY = 0x0002,

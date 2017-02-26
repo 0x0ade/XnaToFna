@@ -20,22 +20,26 @@ namespace XnaToFna {
                 IntPtr prevHook = form.WindowHookPtr;
                 form.WindowHookPtr = (IntPtr) dwNewLong;
                 form.WindowHook = Marshal.GetDelegateForFunctionPointer(form.WindowHookPtr, typeof(MulticastDelegate));
-                XnaToFnaHelper.Log($"[PInvokeHooks] Window hook set on ProxyForms.Form #{form._GlobalIndex}");
+                XnaToFnaHelper.Log($"[PInvokeHooks] Window hook set on ProxyForms.Form #{form.GlobalIndex}");
                 return (int) prevHook;
             }
 
             return 0;
         }
 
-        public static IntPtr CallWindowHook(IntPtr hWnd, ProxyMessages Msg, IntPtr wParam, IntPtr lParam)
+        public static IntPtr CallWindowHook(IntPtr hWnd, Messages Msg, IntPtr wParam, IntPtr lParam)
             => (IntPtr) Control.FromHandle(hWnd)?.Form?.WindowHook?.DynamicInvoke(hWnd, (uint) Msg, wParam, lParam);
         public static IntPtr CallWindowHook(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam)
             => (IntPtr) Control.FromHandle(hWnd)?.Form?.WindowHook?.DynamicInvoke(hWnd, Msg, wParam, lParam);
 
+        public static IntPtr CallWindowHook(Messages Msg, IntPtr wParam, IntPtr lParam)
+            => (IntPtr) GameForm.Instance?.WindowHook?.DynamicInvoke(GameForm.Instance.Handle, (uint) Msg, wParam, lParam);
+        public static IntPtr CallWindowHook(uint Msg, IntPtr wParam, IntPtr lParam)
+            => (IntPtr) GameForm.Instance?.WindowHook?.DynamicInvoke(GameForm.Instance.Handle, Msg, wParam, lParam);
+
         public static IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam) {
             if (lpPrevWndFunc == IntPtr.Zero)
                 return IntPtr.Zero;
-
             return (IntPtr) Marshal.GetDelegateForFunctionPointer(lpPrevWndFunc, typeof(MulticastDelegate))
                 .DynamicInvoke(hWnd, Msg, wParam, lParam);
         }

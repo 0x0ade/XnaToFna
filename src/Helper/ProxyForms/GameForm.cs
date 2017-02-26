@@ -5,15 +5,9 @@ using System;
 using System.Collections.Generic;
 
 namespace XnaToFna.ProxyForms {
-    public class Form : Control {
+    public class GameForm : Form {
 
-        private const uint SDL_WINDOW_FULLSCREEN_DESKTOP_ONLY = 0x00001000;
-
-        public static Form GameForm;
-
-        // If something using ProxyForms wants to change the hook directly: Feel free to!
-        public IntPtr WindowHookPtr;
-        public Delegate WindowHook;
+        public static GameForm Instance;
 
         private bool _Dirty = false;
         private bool Dirty {
@@ -65,7 +59,7 @@ namespace XnaToFna.ProxyForms {
         }
 
         private FormBorderStyle _FormBorderStyle = FormBorderStyle.FixedDialog;
-        public FormBorderStyle FormBorderStyle {
+        public override FormBorderStyle FormBorderStyle {
             get {
                 if (Dirty)
                     return _FormBorderStyle;
@@ -82,7 +76,7 @@ namespace XnaToFna.ProxyForms {
         }
 
         private FormWindowState _WindowState = FormWindowState.Normal;
-        public FormWindowState WindowState {
+        public override FormWindowState WindowState {
             get {
                 if (Dirty)
                     return _WindowState;
@@ -99,36 +93,9 @@ namespace XnaToFna.ProxyForms {
             }
         }
 
-
-        public Form() {
-            Form = this;
-        }
-
-
-        public event FormClosingEventHandler FormClosing;
-        public event FormClosedEventHandler FormClosed;
-        protected virtual void OnFormClosing(FormClosingEventArgs e) {
-        }
-        protected virtual void OnFormClosed(FormClosedEventArgs e) {
-        }
-        public void Close() {
-            FormClosingEventArgs closingArgs = new FormClosingEventArgs(CloseReason.None, false);
-            OnFormClosing(closingArgs);
-            FormClosing(this, closingArgs);
-
-            FormClosedEventArgs closedArgs = new FormClosedEventArgs(CloseReason.None);
-            OnFormClosed(closedArgs);
-            FormClosed(this, closedArgs);
-        }
-
         protected override void SetVisibleCore(bool visible) {
-            if (GameForm != this)
-                return;
             // TODO Invoke SetVisibleCore from XnaToFna. Games can override this.
         }
-
-        protected override void WndProc(ref Message msg)
-            => msg.Result = (IntPtr) WindowHook?.DynamicInvoke(msg.HWnd, msg.Msg, msg.WParam, msg.LParam);
 
 
         public void SDLWindowSizeChanged(object sender, EventArgs e) {
@@ -149,6 +116,7 @@ namespace XnaToFna.ProxyForms {
         ) {
             SDLWindowSizeChanged(null, null);
         }
+
 
         /// <summary>
         /// OnStyleChanged gets fired with every change each, not "once" at the end.

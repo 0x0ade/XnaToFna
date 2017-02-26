@@ -81,11 +81,11 @@ namespace XnaToFna.ProxyForms {
         public readonly static CodeAccessPermission UnmanagedCode = new SecurityPermission(SecurityPermissionFlag.UnmanagedCode);
 
         public static string MsgToString(int msg) {
-            if (Enum.IsDefined(typeof(ProxyMessages), msg))
-                return Enum.GetName(typeof(ProxyMessages), msg);
+            if (Enum.IsDefined(typeof(Messages), msg))
+                return Enum.GetName(typeof(Messages), msg);
 
-            if (((msg & (int) ProxyMessages.WM_REFLECT) == (int) ProxyMessages.WM_REFLECT)) {
-                string subtext = MsgToString(msg & (int) ~ProxyMessages.WM_REFLECT);
+            if (((msg & (int) Messages.WM_REFLECT) == (int) Messages.WM_REFLECT)) {
+                string subtext = MsgToString(msg & (int) ~Messages.WM_REFLECT);
                 if (subtext == null) subtext = "???";
                 return "WM_REFLECT + " + subtext;
             }
@@ -108,7 +108,7 @@ namespace XnaToFna.ProxyForms {
                 .Append(" hwnd=0x").Append(Convert.ToString((long) hWnd, 16))
                 .Append(" wparam=0x").Append(Convert.ToString((long) wparam, 16))
                 .Append(" lparam=0x").Append(Convert.ToString((long) lparam, 16))
-                .Parenthesize(msg == (int) ProxyMessages.WM_PARENTNOTIFY ? MsgToString((int) wparam & 0x0000FFFF) : null)
+                .Parenthesize(msg == (int) Messages.WM_PARENTNOTIFY ? MsgToString((int) wparam & 0x0000FFFF) : null)
                 .Append(" result=0x").Append(Convert.ToString((long) result, 16));
             return builder.ToString();
         }
