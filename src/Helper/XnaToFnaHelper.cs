@@ -16,8 +16,13 @@ namespace XnaToFna {
         public static XnaToFnaGame Game;
 
         // The call contains the game window as the instance parameter.
-        public static IntPtr GetProxyFormHandle(this GameWindow window)
-            => IntPtr.Zero;
+        public static IntPtr GetProxyFormHandle(this GameWindow window) {
+            if (ProxyForm.GameForm == null) {
+                Log("[ProxyForm] Creating game ProxyForm");
+                ProxyForm.GameForm = new ProxyForm();
+            }
+            return ProxyForm.GameForm.Handle;
+        }
 
         public static void Initialize(XnaToFnaGame game) {
             Game = game;
@@ -52,7 +57,7 @@ namespace XnaToFna {
 
 
         public static void SDLWindowSizeChanged(object sender, EventArgs e)
-            => ProxyControl.Form?.SDLWindowSizeChanged(sender, e);
+            => ProxyForm.GameForm?.SDLWindowSizeChanged(sender, e);
 
         public static MulticastDelegate fna_ApplyWindowChanges;
         public static void ApplyWindowChanges(
@@ -67,7 +72,7 @@ namespace XnaToFna {
             fna_ApplyWindowChanges.DynamicInvoke(args);
             resultDeviceName = (string) args[5];
 
-            ProxyControl.Form?.SDLWindowChanged(window, clientWidth, clientHeight, wantsFullscreen, screenDeviceName, ref resultDeviceName);
+            ProxyForm.GameForm?.SDLWindowChanged(window, clientWidth, clientHeight, wantsFullscreen, screenDeviceName, ref resultDeviceName);
         }
 
     }

@@ -18,6 +18,16 @@ namespace XnaToFna.Forms {
         Maximized
     }
 
+    public enum CloseReason {
+        None,
+        WindowsShutDown,
+        MdiFormClosing,
+        UserClosing,
+        TaskManagerClosing,
+        FormOwnerClosing,
+        ApplicationExitCall
+    }
+
     // Created from https://wiki.winehq.org/List_Of_Windows_Messages
     public enum ProxyMessages {
         WM_NULL = 0x0000,

@@ -9,6 +9,12 @@ namespace XnaToFna.Forms {
 
         private const uint SDL_WINDOW_FULLSCREEN_DESKTOP_ONLY = 0x00001000;
 
+        public static ProxyForm GameForm;
+
+        // If something using ProxyForm wants to change the hook directly: Feel free to!
+        public IntPtr WindowHookPtr;
+        public Delegate WindowHook;
+
         private bool _Dirty = false;
         private bool Dirty {
             get {
@@ -95,9 +101,34 @@ namespace XnaToFna.Forms {
 
 
         public ProxyForm() {
-            // Some games create their own forms, overriding some methods.
             Form = this;
         }
+
+
+        public event FormClosingEventHandler FormClosing;
+        public event FormClosedEventHandler FormClosed;
+        protected virtual void OnFormClosing(FormClosingEventArgs e) {
+        }
+        protected virtual void OnFormClosed(FormClosedEventArgs e) {
+        }
+        public void Close() {
+            FormClosingEventArgs closingArgs = new FormClosingEventArgs(CloseReason.None, false);
+            OnFormClosing(closingArgs);
+            FormClosing(this, closingArgs);
+
+            FormClosedEventArgs closedArgs = new FormClosedEventArgs(CloseReason.None);
+            OnFormClosed(closedArgs);
+            FormClosed(this, closedArgs);
+        }
+
+        protected override void SetVisibleCore(bool visible) {
+            if (GameForm != this)
+                return;
+            // TODO Invoke SetVisibleCore from XnaToFna. Games can override this.
+        }
+
+        protected override void WndProc(ref ProxyMessage msg)
+            => msg.Result = (IntPtr) WindowHook?.DynamicInvoke(msg.HWnd, msg.Msg, msg.WParam, msg.LParam);
 
 
         public void SDLWindowSizeChanged(object sender, EventArgs e) {

@@ -26,7 +26,7 @@ namespace XnaToFna {
         protected override void EndDraw() {
             base.EndDraw();
             // ProxyForm batches the changes and then applies them all at once to f.e. detect being a borderless fullscreen window.
-            ProxyControl.Form.ApplyChanges();
+            ProxyForm.GameForm?.ApplyChanges();
         }
         
     }

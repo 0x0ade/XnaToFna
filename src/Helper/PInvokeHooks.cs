@@ -10,16 +10,17 @@ namespace XnaToFna {
     public delegate IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
     public static partial class PInvokeHooks {
 
-        public static IntPtr WindowHookPtr;
-        public static Delegate WindowHook;
-
         public static int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong) {
-            // hWnd can be freely ignored as it's ProxyControl.Form.Handle anyway
             // All other nIndex values seem to be style-related.
             if (nIndex == -4) {
-                IntPtr prevHook = WindowHookPtr;
-                WindowHook = Marshal.GetDelegateForFunctionPointer((IntPtr) dwNewLong, typeof(MulticastDelegate));
-                XnaToFnaHelper.Log("[PInvokeHooks] Window hook set.");
+                ProxyForm form = ProxyControl.FromHandle(hWnd)?.Form;
+                if (form == null)
+                    return 0;
+
+                IntPtr prevHook = form.WindowHookPtr;
+                form.WindowHookPtr = (IntPtr) dwNewLong;
+                form.WindowHook = Marshal.GetDelegateForFunctionPointer(form.WindowHookPtr, typeof(MulticastDelegate));
+                XnaToFnaHelper.Log($"[PInvokeHooks] Window hook set on ProxyForm #{form._GlobalIndex}");
                 return (int) prevHook;
             }
 
@@ -27,9 +28,9 @@ namespace XnaToFna {
         }
 
         public static IntPtr CallWindowHook(IntPtr hWnd, ProxyMessages Msg, IntPtr wParam, IntPtr lParam)
-            => (IntPtr) WindowHook?.DynamicInvoke(hWnd, (uint) Msg, wParam, lParam);
+            => (IntPtr) ProxyControl.FromHandle(hWnd)?.Form?.WindowHook?.DynamicInvoke(hWnd, (uint) Msg, wParam, lParam);
         public static IntPtr CallWindowHook(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam)
-            => (IntPtr) WindowHook?.DynamicInvoke(hWnd, Msg, wParam, lParam);
+            => (IntPtr) ProxyControl.FromHandle(hWnd)?.Form?.WindowHook?.DynamicInvoke(hWnd, Msg, wParam, lParam);
 
         public static IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam) {
             if (lpPrevWndFunc == IntPtr.Zero)

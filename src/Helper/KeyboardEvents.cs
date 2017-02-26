@@ -15,17 +15,17 @@ namespace XnaToFna {
         public static HashSet<Keys> Down = new HashSet<Keys>();
 
         public static void KeyDown(Keys key)
-            => PInvokeHooks.CallWindowHook(IntPtr.Zero, ProxyMessages.WM_KEYDOWN, (IntPtr) key, IntPtr.Zero);
+            => PInvokeHooks.CallWindowHook(ProxyForm.GameForm.Handle, ProxyMessages.WM_KEYDOWN, (IntPtr) key, IntPtr.Zero);
 
         public static void KeyUp(Keys key)
-            => PInvokeHooks.CallWindowHook(IntPtr.Zero, ProxyMessages.WM_KEYUP, (IntPtr) key, IntPtr.Zero);
+            => PInvokeHooks.CallWindowHook(ProxyForm.GameForm.Handle, ProxyMessages.WM_KEYUP, (IntPtr) key, IntPtr.Zero);
 
         public static void CharEntered(char c)
-            => PInvokeHooks.CallWindowHook(IntPtr.Zero, ProxyMessages.WM_CHAR, (IntPtr) c, IntPtr.Zero);
+            => PInvokeHooks.CallWindowHook(ProxyForm.GameForm.Handle, ProxyMessages.WM_CHAR, (IntPtr) c, IntPtr.Zero);
 
-        // Unclear how this should be used
+        // Unclear how / where this should be invoked
         public static void SetContext(bool wParam)
-            => PInvokeHooks.CallWindowHook(IntPtr.Zero, ProxyMessages.WM_IME_SETCONTEXT, (IntPtr) (wParam ? 1 : 0), IntPtr.Zero);
+            => PInvokeHooks.CallWindowHook(ProxyForm.GameForm.Handle, ProxyMessages.WM_IME_SETCONTEXT, (IntPtr) (wParam ? 1 : 0), IntPtr.Zero);
 
         public static void Update() {
             Keys[] keys = Keyboard.GetState().GetPressedKeys();
