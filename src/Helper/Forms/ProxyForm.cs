@@ -173,8 +173,6 @@ namespace XnaToFna.Forms {
                 gdm.ApplyChanges();
             }
 
-
-
             Dirty = false;
         }
 

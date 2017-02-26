@@ -31,10 +31,17 @@ namespace XnaToFna {
         }
 
         public void PreProcessType(TypeDefinition type) {
-            // TODO Setup PInvoke relink map here.
-
             foreach (MethodDefinition method in type.Methods) {
-                if (method.HasBody) continue;
+                if (!method.HasPInvokeInfo) continue;
+                // Just check if PInvokeHooks contains the entry point, ignoring the module name, except for its end. What can go wrong?...
+                if (!method.PInvokeInfo.Module.Name.EndsWith("32.dll"))
+                    continue;
+                string entryPoint = method.PInvokeInfo.EntryPoint ?? method.Name;
+                if (typeof(PInvokeHooks).GetMethod(entryPoint) != null) {
+                    Log($"[PreProcess] [PInvokeHooks] Remapping {method.GetFindableID()} ({entryPoint})");
+                    Modder.RelinkMap[method.GetFindableID()] =
+                        Tuple.Create("XnaToFna.PInvokeHooks", method.GetFindableID(withType: false));
+                }
             }
 
             foreach (TypeDefinition nested in type.NestedTypes)
