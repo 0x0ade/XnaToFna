@@ -54,9 +54,14 @@ namespace XnaToFna {
         public static IntPtr ImmGetContext(IntPtr hWnd) {
             TextInputEXT.TextInput += KeyboardEvents.CharEntered;
             TextInputEXT.StartTextInput();
-
             // Not required for FNA
             return IntPtr.Zero;
+        }
+
+        public static bool ImmReleaseContext(IntPtr hWnd, IntPtr hIMC) {
+            TextInputEXT.TextInput -= KeyboardEvents.CharEntered;
+            TextInputEXT.StopTextInput();
+            return true;
         }
     }
 }

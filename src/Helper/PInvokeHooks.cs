@@ -20,7 +20,7 @@ namespace XnaToFna {
             if (nIndex == -4) {
                 IntPtr prevHook = WindowHookPtr;
                 WindowHook = Marshal.GetDelegateForFunctionPointer((IntPtr) dwNewLong, typeof(MulticastDelegate));
-                XnaToFnaHelper.Log("[PInvokeHooks] Set window hook.");
+                XnaToFnaHelper.Log("[PInvokeHooks] Window hook set.");
                 return (int) prevHook;
             }
 
