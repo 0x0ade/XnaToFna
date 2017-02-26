@@ -15,17 +15,17 @@ namespace XnaToFna {
         public static HashSet<Keys> Down = new HashSet<Keys>();
 
         public static void KeyDown(Keys key)
-            => PInvokeHooks.CallWindowHook(IntPtr.Zero, 256, (IntPtr) key, IntPtr.Zero);
+            => PInvokeHooks.CallWindowHook(IntPtr.Zero, ProxyMessages.WM_KEYDOWN, (IntPtr) key, IntPtr.Zero);
 
         public static void KeyUp(Keys key)
-            => PInvokeHooks.CallWindowHook(IntPtr.Zero, 257, (IntPtr) key, IntPtr.Zero);
+            => PInvokeHooks.CallWindowHook(IntPtr.Zero, ProxyMessages.WM_KEYUP, (IntPtr) key, IntPtr.Zero);
 
         public static void CharEntered(char c)
-            => PInvokeHooks.CallWindowHook(IntPtr.Zero, 258, (IntPtr) c, IntPtr.Zero);
+            => PInvokeHooks.CallWindowHook(IntPtr.Zero, ProxyMessages.WM_CHAR, (IntPtr) c, IntPtr.Zero);
 
         // Unclear how this should be used
         public static void SetContext(bool wParam)
-            => PInvokeHooks.CallWindowHook(IntPtr.Zero, 641, (IntPtr) (wParam ? 1 : 0), IntPtr.Zero);
+            => PInvokeHooks.CallWindowHook(IntPtr.Zero, ProxyMessages.WM_IME_SETCONTEXT, (IntPtr) (wParam ? 1 : 0), IntPtr.Zero);
 
         public static void Update() {
             Keys[] keys = Keyboard.GetState().GetPressedKeys();

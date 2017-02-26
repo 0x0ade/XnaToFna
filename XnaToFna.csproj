@@ -45,6 +45,7 @@
     <Compile Include="src\Content\XACTGlobalSettings.cs" />
     <Compile Include="src\Helper\Forms\Enums.cs" />
     <Compile Include="src\Helper\Forms\ProxyControl.cs" />
+    <Compile Include="src\Helper\Forms\ProxyMessage.cs" />
     <Compile Include="src\Helper\PInvokeHooks.cs" />
     <Compile Include="src\Helper\KeyboardEvents.cs" />
     <Compile Include="src\XnaToFnaGame.cs" />

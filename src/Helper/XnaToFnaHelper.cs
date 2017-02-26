@@ -22,7 +22,7 @@ namespace XnaToFna {
         public static void Initialize(XnaToFnaGame game) {
             Game = game;
 
-            game.Window.ClientSizeChanged += ProxyControl.Form.SDLWindowSizeChanged;
+            game.Window.ClientSizeChanged += SDLWindowSizeChanged;
 
             PlatformHook("ApplyWindowChanges");
         }
@@ -50,6 +50,10 @@ namespace XnaToFna {
             field.SetValue(null, Delegate.CreateDelegate(fna.GetType($"Microsoft.Xna.Framework.FNAPlatform+{name}Func"), t_Helper.GetMethod(name)));
         }
 
+
+        public static void SDLWindowSizeChanged(object sender, EventArgs e)
+            => ProxyControl.Form?.SDLWindowSizeChanged(sender, e);
+
         public static MulticastDelegate fna_ApplyWindowChanges;
         public static void ApplyWindowChanges(
             IntPtr window,
@@ -63,7 +67,7 @@ namespace XnaToFna {
             fna_ApplyWindowChanges.DynamicInvoke(args);
             resultDeviceName = (string) args[5];
 
-            ProxyControl.Form.SDLWindowChanged(window, clientWidth, clientHeight, wantsFullscreen, screenDeviceName, ref resultDeviceName);
+            ProxyControl.Form?.SDLWindowChanged(window, clientWidth, clientHeight, wantsFullscreen, screenDeviceName, ref resultDeviceName);
         }
 
     }

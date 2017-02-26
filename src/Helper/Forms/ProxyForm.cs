@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 
 namespace XnaToFna.Forms {
-    public sealed class ProxyForm : ProxyControl {
+    public class ProxyForm : ProxyControl {
 
         private const uint SDL_WINDOW_FULLSCREEN_DESKTOP_ONLY = 0x00001000;
 
@@ -92,6 +92,13 @@ namespace XnaToFna.Forms {
                 _WindowState = value;
             }
         }
+
+
+        public ProxyForm() {
+            // Some games create their own forms, overriding some methods.
+            Form = this;
+        }
+
 
         public void SDLWindowSizeChanged(object sender, EventArgs e) {
             Rectangle sdlBounds = SDLBounds;

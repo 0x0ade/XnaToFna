@@ -28,6 +28,7 @@ namespace XnaToFna {
             Modder.RelinkMap["System.Windows.Forms.Form"] = "XnaToFna.Forms.ProxyForm";
             Modder.RelinkMap["System.Windows.Forms.FormBorderStyle"] = "XnaToFna.Forms.FormBorderStyle";
             Modder.RelinkMap["System.Windows.Forms.FormWindowState"] = "XnaToFna.Forms.FormWindowState";
+            Modder.RelinkMap["System.Windows.Forms.Message"] = "XnaToFna.Forms.ProxyMessage";
         }
 
         public void PreProcessType(TypeDefinition type) {

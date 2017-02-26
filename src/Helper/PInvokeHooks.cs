@@ -7,9 +7,8 @@ using System.Runtime.InteropServices;
 using XnaToFna.Forms;
 
 namespace XnaToFna {
+    public delegate IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
     public static partial class PInvokeHooks {
-
-        public delegate IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         public static IntPtr WindowHookPtr;
         public static Delegate WindowHook;
@@ -27,8 +26,10 @@ namespace XnaToFna {
             return 0;
         }
 
+        public static IntPtr CallWindowHook(IntPtr hWnd, ProxyMessages Msg, IntPtr wParam, IntPtr lParam)
+            => (IntPtr) WindowHook?.DynamicInvoke(hWnd, (uint) Msg, wParam, lParam);
         public static IntPtr CallWindowHook(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam)
-            => (IntPtr) WindowHook.DynamicInvoke(hWnd, Msg, wParam, lParam);
+            => (IntPtr) WindowHook?.DynamicInvoke(hWnd, Msg, wParam, lParam);
 
         public static IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam) {
             if (lpPrevWndFunc == IntPtr.Zero)
