@@ -21,5 +21,9 @@ namespace XnaToFna.Forms {
         public ProxyForm FindForm()
             => Form;
 
+        public void SetBounds(int x, int y, int w, int h) {
+            Bounds = new Rectangle(x, y, w, h);
+        }
+
     }
 }
