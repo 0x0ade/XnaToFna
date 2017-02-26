@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using XnaToFna.Forms;
+using XnaToFna.ProxyForms;
 
 namespace XnaToFna {
     public static class KeyboardEvents {
@@ -15,17 +15,17 @@ namespace XnaToFna {
         public static HashSet<Keys> Down = new HashSet<Keys>();
 
         public static void KeyDown(Keys key)
-            => PInvokeHooks.CallWindowHook(ProxyForm.GameForm.Handle, ProxyMessages.WM_KEYDOWN, (IntPtr) key, IntPtr.Zero);
+            => PInvokeHooks.CallWindowHook(Form.GameForm.Handle, ProxyMessages.WM_KEYDOWN, (IntPtr) key, IntPtr.Zero);
 
         public static void KeyUp(Keys key)
-            => PInvokeHooks.CallWindowHook(ProxyForm.GameForm.Handle, ProxyMessages.WM_KEYUP, (IntPtr) key, IntPtr.Zero);
+            => PInvokeHooks.CallWindowHook(Form.GameForm.Handle, ProxyMessages.WM_KEYUP, (IntPtr) key, IntPtr.Zero);
 
         public static void CharEntered(char c)
-            => PInvokeHooks.CallWindowHook(ProxyForm.GameForm.Handle, ProxyMessages.WM_CHAR, (IntPtr) c, IntPtr.Zero);
+            => PInvokeHooks.CallWindowHook(Form.GameForm.Handle, ProxyMessages.WM_CHAR, (IntPtr) c, IntPtr.Zero);
 
         // Unclear how / where this should be invoked
         public static void SetContext(bool wParam)
-            => PInvokeHooks.CallWindowHook(ProxyForm.GameForm.Handle, ProxyMessages.WM_IME_SETCONTEXT, (IntPtr) (wParam ? 1 : 0), IntPtr.Zero);
+            => PInvokeHooks.CallWindowHook(Form.GameForm.Handle, ProxyMessages.WM_IME_SETCONTEXT, (IntPtr) (wParam ? 1 : 0), IntPtr.Zero);
 
         public static void Update() {
             Keys[] keys = Keyboard.GetState().GetPressedKeys();

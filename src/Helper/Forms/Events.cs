@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace XnaToFna.Forms {
+namespace XnaToFna.ProxyForms {
 
     public delegate void FormClosingEventHandler(object sender, FormClosingEventArgs e);
     public class FormClosingEventArgs : CancelEventArgs {

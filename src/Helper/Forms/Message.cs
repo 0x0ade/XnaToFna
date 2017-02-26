@@ -6,9 +6,9 @@ using System.Security;
 using System.Security.Permissions;
 using System.Text;
 
-namespace XnaToFna.Forms {
+namespace XnaToFna.ProxyForms {
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
-    public struct ProxyMessage {
+    public struct Message {
         
         public IntPtr HWnd {
             get; set;
@@ -33,8 +33,8 @@ namespace XnaToFna.Forms {
         public object GetLParam(Type cls)
             => Marshal.PtrToStructure(LParam, cls);
 
-        public static ProxyMessage Create(IntPtr hWnd, int msg, IntPtr wparam, IntPtr lparam)
-            => new ProxyMessage {
+        public static Message Create(IntPtr hWnd, int msg, IntPtr wparam, IntPtr lparam)
+            => new Message {
                 HWnd = hWnd,
                 Msg = msg,
                 WParam = wparam,
@@ -43,9 +43,9 @@ namespace XnaToFna.Forms {
             };
 
         public override bool Equals(object o) {
-            if (!(o is ProxyMessage))
+            if (!(o is Message))
                 return false;
-            ProxyMessage other = (ProxyMessage) o;
+            Message other = (Message) o;
             return
                 HWnd == other.HWnd &&
                 Msg == other.Msg &&
@@ -54,10 +54,10 @@ namespace XnaToFna.Forms {
                 Result == other.Result;
         }
 
-        public static bool operator !=(ProxyMessage a, ProxyMessage b)
+        public static bool operator !=(Message a, Message b)
             => !a.Equals(b);
 
-        public static bool operator ==(ProxyMessage a, ProxyMessage b)
+        public static bool operator ==(Message a, Message b)
             => a.Equals(b);
 
         public override int GetHashCode()
@@ -97,7 +97,7 @@ namespace XnaToFna.Forms {
             => !string.IsNullOrEmpty(input) ? builder.Append(" (").Append(input).Append(")") : builder;
 
 
-        public static string ToString(ProxyMessage message) {
+        public static string ToString(Message message) {
             return ToString(message.HWnd, message.Msg, message.WParam, message.LParam, message.Result);
         }
 

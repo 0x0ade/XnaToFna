@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using XnaToFna.ProxyForms;
 
 namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
@@ -24,11 +25,11 @@ namespace XnaToFna {
                 Tuple.Create("XnaToFna.XnaToFnaHelper", "System.IntPtr GetProxyFormHandle(Microsoft.Xna.Framework.GameWindow)");
 
             // Let's just completely wreck everything.
-            Modder.RelinkMap["System.Windows.Forms.Control"] = "XnaToFna.Forms.ProxyControl";
-            Modder.RelinkMap["System.Windows.Forms.Form"] = "XnaToFna.Forms.ProxyForm";
-            Modder.RelinkMap["System.Windows.Forms.FormBorderStyle"] = "XnaToFna.Forms.FormBorderStyle";
-            Modder.RelinkMap["System.Windows.Forms.FormWindowState"] = "XnaToFna.Forms.FormWindowState";
-            Modder.RelinkMap["System.Windows.Forms.Message"] = "XnaToFna.Forms.ProxyMessage";
+            foreach (Type type in typeof(Form).Assembly.GetTypes()) {
+                string name = type.FullName;
+                if (name.StartsWith("XnaToFna.ProxyForms."))
+                    Modder.RelinkMap["System.Windows.Forms." + name.Substring(20)] = name;
+            }
         }
 
         public void PreProcessType(TypeDefinition type) {

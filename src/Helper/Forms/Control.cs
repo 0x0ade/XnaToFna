@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace XnaToFna.Forms {
-    public class ProxyControl {
+namespace XnaToFna.ProxyForms {
+    public class Control {
 
-        internal static List<WeakReference<ProxyControl>> INTERNAL_AllControls = new List<WeakReference<ProxyControl>>();
+        internal static List<WeakReference<Control>> INTERNAL_AllControls = new List<WeakReference<Control>>();
 
         internal int _GlobalIndex;
         public IntPtr Handle {
@@ -15,19 +15,19 @@ namespace XnaToFna.Forms {
             }
         }
 
-        public ProxyForm Form;
+        public Form Form;
 
         public virtual Rectangle Bounds { get; set; }
 
-        public ProxyControl() {
+        public Control() {
             _GlobalIndex = INTERNAL_AllControls.Count;
-            XnaToFnaHelper.Log($"[ProxyForm] Creating ProxyControl {GetType().Name}, globally #{_GlobalIndex}");
-            INTERNAL_AllControls.Add(new WeakReference<ProxyControl>(this));
+            XnaToFnaHelper.Log($"[ProxyForms] Creating control {GetType().Name}, globally #{_GlobalIndex}");
+            INTERNAL_AllControls.Add(new WeakReference<Control>(this));
         }
 
-        public static ProxyControl FromHandle(IntPtr ptr) {
-            WeakReference<ProxyControl> weakref = INTERNAL_AllControls[(int) ptr];
-            ProxyControl control;
+        public static Control FromHandle(IntPtr ptr) {
+            WeakReference<Control> weakref = INTERNAL_AllControls[(int) ptr];
+            Control control;
             if (weakref == null || !weakref.TryGetTarget(out control)) {
                 INTERNAL_AllControls[(int) ptr] = null;
                 return null;
@@ -35,8 +35,8 @@ namespace XnaToFna.Forms {
             return control;
         }
 
-        public ProxyForm FindForm()
-            => Form ?? ProxyForm.GameForm;
+        public Form FindForm()
+            => Form ?? Form.GameForm;
 
         public void SetBounds(int x, int y, int w, int h) {
             Bounds = new Rectangle(x, y, w, h);
@@ -54,7 +54,7 @@ namespace XnaToFna.Forms {
             // no-op
         }
 
-        protected virtual void WndProc(ref ProxyMessage msg) {
+        protected virtual void WndProc(ref Message msg) {
             // no-op
         }
 

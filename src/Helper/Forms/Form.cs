@@ -4,14 +4,14 @@ using SDL2;
 using System;
 using System.Collections.Generic;
 
-namespace XnaToFna.Forms {
-    public class ProxyForm : ProxyControl {
+namespace XnaToFna.ProxyForms {
+    public class Form : Control {
 
         private const uint SDL_WINDOW_FULLSCREEN_DESKTOP_ONLY = 0x00001000;
 
-        public static ProxyForm GameForm;
+        public static Form GameForm;
 
-        // If something using ProxyForm wants to change the hook directly: Feel free to!
+        // If something using ProxyForms wants to change the hook directly: Feel free to!
         public IntPtr WindowHookPtr;
         public Delegate WindowHook;
 
@@ -100,7 +100,7 @@ namespace XnaToFna.Forms {
         }
 
 
-        public ProxyForm() {
+        public Form() {
             Form = this;
         }
 
@@ -127,7 +127,7 @@ namespace XnaToFna.Forms {
             // TODO Invoke SetVisibleCore from XnaToFna. Games can override this.
         }
 
-        protected override void WndProc(ref ProxyMessage msg)
+        protected override void WndProc(ref Message msg)
             => msg.Result = (IntPtr) WindowHook?.DynamicInvoke(msg.HWnd, msg.Msg, msg.WParam, msg.LParam);
 
 
@@ -168,16 +168,16 @@ namespace XnaToFna.Forms {
             bool wasFakeFullscreenWindow = FakeFullscreenWindow;
             FakeFullscreenWindow = maximized && borderless;
 
-            XnaToFnaHelper.Log("[ProxyForm] Applying changes from ProxyForm to SDL window");
-            XnaToFnaHelper.Log($"[ProxyForm] Currently fullscreen: {fullscreen}; Fake fullscreen window: {FakeFullscreenWindow}; Border: {FormBorderStyle}; State: {WindowState}");
+            XnaToFnaHelper.Log("[ProxyForms] Applying changes from ProxyForms.Form to SDL window");
+            XnaToFnaHelper.Log($"[ProxyForms] Currently fullscreen: {fullscreen}; Fake fullscreen window: {FakeFullscreenWindow}; Border: {FormBorderStyle}; State: {WindowState}");
 
             if (FakeFullscreenWindow) {
-                XnaToFnaHelper.Log("[ProxyForm] Game expects borderless fullscreen... give it proper fullscreen instead.");
+                XnaToFnaHelper.Log("[ProxyForms] Game expects borderless fullscreen... give it proper fullscreen instead.");
 
                 if (!fullscreen)
                     WindowedBounds = SDLBounds;
 
-                XnaToFnaHelper.Log($"[ProxyForm] Last window size: {WindowedBounds.Width} x {WindowedBounds.Height}");
+                XnaToFnaHelper.Log($"[ProxyForms] Last window size: {WindowedBounds.Width} x {WindowedBounds.Height}");
 
                 DisplayMode dm = gdm.GraphicsDevice.DisplayMode;
                 // This feels so wrong.
@@ -190,7 +190,7 @@ namespace XnaToFna.Forms {
 
             } else {
                 if (wasFakeFullscreenWindow) {
-                    XnaToFnaHelper.Log("[ProxyForm] Leaving fake borderless fullscreen.");
+                    XnaToFnaHelper.Log("[ProxyForms] Leaving fake borderless fullscreen.");
                     gdm.IsFullScreen = false;
                 }
 
@@ -205,7 +205,7 @@ namespace XnaToFna.Forms {
                 }
 
                 // This also feels so wrong.
-                XnaToFnaHelper.Log($"[ProxyForm] New window size: {_Bounds.Width} x {_Bounds.Height}");
+                XnaToFnaHelper.Log($"[ProxyForms] New window size: {_Bounds.Width} x {_Bounds.Height}");
                 gdm.PreferredBackBufferWidth = _Bounds.Width;
                 gdm.PreferredBackBufferHeight = _Bounds.Height;
                 gdm.ApplyChanges();

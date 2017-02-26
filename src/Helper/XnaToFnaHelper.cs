@@ -5,7 +5,7 @@ using SDL2;
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using XnaToFna.Forms;
+using XnaToFna.ProxyForms;
 
 namespace XnaToFna {
     /// <summary>
@@ -17,11 +17,11 @@ namespace XnaToFna {
 
         // The call contains the game window as the instance parameter.
         public static IntPtr GetProxyFormHandle(this GameWindow window) {
-            if (ProxyForm.GameForm == null) {
-                Log("[ProxyForm] Creating game ProxyForm");
-                ProxyForm.GameForm = new ProxyForm();
+            if (Form.GameForm == null) {
+                Log("[ProxyForms] Creating game ProxyForms.Form");
+                Form.GameForm = new Form();
             }
-            return ProxyForm.GameForm.Handle;
+            return Form.GameForm.Handle;
         }
 
         public static void Initialize(XnaToFnaGame game) {
@@ -57,7 +57,7 @@ namespace XnaToFna {
 
 
         public static void SDLWindowSizeChanged(object sender, EventArgs e)
-            => ProxyForm.GameForm?.SDLWindowSizeChanged(sender, e);
+            => Form.GameForm?.SDLWindowSizeChanged(sender, e);
 
         public static MulticastDelegate fna_ApplyWindowChanges;
         public static void ApplyWindowChanges(
@@ -72,7 +72,7 @@ namespace XnaToFna {
             fna_ApplyWindowChanges.DynamicInvoke(args);
             resultDeviceName = (string) args[5];
 
-            ProxyForm.GameForm?.SDLWindowChanged(window, clientWidth, clientHeight, wantsFullscreen, screenDeviceName, ref resultDeviceName);
+            Form.GameForm?.SDLWindowChanged(window, clientWidth, clientHeight, wantsFullscreen, screenDeviceName, ref resultDeviceName);
         }
 
     }

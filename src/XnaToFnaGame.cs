@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using XnaToFna.Forms;
+using XnaToFna.ProxyForms;
 
 namespace XnaToFna {
     /// <summary>
@@ -26,7 +26,7 @@ namespace XnaToFna {
         protected override void EndDraw() {
             base.EndDraw();
             // ProxyForm batches the changes and then applies them all at once to f.e. detect being a borderless fullscreen window.
-            ProxyForm.GameForm?.ApplyChanges();
+            Form.GameForm?.ApplyChanges();
         }
         
     }

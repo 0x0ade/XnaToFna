@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace XnaToFna.Forms {
+namespace XnaToFna.ProxyForms {
     public enum FormBorderStyle {
         None,
         FixedSingle,
