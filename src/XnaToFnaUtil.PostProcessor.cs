@@ -27,8 +27,13 @@ namespace XnaToFna {
             // Let's just completely wreck everything.
             foreach (Type type in typeof(Form).Assembly.GetTypes()) {
                 string name = type.FullName;
+
+                // Substitute WinForms for ProxyForms
                 if (name.StartsWith("XnaToFna.ProxyForms."))
-                    Modder.RelinkMap["System.Windows.Forms." + name.Substring(20)] = name;
+                    Modder.RelinkMap["System.Windows.Forms." + name.Substring(9 + 11)] = name;
+                // Some XNA games use DInput... let's just substitute all DInput references with our ProxyDInput.
+                else if (name.StartsWith("XnaToFna.ProxyDInput."))
+                    Modder.RelinkMap[/* no namespace */ name.Substring(9 + 12)] = name;
             }
         }
 

@@ -19,7 +19,7 @@ namespace XnaToFna {
 
                 IntPtr prevHook = form.WindowHookPtr;
                 form.WindowHookPtr = (IntPtr) dwNewLong;
-                form.WindowHook = Marshal.GetDelegateForFunctionPointer(form.WindowHookPtr, typeof(MulticastDelegate));
+                form.WindowHook = Marshal.GetDelegateForFunctionPointer(form.WindowHookPtr, typeof(WndProc));
                 XnaToFnaHelper.Log($"[PInvokeHooks] Window hook set on ProxyForms.Form #{form.GlobalIndex}");
                 return (int) prevHook;
             }

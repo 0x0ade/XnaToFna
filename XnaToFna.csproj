@@ -44,6 +44,8 @@
     <Compile Include="src\Content\Video.cs" />
     <Compile Include="src\Content\XACTGlobalSettings.cs" />
     <Compile Include="src\Helper\DeviceEvents.cs" />
+    <Compile Include="src\Helper\ProxyDInput\DInputState.cs" />
+    <Compile Include="src\Helper\ProxyDInput\DInput.cs" />
     <Compile Include="src\Helper\ProxyForms\Application.cs" />
     <Compile Include="src\Helper\ProxyForms\Enums.cs" />
     <Compile Include="src\Helper\ProxyForms\Events.cs" />
@@ -190,6 +192,7 @@
       <Name>FNA</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
