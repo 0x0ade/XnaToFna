@@ -12,7 +12,7 @@ namespace XnaToFna.ProxyDInput {
     public static class DInput { // original: public class DInput : IDisposable
 
         // Either make this fake DInput act as a "proxy" or just fail initializing.
-        public static bool IsProxy = Environment.GetEnvironmentVariable("XTF_PROXY_DINPUT") != "1";
+        public static bool IsProxy = Environment.GetEnvironmentVariable("XTF_PROXY_DINPUT") != "0";
 
         // DInput doesn't cache, but whatever.
         public static DInputState[] States = new DInputState[0];
