@@ -227,7 +227,9 @@ namespace XnaToFna {
             for (int i = 0; i < mod.AssemblyReferences.Count; i++) {
                 AssemblyNameReference dep = mod.AssemblyReferences[i];
                 foreach (Tuple<string, string[]> mappings in Mappings)
-                    if (mappings.Item2.Contains(dep.Name)) {
+                    if (mappings.Item2.Contains(dep.Name) &&
+                        // Check if the target module has been found and cached
+                        Modder.DependencyCache.ContainsKey(mappings.Item1)) {
                         // Check if module already depends on the remap
                         if (mod.AssemblyReferences.Any(existingDep => existingDep.Name == mappings.Item1)) {
                             // If so, just remove the dependency.
@@ -236,18 +238,18 @@ namespace XnaToFna {
                             break;
                         }
                         // Replace the dependency.
-                        mod.AssemblyReferences[i] = new AssemblyNameReference(mappings.Item1, new Version(0, 0, 0, 0));
+                        mod.AssemblyReferences[i] = Modder.DependencyCache[mappings.Item1].Assembly.Name;
                         // Only check until first match found.
                         break;
                     }
             }
             if (!mod.AssemblyReferences.Any(dep => dep.Name == ThisAssemblyName)) {
                 // Add XnaToFna as dependency
-                mod.AssemblyReferences.Add(new AssemblyNameReference(ThisAssemblyName, ThisAssembly.GetName().Version));
+                mod.AssemblyReferences.Add(Modder.DependencyCache[ThisAssemblyName].Assembly.Name);
             }
 
             // MonoMod needs to relink some types (f.e. XnaToFnaHelper) via FindType, which requires a dependency map.
-            Log("[Relink] Mapping dependencies in MonoMod (FindType)");
+            Log("[Relink] Mapping dependencies for MonoMod");
             Modder.MapDependencies(mod);
 
             Log($"[Relink] Pre-processing (XnaToFnaHelper)");
@@ -261,7 +263,7 @@ namespace XnaToFna {
             foreach (TypeDefinition type in mod.Types)
                 PostProcessType(type);
 
-            Log($"[Relink] Rewriting and disposing module");
+            Log($"[Relink] Rewriting and disposing module\n");
             Modder.Module.Write();
             // Dispose the module so other modules can read it as a dependency again.
             Modder.Module.Dispose();
