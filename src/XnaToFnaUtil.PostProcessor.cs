@@ -7,10 +7,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using XnaToFna.ProxyForms;
+using System.Xml.Serialization;
+using System.Xml;
 
 namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
-        
+
+        public static ConstructorInfo m_XmlElement_ctor = typeof(XmlElementAttribute).GetConstructor(new Type[] { typeof(string) });
+
+        public static object Stuff_25;
+
         public void SetupHelperRelinkMap() {
             // To use XnaToFnaGame properly, the actual game override needs to call XnaToFnaGame:: as "base" instead.
             Modder.RelinkMap["System.Void Microsoft.Xna.Framework.Game::.ctor()"] =
@@ -38,6 +44,8 @@ namespace XnaToFna {
         }
 
         public void PreProcessType(TypeDefinition type) {
+            TypeDefinition baseDef = type.BaseType?.Resolve();
+
             foreach (MethodDefinition method in type.Methods) {
                 if (!method.HasPInvokeInfo)
                     continue;
@@ -54,16 +62,43 @@ namespace XnaToFna {
                 }
             }
 
+            bool baseHasXmlInclude = baseDef?.HasCustomAttribute("System.Xml.Serialization.XmlIncludeAttribute") ?? false;
+            foreach (FieldDefinition field in type.Fields) {
+                /* Well, this hack isn't that bad... is it?
+                 * """Fix""" some games *cough* STARDEW VALLEY *cough* breaking the XmlSerializer in Mono < 4.4.
+                 * This only causes minor side effects affecting cross-platform save compatibility.
+                 * NOTE: This hack could be implemented better - check for field / Xml attribs deeper than one base type, check for Xml more attribs, ...
+                 * NOTE: This needs to be in the pre-processing pass as XmlElement doesn't work and we're thus renaming the field.
+                 * -ade
+                 */
+                if (FixNewInXml && baseHasXmlInclude && baseDef.HasField(field)) {
+                    // HAHA NO.
+                    // System.InvalidOperationException: Member 'Furniture.price' hides inherited member 'Object.price', but has different custom attributes.
+                    /*
+                    Log($"[PreProcess] [HACK!!!] Applying XmlElement on field {field.DeclaringType.FullName}::{field.Name} (hiding base field)");
+                    CustomAttribute xmlElemAttrib = new CustomAttribute(field.Module.ImportReference(m_XmlElement_ctor));
+                    xmlElemAttrib.ConstructorArguments.Add(new CustomAttributeArgument(field.Module.TypeSystem.String, type.Name + "." + field.Name));
+                    field.AddAttribute(xmlElemAttrib);
+                    */
+                    // Rename the field instead.
+                    Log($"[PreProcess] [HACK!!!] Renaming serialized field {field.DeclaringType.FullName}::{field.Name} (hiding base field)");
+                    string origName = field.FullName;
+                    field.Name = field.Name + "In" + type.Name;
+                    Modder.RelinkMap[origName] = Tuple.Create(field.DeclaringType.FullName, field.Name);
+                }
+            }
+
             foreach (TypeDefinition nested in type.NestedTypes)
                 PreProcessType(nested);
         }
 
         public void PostProcessType(TypeDefinition type) {
-
             // Make all Microsoft.Xna.Framework.Games inherit from XnaToFnaGame instead.
             if (type.BaseType?.FullName == "Microsoft.Xna.Framework.Game") {
                 type.BaseType = type.Module.ImportReference(typeof(XnaToFnaGame));
             }
+
+            TypeDefinition baseDef = type.BaseType?.Resolve();
 
             foreach (MethodDefinition method in type.Methods) {
                 if (!method.HasBody) continue;
@@ -88,12 +123,12 @@ namespace XnaToFna {
         public void CheckAndDestroyLock(MethodDefinition method, int instri) {
             Instruction instr = method.Body.Instructions[instri];
 
-            /* FUCKING UGLY HACK DO NOT I SAY DO NOT USE THIS PROPERLY
-                         * *ahem*
-                         * """Fix""" some games *cough* DUCK GAME *cough* looping for CONTENT to LOAD.
-                         * I deserve to be hanged for this.
-                         * -ade
-                         */
+            /* FUCKING UGLY HACK DO NOT I SAY DO NOT USE THIS EVERYWHERE
+             * *ahem*
+             * """Fix""" some games *cough* DUCK GAME *cough* looping for CONTENT to LOAD.
+             * I deserve to be hanged for this.
+             * -ade
+             */
             if (instri >= 1 &&
                 (instr.OpCode == OpCodes.Brfalse || instr.OpCode == OpCodes.Brfalse_S ||
                  instr.OpCode == OpCodes.Brtrue || instr.OpCode == OpCodes.Brtrue_S) &&

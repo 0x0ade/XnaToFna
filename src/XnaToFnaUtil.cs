@@ -52,7 +52,9 @@ namespace XnaToFna {
         public bool PatchWaveBanks = true;
         public bool PatchXACTSettings = true;
         public bool PatchVideo = true;
+
         public bool DestroyLocks = true;
+        public bool FixNewInXml = true;
 
         public XnaToFnaUtil() {
             Modder.ReadingMode = ReadingMode.Immediate;
@@ -253,14 +255,14 @@ namespace XnaToFna {
             Log("[Relink] Mapping dependencies for MonoMod");
             Modder.MapDependencies(mod);
 
-            Log($"[Relink] Pre-processing (XnaToFnaHelper)");
+            Log($"[Relink] Pre-processing");
             foreach (TypeDefinition type in mod.Types)
                 PreProcessType(type);
 
-            Log($"[Relink] Applying MonoMod PatchRefs pass");
+            Log($"[Relink] Relinking (MonoMod PatchRefs pass)");
             Modder.PatchRefs();
 
-            Log($"[Relink] Post-processing (XnaToFnaHelper)");
+            Log($"[Relink] Post-processing");
             foreach (TypeDefinition type in mod.Types)
                 PostProcessType(type);
 
