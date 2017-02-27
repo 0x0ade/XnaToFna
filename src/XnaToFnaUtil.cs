@@ -54,7 +54,7 @@ namespace XnaToFna {
         public bool PatchVideo = true;
 
         public bool DestroyLocks = true;
-        public bool FixNewInXml = true;
+        public bool FixNewInXml = false;
 
         public XnaToFnaUtil() {
             Modder.ReadingMode = ReadingMode.Immediate;

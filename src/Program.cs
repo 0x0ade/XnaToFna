@@ -27,8 +27,8 @@ namespace XnaToFna {
                     xtf.PatchVideo = false;
                 else if (arg == "--skip-locks")
                     xtf.DestroyLocks = false;
-                else if (arg == "--skip-xmlfix")
-                    xtf.FixNewInXml = false;
+                else if (arg == "--apply-xmlfix")
+                    xtf.FixNewInXml = true;
                 else
                     xtf.ScanPath(arg);
             }
