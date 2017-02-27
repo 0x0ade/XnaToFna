@@ -27,15 +27,18 @@ namespace XnaToFna {
             return 0;
         }
 
-        public static IntPtr CallWindowHook(IntPtr hWnd, Messages Msg, IntPtr wParam, IntPtr lParam)
-            => (IntPtr) Control.FromHandle(hWnd)?.Form?.WindowHook?.DynamicInvoke(hWnd, (uint) Msg, wParam, lParam);
-        public static IntPtr CallWindowHook(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam)
-            => (IntPtr) Control.FromHandle(hWnd)?.Form?.WindowHook?.DynamicInvoke(hWnd, Msg, wParam, lParam);
-
         public static IntPtr CallWindowHook(Messages Msg, IntPtr wParam, IntPtr lParam)
-            => (IntPtr) GameForm.Instance?.WindowHook?.DynamicInvoke(GameForm.Instance?.Handle, (uint) Msg, wParam, lParam);
+            => CallWindowHook((uint) Msg, wParam, lParam);
         public static IntPtr CallWindowHook(uint Msg, IntPtr wParam, IntPtr lParam)
-            => (IntPtr) GameForm.Instance?.WindowHook?.DynamicInvoke(GameForm.Instance?.Handle, Msg, wParam, lParam);
+            => CallWindowHook(GameForm.Instance?.Handle ?? IntPtr.Zero, Msg, wParam, lParam);
+        public static IntPtr CallWindowHook(IntPtr hWnd, Messages Msg, IntPtr wParam, IntPtr lParam) 
+            => CallWindowHook(hWnd, (uint) Msg, wParam, lParam);
+        public static IntPtr CallWindowHook(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam) {
+            Form form = Control.FromHandle(hWnd) as Form;
+            if (form == null || form.WindowHookPtr == IntPtr.Zero)
+                return IntPtr.Zero;
+            return (IntPtr) form.WindowHook.DynamicInvoke(hWnd, Msg, wParam, lParam);
+        }
 
         public static IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam) {
             if (lpPrevWndFunc == IntPtr.Zero)

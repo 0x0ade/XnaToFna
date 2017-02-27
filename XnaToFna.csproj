@@ -44,6 +44,7 @@
     <Compile Include="src\Content\Video.cs" />
     <Compile Include="src\Content\XACTGlobalSettings.cs" />
     <Compile Include="src\Helper\DeviceEvents.cs" />
+    <Compile Include="src\Helper\FakeMonitor.cs" />
     <Compile Include="src\Helper\ProxyDInput\DInputState.cs" />
     <Compile Include="src\Helper\ProxyDInput\DInput.cs" />
     <Compile Include="src\Helper\ProxyForms\Application.cs" />

@@ -25,6 +25,8 @@ namespace XnaToFna {
                     xtf.PatchXACTSettings = false;
                 else if (arg == "--skip-video" || arg == "--skip-wma")
                     xtf.PatchVideo = false;
+                else if (arg == "--skip-locks")
+                    xtf.DestroyLocks = false;
                 else
                     xtf.ScanPath(arg);
             }

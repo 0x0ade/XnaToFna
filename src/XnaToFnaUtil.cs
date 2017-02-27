@@ -52,6 +52,7 @@ namespace XnaToFna {
         public bool PatchWaveBanks = true;
         public bool PatchXACTSettings = true;
         public bool PatchVideo = true;
+        public bool DestroyLocks = true;
 
         public XnaToFnaUtil() {
             Modder.ReadingMode = ReadingMode.Immediate;

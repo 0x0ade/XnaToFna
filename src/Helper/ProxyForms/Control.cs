@@ -11,7 +11,7 @@ namespace XnaToFna.ProxyForms {
         public int GlobalIndex;
         public IntPtr Handle {
             get {
-                return (IntPtr) GlobalIndex;
+                return (IntPtr) GlobalIndex + 1;
             }
         }
 
@@ -26,7 +26,7 @@ namespace XnaToFna.ProxyForms {
         }
 
         public static Control FromHandle(IntPtr ptr) {
-            int index = (int) ptr;
+            int index = (int) ptr - 1;
             if (index < 0 || AllControls.Count <= index)
                 return null;
             WeakReference<Control> weakref = AllControls[index];
