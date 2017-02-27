@@ -137,7 +137,7 @@ namespace XnaToFna {
 
                         using (BinaryWriter ffmpegWriter = new BinaryWriter(ffmpegStream, Encoding.ASCII, true)) {
                             short blockAlign =
-                                align[i] > XWMAInfo.BlockAlign.Length ?
+                                align[i] >= XWMAInfo.BlockAlign.Length ?
                                 XWMAInfo.BlockAlign[align[i] & 0x0F] :
                                 XWMAInfo.BlockAlign[align[i]];
                             int packets = playLength[i] / blockAlign;
@@ -190,8 +190,8 @@ namespace XnaToFna {
 
                 Log($"[UpdateWaveBank] Converting #{i}");
                 // FIXME stereo causes "Hell Yeah!" to sound horrible with pcm_u8 and OpenAL to simply fail everywhere with pcm_s16le
-                channels[i] = 1;
                 RunFFMPEG($"-y -i - -acodec pcm_u8 -ac 1 -f wav -", reader.BaseStream, writer.BaseStream, feeder: feeder, inputLength: playLength[i]);
+                channels[i] = 1;
 
                 uint length = (uint) writer.BaseStream.Position - offset;
                 offset = (uint) writer.BaseStream.Position;

@@ -114,7 +114,7 @@ namespace XnaToFna {
                         ffmpegInStream.Write(dataRaw, 0, sizeRaw);
                         ffmpegInStream.Flush();
                     }
-                    // ffmpegInStream.Close();
+                    ffmpegInStream.Close();
                 }
             ) {
                 IsBackground = true
