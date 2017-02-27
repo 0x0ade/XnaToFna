@@ -44,15 +44,6 @@ namespace XnaToFna {
         }
 
         public void PreProcessType(TypeDefinition type) {
-            TypeDefinition baseDef;
-            try {
-                baseDef = type.BaseType?.Resolve();
-            } catch {
-                // The base type can stem from an unresolvable assembly (Unshipped GOG Galaxy lib, XNA itself, ...).
-                // Let's just ignore it.
-                baseDef = null;
-            }
-
             foreach (MethodDefinition method in type.Methods) {
                 if (!method.HasPInvokeInfo)
                     continue;
@@ -69,31 +60,6 @@ namespace XnaToFna {
                 }
             }
 
-            foreach (FieldDefinition field in type.Fields) {
-                /* Well, this hack isn't that bad... is it?
-                 * """Fix""" some games *cough* STARDEW VALLEY *cough* breaking the XmlSerializer in Mono < 4.4.
-                 * This only causes minor side effects affecting cross-platform save compatibility.
-                 * NOTE: This hack could be implemented better - check for field / Xml attribs deeper than one base type, check for Xml more attribs, ...
-                 * NOTE: This needs to be in the pre-processing pass as XmlElement doesn't work and we're thus renaming the field.
-                 * -ade
-                 */
-                if (FixNewInXml && baseDef.HasField(field)) {
-                    // HAHA NO.
-                    // System.InvalidOperationException: Member 'Furniture.price' hides inherited member 'Object.price', but has different custom attributes.
-                    /*
-                    Log($"[PreProcess] [HACK!!!] Applying XmlElement on field {field.DeclaringType.FullName}::{field.Name} (hiding base field)");
-                    CustomAttribute xmlElemAttrib = new CustomAttribute(field.Module.ImportReference(m_XmlElement_ctor));
-                    xmlElemAttrib.ConstructorArguments.Add(new CustomAttributeArgument(field.Module.TypeSystem.String, type.Name + "." + field.Name));
-                    field.AddAttribute(xmlElemAttrib);
-                    */
-                    // Rename the field instead.
-                    Log($"[PreProcess] [HACK!!!] Renaming field {field.DeclaringType.FullName}::{field.Name} (hiding base field)");
-                    string origName = field.FullName;
-                    field.Name = field.Name + "In" + type.Name;
-                    Modder.RelinkMap[origName] = Tuple.Create(field.DeclaringType.FullName, field.Name);
-                }
-            }
-
             foreach (TypeDefinition nested in type.NestedTypes)
                 PreProcessType(nested);
         }
@@ -103,8 +69,6 @@ namespace XnaToFna {
             if (type.BaseType?.FullName == "Microsoft.Xna.Framework.Game") {
                 type.BaseType = type.Module.ImportReference(typeof(XnaToFnaGame));
             }
-
-            TypeDefinition baseDef = type.BaseType?.Resolve();
 
             foreach (MethodDefinition method in type.Methods) {
                 if (!method.HasBody) continue;

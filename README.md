@@ -12,6 +12,7 @@ Relinker making <sup>an untested bunch of</sup> games using XNA 4.0 run on Linux
 * Put `FNA.dll` and the [native libs](http://fna.flibitijibibo.com/archive/fnalibs.tar.bz2) into the game directory.
 * Run `XnaToFna.exe` with Mono on Linux / macOS or .NET Framework on Windows.
 * Keep `XnaToFna.exe` in the game directory because the game now also links to the `XnaToFnaHelper` inside it, whoops.
+* For games that may require it (f.e. Stardew Valley), update Mono / use (ironically) the precompiled Mono part of [MonoGame/MonoKickstart.](https://github.com/MonoGame/MonoKickstart/tree/mono4.4)
 * Complain about broken paths, unconverted sound / video assets, Windows-specific P/Invokes and unsupported, closed-source native libraries.
 
 #### How?
