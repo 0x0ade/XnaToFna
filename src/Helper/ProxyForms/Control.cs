@@ -51,6 +51,10 @@ namespace XnaToFna.ProxyForms {
             // no-op
         }
 
+        public object Invoke(Delegate method) {
+            return method.DynamicInvoke();
+        }
+
         // Some games override those
 
         protected virtual void SetVisibleCore(bool visible) {

@@ -44,7 +44,14 @@ namespace XnaToFna {
         }
 
         public void PreProcessType(TypeDefinition type) {
-            TypeDefinition baseDef = type.BaseType?.Resolve();
+            TypeDefinition baseDef;
+            try {
+                baseDef = type.BaseType?.Resolve();
+            } catch {
+                // The base type can stem from an unresolvable assembly (Unshipped GOG Galaxy lib, XNA itself, ...).
+                // Let's just ignore it.
+                baseDef = null;
+            }
 
             foreach (MethodDefinition method in type.Methods) {
                 if (!method.HasPInvokeInfo)
