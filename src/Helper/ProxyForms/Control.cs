@@ -52,6 +52,7 @@ namespace XnaToFna.ProxyForms {
         }
 
         public object Invoke(Delegate method) {
+            // TODO The delegate passed in Control.Invoke should be invoked on the main thread
             return method.DynamicInvoke();
         }
 

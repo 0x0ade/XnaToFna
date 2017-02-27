@@ -69,7 +69,6 @@ namespace XnaToFna {
                 }
             }
 
-            bool baseHasXmlInclude = baseDef?.HasCustomAttribute("System.Xml.Serialization.XmlIncludeAttribute") ?? false;
             foreach (FieldDefinition field in type.Fields) {
                 /* Well, this hack isn't that bad... is it?
                  * """Fix""" some games *cough* STARDEW VALLEY *cough* breaking the XmlSerializer in Mono < 4.4.
@@ -78,7 +77,7 @@ namespace XnaToFna {
                  * NOTE: This needs to be in the pre-processing pass as XmlElement doesn't work and we're thus renaming the field.
                  * -ade
                  */
-                if (FixNewInXml && baseHasXmlInclude && baseDef.HasField(field)) {
+                if (FixNewInXml && baseDef.HasField(field)) {
                     // HAHA NO.
                     // System.InvalidOperationException: Member 'Furniture.price' hides inherited member 'Object.price', but has different custom attributes.
                     /*
@@ -88,7 +87,7 @@ namespace XnaToFna {
                     field.AddAttribute(xmlElemAttrib);
                     */
                     // Rename the field instead.
-                    Log($"[PreProcess] [HACK!!!] Renaming serialized field {field.DeclaringType.FullName}::{field.Name} (hiding base field)");
+                    Log($"[PreProcess] [HACK!!!] Renaming field {field.DeclaringType.FullName}::{field.Name} (hiding base field)");
                     string origName = field.FullName;
                     field.Name = field.Name + "In" + type.Name;
                     Modder.RelinkMap[origName] = Tuple.Create(field.DeclaringType.FullName, field.Name);
