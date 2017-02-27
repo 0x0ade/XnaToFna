@@ -110,7 +110,7 @@ namespace XnaToFna {
                     // Most probably the actual game directory - let's just copy XnaToFna.exe to there to be referenced properly.
                     string xtfPath = Path.Combine(path, Path.GetFileName(ThisAssembly.Location));
                     if (Path.GetDirectoryName(ThisAssembly.Location) != path) {
-                        Log($"[ScanPath] Found separate game directory - copying XnaToFna.exe");
+                        Log($"[ScanPath] Found separate game directory - copying XnaToFna.exe and FNA.dll");
                         File.Copy(ThisAssembly.Location, xtfPath, true);
 
                         string dbExt = null;
@@ -118,9 +118,11 @@ namespace XnaToFna {
                             dbExt = "pdb";
                         if (File.Exists(Path.ChangeExtension(ThisAssembly.Location, "mdb")))
                             dbExt = "mdb";
-
                         if (dbExt != null)
                             File.Copy(Path.ChangeExtension(ThisAssembly.Location, dbExt), Path.ChangeExtension(xtfPath, dbExt), true);
+
+                        if (File.Exists(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll")))
+                            File.Copy(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll"), Path.Combine(path, "FNA.dll"), true);
 
                     }
                     Log($"[ScanPath] Found Content directory: {ContentDirectory}");
