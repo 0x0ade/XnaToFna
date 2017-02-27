@@ -11,7 +11,7 @@ namespace XnaToFna.ProxyForms {
         public int GlobalIndex;
         public IntPtr Handle {
             get {
-                return (IntPtr) GlobalIndex + 1;
+                return (IntPtr) GlobalIndex;
             }
         }
 
@@ -20,7 +20,7 @@ namespace XnaToFna.ProxyForms {
         public virtual Rectangle Bounds { get; set; }
 
         public Control() {
-            GlobalIndex = AllControls.Count;
+            GlobalIndex = AllControls.Count + 1;
             XnaToFnaHelper.Log($"[ProxyForms] Creating control {GetType().Name}, globally #{GlobalIndex}");
             AllControls.Add(new WeakReference<Control>(this));
         }

@@ -16,6 +16,7 @@ namespace XnaToFna.ProxyDInput {
 
         // DInput doesn't cache, but whatever.
         public static DInputState[] States = new DInputState[0];
+        public static DInputState StateDefault = new DInputState();
 
         public static bool Initialize() {
             if (!IsProxy) {
@@ -90,15 +91,18 @@ namespace XnaToFna.ProxyDInput {
         }
 
         public static DInputState GetState(int player)
-            => States[player];
+            => player >= States.Length ? StateDefault : States[player];
 
         public static string GetProductName(int player) {
+            if (player >= States.Length)
+                return string.Empty;
+
             // Maybe ask SDL instead?
-            return Enum.GetName(typeof(GamePadType), GamePad.GetCapabilities((PlayerIndex) player).GamePadType) + " #" + player;
+            return $"ProxyDInput #{player + 1}";
         }
 
         public unsafe static string GetProductGUID(int player)
-            => GamePad.GetGUIDEXT((PlayerIndex) player);
+            => player >= States.Length ? string.Empty : GamePad.GetGUIDEXT((PlayerIndex) player);
 
     }
 }
