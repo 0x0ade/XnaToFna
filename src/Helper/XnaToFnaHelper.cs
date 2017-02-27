@@ -87,7 +87,7 @@ namespace XnaToFna {
             GameForm.Instance?.SDLWindowChanged(window, clientWidth, clientHeight, wantsFullscreen, screenDeviceName, ref resultDeviceName);
 
             if (resultDeviceName != screenDeviceName) {
-
+                // TODO Does a WM_ message exist for this? Why did I put this empty check in here? git blame myself.
             }
         }
 

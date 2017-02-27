@@ -33,9 +33,9 @@ namespace XnaToFna {
             => (IntPtr) Control.FromHandle(hWnd)?.Form?.WindowHook?.DynamicInvoke(hWnd, Msg, wParam, lParam);
 
         public static IntPtr CallWindowHook(Messages Msg, IntPtr wParam, IntPtr lParam)
-            => (IntPtr) GameForm.Instance?.WindowHook?.DynamicInvoke(GameForm.Instance.Handle, (uint) Msg, wParam, lParam);
+            => (IntPtr) GameForm.Instance?.WindowHook?.DynamicInvoke(GameForm.Instance?.Handle, (uint) Msg, wParam, lParam);
         public static IntPtr CallWindowHook(uint Msg, IntPtr wParam, IntPtr lParam)
-            => (IntPtr) GameForm.Instance?.WindowHook?.DynamicInvoke(GameForm.Instance.Handle, Msg, wParam, lParam);
+            => (IntPtr) GameForm.Instance?.WindowHook?.DynamicInvoke(GameForm.Instance?.Handle, Msg, wParam, lParam);
 
         public static IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam) {
             if (lpPrevWndFunc == IntPtr.Zero)

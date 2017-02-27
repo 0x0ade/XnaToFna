@@ -26,10 +26,13 @@ namespace XnaToFna.ProxyForms {
         }
 
         public static Control FromHandle(IntPtr ptr) {
-            WeakReference<Control> weakref = AllControls[(int) ptr];
+            int index = (int) ptr;
+            if (index < 0 || AllControls.Count <= index)
+                return null;
+            WeakReference<Control> weakref = AllControls[index];
             Control control;
             if (weakref == null || !weakref.TryGetTarget(out control)) {
-                AllControls[(int) ptr] = null;
+                AllControls[index] = null;
                 return null;
             }
             return control;
