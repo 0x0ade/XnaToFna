@@ -15,6 +15,13 @@ Relinker making <sup>an untested bunch of</sup> games using XNA 4.0 run on Linux
 * For games that may require it (f.e. Stardew Valley), update Mono / use (ironically) the precompiled Mono part of [MonoGame/MonoKickstart.](https://github.com/MonoGame/MonoKickstart/tree/mono4.4)
 * Complain about broken paths, unconverted sound / video assets, Windows-specific P/Invokes and unsupported, closed-source native libraries.
 
+#### Special thanks to:
+
+* [Ethan "flibitijibibo" Lee](http://flibitijibibo.com/index.php?page=Portfolio/Ports): Thank you for FNA! This wouldn't have been without you!
+* My [Patrons on Patreon](https://www.patreon.com/0x0ade):
+    * [Renaud Bédard](https://twitter.com/renaudbedard)
+    * [Artus Elias Meyer-Toms](https://twitter.com/artuselias)
+
 #### How?
 
 It uses [MonoMod](https://github.com/0x0ade/MonoMod/), which uses [Mono.Cecil](https://github.com/jbevain/cecil) under the hood.
