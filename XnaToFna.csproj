@@ -47,6 +47,7 @@
     <Compile Include="src\Content\XACTGlobalSettings.cs" />
     <Compile Include="src\Helper\DeviceEvents.cs" />
     <Compile Include="src\Helper\FakeMonitor.cs" />
+    <Compile Include="src\Helper\PInvokeHooks\MouseEvents.cs" />
     <Compile Include="src\Helper\ProxyDInput\DInputState.cs" />
     <Compile Include="src\Helper\ProxyDInput\DInput.cs" />
     <Compile Include="src\Helper\ProxyForms\Application.cs" />
@@ -55,8 +56,8 @@
     <Compile Include="src\Helper\ProxyForms\Control.cs" />
     <Compile Include="src\Helper\ProxyForms\GameForm.cs" />
     <Compile Include="src\Helper\ProxyForms\Message.cs" />
-    <Compile Include="src\Helper\PInvokeHooks.cs" />
-    <Compile Include="src\Helper\KeyboardEvents.cs" />
+    <Compile Include="src\Helper\PInvokeHooks\PInvokeHooks.cs" />
+    <Compile Include="src\Helper\PInvokeHooks\KeyboardEvents.cs" />
     <Compile Include="src\XnaToFnaGame.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

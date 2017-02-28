@@ -172,7 +172,7 @@ namespace XnaToFna {
             // Yes, that's required, as DLC Quest passes IntPtr.Zero
             unsafe {
                 fixed (uint* lpdwProcesId_ = &lpdwProcessId)
-                    if ((int) lpdwProcesId_ != 0)
+                    if ((long) lpdwProcesId_ != 0)
                         lpdwProcessId = 0; // Optional
             }
             return (uint) (form?.ThreadId ?? 0);
