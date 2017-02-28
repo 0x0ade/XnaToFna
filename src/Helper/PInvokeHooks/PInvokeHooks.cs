@@ -105,12 +105,6 @@ namespace XnaToFna {
             return (IntPtr) form.WindowHook.DynamicInvoke(hWnd, Msg, wParam, lParam);
         }
 
-        public static IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam) {
-            if (lpPrevWndFunc == IntPtr.Zero)
-                return IntPtr.Zero;
-            return (IntPtr) Marshal.GetDelegateForFunctionPointer(lpPrevWndFunc, typeof(MulticastDelegate))
-                .DynamicInvoke(hWnd, Msg, wParam, lParam);
-        }
     }
 
     public static partial class PInvokeHooks {
@@ -130,6 +124,13 @@ namespace XnaToFna {
             }
 
             return 0;
+        }
+
+        public static IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam) {
+            if (lpPrevWndFunc == IntPtr.Zero)
+                return IntPtr.Zero;
+            return (IntPtr) Marshal.GetDelegateForFunctionPointer(lpPrevWndFunc, typeof(MulticastDelegate))
+                .DynamicInvoke(hWnd, Msg, wParam, lParam);
         }
 
         public static IntPtr SetWindowsHookEx(HookType hookType, HookProc lpfn, IntPtr hMod, uint dwThreadId) {
