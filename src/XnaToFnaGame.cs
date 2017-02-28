@@ -17,16 +17,6 @@ namespace XnaToFna {
             XnaToFnaHelper.Initialize(this);
         }
 
-        protected override void Update(GameTime gameTime) {
-            base.Update(gameTime);
-            // Don't ask me why some games use Win32 calls instead of Keyboard.GetState()...
-            KeyboardEvents.Update();
-            // ... or USING SetWindowsHookEx TO GET THE MOUSE STATE instead of Mouse.GetState()...
-            MouseEvents.Update();
-            // ... or listening to ALL SYSTEM DEVICE CHANGES instead of GamePad.GetState()...
-            DeviceEvents.Update();
-        }
-
         protected override void EndDraw() {
             base.EndDraw();
             // ProxyForm batches the changes and then applies them all at once to f.e. detect being a borderless fullscreen window.

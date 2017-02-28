@@ -52,6 +52,17 @@ namespace XnaToFna {
             return GameForm.Instance.Handle;
         }
 
+        
+        public static void PreUpdate(GameTime time) {
+            // Don't ask me why some games use Win32 calls instead of Keyboard.GetState()...
+            KeyboardEvents.Update();
+            // ... or USING SetWindowsHookEx TO GET THE MOUSE STATE instead of Mouse.GetState()...
+            MouseEvents.Update();
+            // ... or listening to ALL SYSTEM DEVICE CHANGES instead of GamePad.GetState()...
+            DeviceEvents.Update();
+        }
+
+
         public static T GetService<T>() where T : class
             => (T) Game.Services.GetService(typeof(T));
 

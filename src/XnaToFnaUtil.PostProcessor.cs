@@ -14,6 +14,7 @@ namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
 
         public static ConstructorInfo m_XmlElement_ctor = typeof(XmlElementAttribute).GetConstructor(new Type[] { typeof(string) });
+        public static MethodInfo m_XnaToFnaHelper_PreUpdate = typeof(XnaToFnaHelper).GetMethod("PreUpdate");
 
         public static object Stuff_25;
 
@@ -66,12 +67,27 @@ namespace XnaToFna {
 
         public void PostProcessType(TypeDefinition type) {
             // Make all Microsoft.Xna.Framework.Games inherit from XnaToFnaGame instead.
+            bool isGame = false;
             if (type.BaseType?.FullName == "Microsoft.Xna.Framework.Game") {
+                Log($"[PreProcess] [PostProcess] Found type overriding Game: {type.FullName})");
                 type.BaseType = type.Module.ImportReference(typeof(XnaToFnaGame));
+                isGame = true;
             }
 
             foreach (MethodDefinition method in type.Methods) {
                 if (!method.HasBody) continue;
+
+                string id = method.GetFindableID(withType: false);
+
+                if (isGame && id == "System.Void Update(Microsoft.Xna.Framework.GameTime)") {
+                    Log("[PreProcess] [PostProcess] Injecting call to XnaToFnaHelper.PreUpdate into game Update");
+                    ILProcessor il = method.Body.GetILProcessor();
+                    il.InsertBefore(method.Body.Instructions[0], il.Create(OpCodes.Ldarg_1));
+                    il.InsertAfter(method.Body.Instructions[0], il.Create(OpCodes.Callvirt,
+                        method.Module.ImportReference(m_XnaToFnaHelper_PreUpdate)));
+                    method.Body.UpdateOffsets(1, 2);
+                }
+
                 for (int i = 0; i < method.Body.Instructions.Count; i++) {
                     Instruction instr = method.Body.Instructions[i];
 
