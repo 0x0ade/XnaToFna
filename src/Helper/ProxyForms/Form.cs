@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDL2;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace XnaToFna.ProxyForms {
     public class Form : Control {
@@ -10,6 +11,9 @@ namespace XnaToFna.ProxyForms {
         // If something using ProxyForms wants to change the hook directly: Feel free to!
         public IntPtr WindowHookPtr;
         public Delegate WindowHook;
+
+        // Used for GetWindowThreadProcessId
+        public int ThreadId;
 
         public override System.Drawing.Rectangle Bounds {
             get; set;
@@ -26,6 +30,7 @@ namespace XnaToFna.ProxyForms {
 
         public Form() {
             Form = this;
+            ThreadId = Thread.CurrentThread.ManagedThreadId;
         }
 
         public event FormClosingEventHandler FormClosing;

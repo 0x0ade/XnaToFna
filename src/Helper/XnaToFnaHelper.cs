@@ -20,6 +20,9 @@ namespace XnaToFna {
         public static void Initialize(XnaToFnaGame game) {
             Game = game;
 
+            TextInputEXT.TextInput += KeyboardEvents.CharEntered;
+            TextInputEXT.StartTextInput();
+
             game.Window.ClientSizeChanged += SDLWindowSizeChanged;
 
             string maximumGamepadCountStr = Environment.GetEnvironmentVariable(

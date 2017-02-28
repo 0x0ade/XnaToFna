@@ -54,7 +54,7 @@ namespace XnaToFna {
                 if (typeof(PInvokeHooks).GetMethod(entryPoint) != null) {
                     Log($"[PreProcess] [PInvokeHooks] Remapping call to {entryPoint} ({method.GetFindableID(withType: false)})");
                     Modder.RelinkMap[method.GetFindableID()] =
-                        Tuple.Create("XnaToFna.PInvokeHooks", method.GetFindableID(withType: false));
+                        Tuple.Create("XnaToFna.PInvokeHooks", typeof(PInvokeHooks).GetMethod(entryPoint).GetFindableID(withType: false));
                 } else {
                     Log($"[PreProcess] [PInvokeHooks] Found unhooked call to {entryPoint} ({method.GetFindableID(withType: false)})");
                 }

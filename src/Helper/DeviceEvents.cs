@@ -28,12 +28,9 @@ namespace XnaToFna {
 
         public static bool[] IsGamepadConnected = new bool[0];
 
-        public static void DeviceChange(Events e, IntPtr data) {
+        public static void DeviceChange(Events e, IntPtr data)
             // Device changes like those affect all windows.
-            for (int i = 0; i < Control.AllControls.Count; i++)
-                // The global index also functions as the handle.
-                PInvokeHooks.CallWindowHook((IntPtr) i, Messages.WM_DEVICECHANGE, (IntPtr) e, data);
-        }
+            => PInvokeHelper.CallHooks(Messages.WM_DEVICECHANGE, (IntPtr) e, data, allWindows : true);
 
         // The games I've seen don't care about what connects / disconnects; they just listen to the message ID.
         public static void GamepadConnected(int i)
