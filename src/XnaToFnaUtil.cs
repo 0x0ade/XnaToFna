@@ -191,10 +191,11 @@ namespace XnaToFna {
             ModuleDefinition dep = null;
             foreach (ModuleDefinition mod in Modules)
                 foreach (AssemblyNameReference depName in mod.AssemblyReferences)
-                    if (Modules.Exists(other => (dep = other).Assembly.Name.Name == depName.Name)) {
+                    if (Modules.Exists(other => (dep = other).Assembly.Name.Name == depName.Name) &&
+                        ordered.IndexOf(dep) > ordered.IndexOf(mod)) {
                         Log($"[OrderModules] Reordering {mod.Assembly.Name.Name} dependency {dep.Name}");
-                        ordered.Remove(dep);
-                        ordered.Insert(ordered.IndexOf(mod), dep);
+                        ordered.Remove(mod);
+                        ordered.Insert(ordered.IndexOf(dep) + 1, mod);
                     }
 
             Modules = ordered;

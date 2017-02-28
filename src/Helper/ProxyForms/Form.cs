@@ -7,8 +7,6 @@ using System.Collections.Generic;
 namespace XnaToFna.ProxyForms {
     public class Form : Control {
 
-        private const uint SDL_WINDOW_FULLSCREEN_DESKTOP_ONLY = 0x00001000;
-
         // If something using ProxyForms wants to change the hook directly: Feel free to!
         public IntPtr WindowHookPtr;
         public Delegate WindowHook;
