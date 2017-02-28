@@ -20,6 +20,7 @@ namespace XnaToFna {
 
         public static void UpdateWaveBank(string path, BinaryReader reader, BinaryWriter writer) {
             if (!IsFFMPEGAvailable) {
+                Log("[UpdateWaveBank] FFMPEG is missing - won't convert unsupported WaveBanks");
                 reader.BaseStream.CopyTo(writer.BaseStream);
                 return;
             }

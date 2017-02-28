@@ -14,7 +14,12 @@ namespace XnaToFna {
     public static partial class ContentHelper {
 
         public static void UpdateVideo(string path, BinaryReader reader = null, BinaryWriter writer = null) {
-            if (!IsFFMPEGAvailable) return;
+            if (!IsFFMPEGAvailable) {
+                Log("[UpdateVideo] FFMPEG is missing - won't convert unsupported video files");
+                if (reader != null && writer != null)
+                    reader.BaseStream.CopyTo(writer.BaseStream);
+                return;
+            }
 
             // Rename the .xnb as it only causes conflicts.
             string pathXnb = Path.ChangeExtension(path, "xnb");
