@@ -19,7 +19,10 @@ namespace XnaToFna {
         }
 
         public static void UpdateWaveBank(string path, BinaryReader reader, BinaryWriter writer) {
-            if (!IsFFMPEGAvailable) return;
+            if (!IsFFMPEGAvailable) {
+                reader.BaseStream.CopyTo(writer.BaseStream);
+                return;
+            }
             Log($"[UpdateWaveBank] Updating wave bank {path}");
 
             uint offset;

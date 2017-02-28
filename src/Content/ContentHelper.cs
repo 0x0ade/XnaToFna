@@ -19,7 +19,7 @@ namespace XnaToFna {
                     Process which = new Process();
                     which.StartInfo = new ProcessStartInfo {
                         FileName =
-                            (PlatformHelper.Current & Platform.Windows) != 0 ? "where" :
+                            (PlatformHelper.Current & Platform.Windows) == Platform.Windows ? "where" :
                             "which",
                         Arguments = "ffmpeg",
                         CreateNoWindow = true,
@@ -28,7 +28,8 @@ namespace XnaToFna {
                     which.Start();
                     which.WaitForExit();
                     return which.ExitCode == 0;
-                } catch {
+                } catch (Exception e) {
+                    Log("Could not determine if FFMPEG available: " + e);
                     return false;
                 }
             }
