@@ -38,6 +38,9 @@ namespace XnaToFna {
                 // Substitute WinForms for ProxyForms
                 if (name.StartsWith("XnaToFna.ProxyForms."))
                     Modder.RelinkMap["System.Windows.Forms." + name.Substring(9 + 11)] = name;
+                // Substitute common Drawing classes (f.e. Rectangle) with our own for Drawing-less environments (f.e. Android)
+                else if (name.StartsWith("XnaToFna.ProxyDrawing."))
+                    Modder.RelinkMap["System.Windows.Forms." + name.Substring(9 + 11)] = name;
                 // Some XNA games use DInput... let's just substitute all DInput references with our ProxyDInput.
                 else if (name.StartsWith("XnaToFna.ProxyDInput."))
                     Modder.RelinkMap[/* no namespace */ name.Substring(9 + 12)] = name;

@@ -15,10 +15,6 @@ namespace XnaToFna.ProxyForms {
         // Used for GetWindowThreadProcessId
         public int ThreadId;
 
-        public override System.Drawing.Rectangle Bounds {
-            get; set;
-        }
-
         public virtual FormBorderStyle FormBorderStyle {
             get; set;
         }

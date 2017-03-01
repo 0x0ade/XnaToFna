@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using XnaToFna.ProxyDrawing;
 
 namespace XnaToFna.ProxyForms {
     public class Control {

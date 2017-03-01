@@ -38,7 +38,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
@@ -51,6 +50,7 @@
     <Compile Include="src\Helper\ProxyDInput\DInputState.cs" />
     <Compile Include="src\Helper\ProxyDInput\DInput.cs" />
     <Compile Include="src\Helper\ProxyForms\Application.cs" />
+    <Compile Include="src\Helper\ProxyDrawing\Rectangle.cs" />
     <Compile Include="src\Helper\ProxyForms\Enums.cs" />
     <Compile Include="src\Helper\ProxyForms\Events.cs" />
     <Compile Include="src\Helper\ProxyForms\Control.cs" />

@@ -28,9 +28,9 @@ namespace XnaToFna.ProxyForms {
 
         public Rectangle WindowedBounds = new Rectangle();
         public Rectangle _Bounds = new Rectangle();
-        public override System.Drawing.Rectangle Bounds {
+        public override ProxyDrawing.Rectangle Bounds {
             get {
-                return new System.Drawing.Rectangle(
+                return new ProxyDrawing.Rectangle(
                     _Bounds.X,
                     _Bounds.Y,
                     _Bounds.Width,
