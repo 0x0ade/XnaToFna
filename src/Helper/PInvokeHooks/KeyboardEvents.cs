@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using XnaToFna.ProxyForms;
 
 namespace XnaToFna {
@@ -66,6 +67,32 @@ namespace XnaToFna {
         public static short GetAsyncKeyState(int vKey) {
             return (short) (Keyboard.GetState().IsKeyDown((Keys) vKey) ? 0x80 : 0x00);
         }
+
+        public static IntPtr LoadKeyboardLayout(string pwszKLID, uint Flags) {
+            // MSDN: If no matching locale is available, the return value is the default language of the system.
+            // Let's just pretend it's EN - US.
+            return (IntPtr) 0x00000409;
+        }
+
+        public static bool GetKeyboardLayoutName(object pwszKLID) {
+            // Let's just pretend EN - US (00000409)
+            const string name = "00000409";
+
+            if (pwszKLID is StringBuilder) {
+                ((StringBuilder) pwszKLID).Append(name);
+            } else if (pwszKLID is IntPtr) {
+                // This is definitely wrong.
+                unsafe
+                {
+                    char* str = (char*) ((IntPtr) pwszKLID).ToPointer();
+                    for (int i = 0; i < name.Length; i++)
+                        str[i] = name[i];
+                }
+            }
+
+            return true; // No GetLastError
+        }
+
 
     }
 }
