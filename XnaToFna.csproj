@@ -51,6 +51,7 @@
     <Compile Include="src\Helper\ProxyDInput\DInput.cs" />
     <Compile Include="src\Helper\ProxyForms\Application.cs" />
     <Compile Include="src\Helper\ProxyDrawing\Rectangle.cs" />
+    <Compile Include="src\Helper\ProxyForms\Delegates.cs" />
     <Compile Include="src\Helper\ProxyForms\Enums.cs" />
     <Compile Include="src\Helper\ProxyForms\Events.cs" />
     <Compile Include="src\Helper\ProxyForms\Control.cs" />
