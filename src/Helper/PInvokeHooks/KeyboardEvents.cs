@@ -74,6 +74,12 @@ namespace XnaToFna {
             return (IntPtr) 0x00000409;
         }
 
+        public static bool UnloadKeyboardLayout(IntPtr hkl) {
+            // THIS IS FINE.
+            //  -This Is Fine Dog
+            return true;
+        }
+
         public static bool GetKeyboardLayoutName(object pwszKLID) {
             // Let's just pretend EN - US (00000409)
             const string name = "00000409";
