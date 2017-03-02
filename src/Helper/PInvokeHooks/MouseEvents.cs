@@ -114,8 +114,8 @@ namespace XnaToFna {
                         return true; // Too lazy for Set/GetLastError again.
             }
 
-            if (Mouse.IsRelativeMouseModeEXT) {
-                rect = XnaToFnaHelper.Game.Window.ClientBounds;
+            if (MouseEvents.Clip != null) {
+                rect = MouseEvents.Clip.Value;
             } else {
                 // MSDN: The structure receives the dimensions of the screen if the cursor is not confined to a rectangle.
                 DisplayMode dm = XnaToFnaHelper.Game.GraphicsDevice.Adapter.CurrentDisplayMode;
@@ -131,14 +131,12 @@ namespace XnaToFna {
                     if ((long) rect_ == 0) {
                         // MSDN: If this parameter is NULL, the cursor is free to move anywhere on the screen.
                         XnaToFnaHelper.Log($"[CursorEvents] Cursor released from ClipCursor");
-                        Mouse.IsRelativeMouseModeEXT = false;
                         MouseEvents.Clip = null;
                         return true;
                     }
             }
 
             XnaToFnaHelper.Log($"[CursorEvents] Game tries to ClipCursor inside {rect}");
-            Mouse.IsRelativeMouseModeEXT = XnaToFnaHelper.Game.Window.ClientBounds.Contains(rect);
             MouseEvents.Clip = rect;
             return true;
         }
