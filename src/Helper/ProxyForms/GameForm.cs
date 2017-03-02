@@ -162,7 +162,9 @@ namespace XnaToFna.ProxyForms {
                     gdm.IsFullScreen = false;
                 }
 
-                game.Window.IsBorderlessEXT = borderless;
+                // Shows the ugly title bar on Android
+                if (Environment.GetEnvironmentVariable("FNADROID") != "1")
+                    game.Window.IsBorderlessEXT = borderless;
 
                 if (maximized) {
                     SDL.SDL_MaximizeWindow(window);
