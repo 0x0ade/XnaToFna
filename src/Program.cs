@@ -27,7 +27,10 @@ namespace XnaToFna {
                     xtf.PatchVideo = false;
                 else if (arg == "--skip-locks")
                     xtf.DestroyLocks = false;
-                else
+                else if (arg == "--update-your-copy-of-mono") {
+                    Console.WriteLine("YOU SHOULD REALLY UPDATE YOUR COPY OF MONO!... Unless you're stuck with Xamarin.Android.");
+                    xtf.RenameFieldCollisions = true;
+                } else
                     xtf.ScanPath(arg);
             }
 

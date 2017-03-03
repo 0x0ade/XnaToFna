@@ -9,6 +9,7 @@ using System.Reflection;
 using XnaToFna.ProxyForms;
 using System.Xml.Serialization;
 using System.Xml;
+using System.Linq;
 
 namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
@@ -61,6 +62,24 @@ namespace XnaToFna {
                         Tuple.Create("XnaToFna.PInvokeHooks", entryPoint);
                 } else {
                     Log($"[PreProcess] [PInvokeHooks] Found unhooked call to {entryPoint} ({method.GetFindableID()})");
+                }
+            }
+
+            Stack<TypeDefinition> baseTypes = new Stack<TypeDefinition>();
+            try {
+                for (TypeDefinition baseType = type.BaseType?.Resolve(); baseType != null; baseType = baseType.BaseType?.Resolve())
+                    baseTypes.Push(baseType);
+            } catch {
+                // Unresolved assembly, f.e. XNA itself
+            }
+            foreach (FieldDefinition field in type.Fields) {
+                string name = field.Name;
+
+                if (RenameFieldCollisions && baseTypes.Any(baseType => baseType.FindField(name) != null)) {
+                    // Field name collision found. Mono 4.4+ handles them well, while Xamarin.Android still fails.
+                    Log($"[PreProcess] Renaming field name collison {name} in {type.FullName}");
+                    field.Name = $"{name}_{type.Name}";
+                    Modder.RelinkMap[$"{type.FullName}::{name}"] = field.FullName;
                 }
             }
 
