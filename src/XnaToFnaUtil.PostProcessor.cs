@@ -14,7 +14,7 @@ using System.Linq;
 namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
 
-        public static ConstructorInfo m_XmlElement_ctor = typeof(XmlElementAttribute).GetConstructor(new Type[] { typeof(string) });
+        public static ConstructorInfo m_XmlIgnore_ctor = typeof(XmlIgnoreAttribute).GetConstructor(new Type[] { });
         public static MethodInfo m_XnaToFnaHelper_PreUpdate = typeof(XnaToFnaHelper).GetMethod("PreUpdate");
 
         public static object Stuff_25;
@@ -72,10 +72,11 @@ namespace XnaToFna {
             } catch {
                 // Unresolved assembly, f.e. XNA itself
             }
+
             foreach (FieldDefinition field in type.Fields) {
                 string name = field.Name;
 
-                if (RenameFieldCollisions && baseTypes.Any(baseType => baseType.FindField(name) != null)) {
+                if (FixOldMonoXML && baseTypes.Any(baseType => baseType.FindField(name) != null || baseType.FindProperty(name) != null)) {
                     // Field name collision found. Mono 4.4+ handles them well, while Xamarin.Android still fails.
                     Log($"[PreProcess] Renaming field name collison {name} in {type.FullName}");
                     field.Name = $"{name}_{type.Name}";

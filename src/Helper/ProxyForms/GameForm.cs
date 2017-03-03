@@ -123,7 +123,7 @@ namespace XnaToFna.ProxyForms {
         /// ApplyChanges gets called by XnaToFnaGame.EndDraw to change this.
         /// </summary>
         public void ApplyChanges() {
-            if (!Dirty)
+            if (!Dirty || Environment.GetEnvironmentVariable("FNADROID") == "1")
                 return;
 
             XnaToFnaGame game = XnaToFnaHelper.Game;
@@ -163,8 +163,7 @@ namespace XnaToFna.ProxyForms {
                 }
 
                 // Shows the ugly title bar on Android
-                if (Environment.GetEnvironmentVariable("FNADROID") != "1")
-                    game.Window.IsBorderlessEXT = borderless;
+                game.Window.IsBorderlessEXT = borderless;
 
                 if (maximized) {
                     SDL.SDL_MaximizeWindow(window);

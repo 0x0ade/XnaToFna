@@ -29,7 +29,7 @@ namespace XnaToFna {
                     xtf.DestroyLocks = false;
                 else if (arg == "--update-your-copy-of-mono") {
                     Console.WriteLine("YOU SHOULD REALLY UPDATE YOUR COPY OF MONO!... Unless you're stuck with Xamarin.Android.");
-                    xtf.RenameFieldCollisions = true;
+                    xtf.FixOldMonoXML = true;
                 } else
                     xtf.ScanPath(arg);
             }
