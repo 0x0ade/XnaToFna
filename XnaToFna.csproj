@@ -42,6 +42,9 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="lib-projs\MonoMod\MonoMod\DebugSymbolFormat.cs" />
+    <Compile Include="src\cecil\MdbHelper.cs" />
+    <Compile Include="src\cecil\PdbHelper.cs" />
     <Compile Include="src\Content\Video.cs" />
     <Compile Include="src\Content\XACTGlobalSettings.cs" />
     <Compile Include="src\Helper\DeviceEvents.cs" />
@@ -162,6 +165,24 @@
     <Compile Include="lib-projs\cecil\Mono.Collections.Generic\*.cs" />
     <Compile Include="lib-projs\cecil\Mono.Security.Cryptography\*.cs" />
     <Compile Include="lib-projs\cecil\System.Security.Cryptography\*.cs" />
+  </ItemGroup>
+  <!--cecil mdb-->
+  <ItemGroup>
+    <Compile Include="lib-projs\cecil\symbols\mdb\Mono.Cecil.Mdb\MdbReader.cs" />
+    <Compile Include="lib-projs\cecil\symbols\mdb\Mono.Cecil.Mdb\MdbWriter.cs" />
+    <Compile Include="lib-projs\cecil\symbols\mdb\Mono.CompilerServices.SymbolWriter\*.cs" />
+  </ItemGroup>
+  <!--cecil pdb-->
+  <ItemGroup>
+    <Compile Include="lib-projs\cecil\symbols\pdb\Microsoft.Cci.Pdb\*.cs" />
+    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\ISymUnmanagedDocumentWriter.cs" />
+    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\ISymUnmanagedWriter2.cs" />
+    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\ModuleMetadata.cs" />
+    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\NativePdbReader.cs" />
+    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\NativePdbWriter.cs" />
+    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\PdbHelper.cs" />
+    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\SymDocumentWriter.cs" />
+    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\SymWriter.cs" />
   </ItemGroup>
   <!--MonoMod-->
   <ItemGroup>

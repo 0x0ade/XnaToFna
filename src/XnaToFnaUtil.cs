@@ -153,8 +153,11 @@ namespace XnaToFna {
             modReaderParams.ReadWrite =
                 path != ThisAssembly.Location &&
                 !Mappings.Exists(mappings => name.Name == mappings.Item1);
+            // Only read debug info if it exists
+            if (!File.Exists(path + ".mdb") && !File.Exists(Path.ChangeExtension(path, "pdb")))
+                modReaderParams.ReadSymbols = false;
             Log($"[ScanPath] Loading assembly {name.Name} ({(modReaderParams.ReadWrite ? "rw" : "r-")})");
-            ModuleDefinition mod = ModuleDefinition.ReadModule(path, modReaderParams);
+            ModuleDefinition mod = MonoModExt.ReadModule(path, modReaderParams);
             if ((mod.Attributes & ModuleAttributes.ILOnly) != ModuleAttributes.ILOnly) {
                 // Mono.Cecil can't handle mixed mode assemblies.
                 return;
@@ -268,7 +271,7 @@ namespace XnaToFna {
                 PostProcessType(type);
 
             Log($"[Relink] Rewriting and disposing module\n");
-            Modder.Module.Write();
+            Modder.Module.Write(Modder.WriterParameters);
             // Dispose the module so other modules can read it as a dependency again.
             Modder.Module.Dispose();
             Modder.Module = null;
