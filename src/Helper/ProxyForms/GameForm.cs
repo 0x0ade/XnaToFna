@@ -118,10 +118,6 @@ namespace XnaToFna.ProxyForms {
         }
 
 
-        /// <summary>
-        /// OnStyleChanged gets fired with every change each, not "once" at the end.
-        /// ApplyChanges gets called by XnaToFnaGame.EndDraw to change this.
-        /// </summary>
         public void ApplyChanges() {
             if (!Dirty || Environment.GetEnvironmentVariable("FNADROID") == "1")
                 return;

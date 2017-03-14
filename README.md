@@ -13,7 +13,7 @@ Relinker making <sup>an untested bunch of</sup> games using XNA 4.0 run on Linux
 * Run `XnaToFna.exe` with Mono on Linux / macOS or .NET Framework on Windows.
 * Keep `XnaToFna.exe` in the game directory because the game now also links to the `XnaToFnaHelper` inside it, whoops.
 * For games that may require it (f.e. Stardew Valley), update Mono / use (ironically) the precompiled Mono part of [MonoGame/MonoKickstart.](https://github.com/MonoGame/MonoKickstart/tree/mono4.4)
-* Complain about broken paths, unconverted sound / video assets, Windows-specific P/Invokes and unsupported, closed-source native libraries.
+* Complain about broken paths, ~~unconverted sound / video assets,~~ ~~Windows-specific P/Invokes~~ and unsupported, closed-source native libraries.
 
 #### Special thanks to:
 
@@ -42,4 +42,4 @@ This rebuilt version *uses* "MonoMod neo", which itself is a rebuilt version of 
 
 Before, most relinker fixes ping-ponged between MonoMod and XnaToFna, while some of them weren't even compatible with each other.
 
-Keeping the actual relinking in MonoMod means there's only one codebase to maintain and only one place where it can screw up.
+Keeping the actual relinking in MonoMod means there's only one relinker to maintain and only one place where it can screw up.

@@ -42,7 +42,6 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="lib-projs\MonoMod\MonoMod\DebugSymbolFormat.cs" />
     <Compile Include="src\cecil\MdbHelper.cs" />
     <Compile Include="src\cecil\PdbHelper.cs" />
     <Compile Include="src\Content\Video.cs" />
@@ -211,6 +210,7 @@
     <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModBlacklisted.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModEnumReplace.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModInline.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\DebugSymbolFormat.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="lib-projs\FNA\FNA.csproj">
