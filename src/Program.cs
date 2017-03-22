@@ -30,6 +30,10 @@ namespace XnaToFna {
                 else if (arg == "--update-your-copy-of-mono") {
                     Console.WriteLine("YOU SHOULD REALLY UPDATE YOUR COPY OF MONO!... Unless you're stuck with Xamarin.Android.");
                     xtf.FixOldMonoXML = true;
+                } else if (arg == "--update-xna" || arg == "--xna3" || arg == "--enable-flux-capacitor") {
+                    Console.WriteLine("\"When this baby hits 88 mph, we're gonna see some serious shit.\"");
+                    Console.WriteLine("    -- Doc Brown, 1995");
+                    xtf.EnableTimeMachine = true;
                 } else
                     xtf.ScanPath(arg);
             }

@@ -56,6 +56,8 @@ namespace XnaToFna {
         public bool DestroyLocks = true;
         public bool FixOldMonoXML = false;
 
+        public bool EnableTimeMachine = false;
+
         public XnaToFnaUtil() {
             Modder.ReadingMode = ReadingMode.Immediate;
 
@@ -64,8 +66,6 @@ namespace XnaToFna {
 
             Modder.Logger = LogMonoMod;
             Modder.MissingDependencyResolver = MissingDependencyResolver;
-
-            SetupHelperRelinkMap();
         }
         public XnaToFnaUtil(params string[] paths)
             : this() {
@@ -210,6 +210,8 @@ namespace XnaToFna {
         }
 
         public void RelinkAll() {
+            SetupHelperRelinkMap();
+
             foreach (ModuleDefinition mod in Modules)
                 Modder.DependencyCache[mod.Assembly.Name.Name] = mod;
 
@@ -218,7 +220,7 @@ namespace XnaToFna {
         }
 
         public void Relink(ModuleDefinition mod) {
-            // TODO Dispose those?
+            // TODO: Dispose those?
             // Don't relink the relink targets!
             if (Mappings.Exists(mappings => mod.Assembly.Name.Name == mappings.Item1))
                 return;
@@ -290,7 +292,7 @@ namespace XnaToFna {
 
             // List all content files and update accordingly.
             foreach (string path in Directory.EnumerateFiles(ContentDirectory, "*", SearchOption.AllDirectories))
-                ContentHelper.UpdateContent(path, PatchWaveBanks, PatchXACTSettings, PatchVideo);
+                ContentHelper.UpdateContent(path, EnableTimeMachine, PatchWaveBanks, PatchXACTSettings, PatchVideo);
         }
 
         public void Dispose() {

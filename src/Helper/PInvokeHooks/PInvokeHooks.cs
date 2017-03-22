@@ -47,7 +47,7 @@ namespace XnaToFna {
             if (global) {
                 // WH_GETMESSAGE seems to await 1 as wParam and a message struct as lParam.
                 CallHookChain(HookType.WH_GETMESSAGE, (IntPtr) 1, lParam, ref lParamMsg);
-                // TODO CallHooks should handle most HookTypes.
+                // TODO: CallHooks should handle most HookTypes.
             }
 
             if (allWindows) {
@@ -134,7 +134,7 @@ namespace XnaToFna {
         }
 
         public static IntPtr SetWindowsHookEx(HookType hookType, HookProc lpfn, IntPtr hMod, uint dwThreadId) {
-            // TODO SetWindowsHookEx currently ignores the module and thread.
+            // TODO: SetWindowsHookEx currently ignores the module and thread.
             int handle = PInvokeHelper.AllHooks.Count + 1;
             List<Delegate> hooks = PInvokeHelper.Hooks[hookType];
             PInvokeHelper.AllHooks.Add(Tuple.Create<HookType, Delegate, int>(hookType, lpfn, hooks.Count));

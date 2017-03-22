@@ -10,6 +10,7 @@ using XnaToFna.ProxyForms;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Linq;
+using XnaToFna.TimeMachine;
 
 namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
@@ -46,6 +47,9 @@ namespace XnaToFna {
                 else if (name.StartsWith("XnaToFna.ProxyDInput."))
                     Modder.RelinkMap[/* no namespace */ name.Substring(9 + 12)] = name;
             }
+
+            if (EnableTimeMachine)
+                TimeMachineProcessor.SetupRelinkMap(this);
         }
 
         public void PreProcessType(TypeDefinition type) {
@@ -92,7 +96,7 @@ namespace XnaToFna {
             // Make all Microsoft.Xna.Framework.Games inherit from XnaToFnaGame instead.
             bool isGame = false;
             if (type.BaseType?.FullName == "Microsoft.Xna.Framework.Game") {
-                Log($"[PreProcess] [PostProcess] Found type overriding Game: {type.FullName})");
+                Log($"[PostProcess] Found type overriding Game: {type.FullName})");
                 type.BaseType = type.Module.ImportReference(typeof(XnaToFnaGame));
                 isGame = true;
             }
@@ -103,7 +107,7 @@ namespace XnaToFna {
                 string id = method.GetFindableID(withType: false);
 
                 if (isGame && id == "System.Void Update(Microsoft.Xna.Framework.GameTime)") {
-                    Log("[PreProcess] [PostProcess] Injecting call to XnaToFnaHelper.PreUpdate into game Update");
+                    Log("[PostProcess] Injecting call to XnaToFnaHelper.PreUpdate into game Update");
                     ILProcessor il = method.Body.GetILProcessor();
                     il.InsertBefore(method.Body.Instructions[0], il.Create(OpCodes.Ldarg_1));
                     il.InsertAfter(method.Body.Instructions[0], il.Create(OpCodes.Callvirt,
@@ -151,7 +155,7 @@ namespace XnaToFna {
                 if (instri - method.Body.Instructions.IndexOf((Instruction) instr.Operand) <= 3 &&
                     name != null && (name.Contains("load") || name.Contains("content"))) {
                     // Replace previous, possible volatile and this with nop
-                    Log($"[PreProcess] [HACK!!!] NOPing possible content loading waiting loop in {method.GetFindableID()}");
+                    Log($"[PostProcess] [HACK!!!] NOPing possible content loading waiting loop in {method.GetFindableID()}");
                     if (instr.Previous?.Previous.OpCode == OpCodes.Volatile)
                         instr.Previous.Previous.OpCode = OpCodes.Nop;
                     instr.Previous.OpCode = OpCodes.Nop;
@@ -174,7 +178,7 @@ namespace XnaToFna {
                 if (method.DeclaringType.FullName.ToLowerInvariant().Contains("content") ||
                     method.Name.ToLowerInvariant().Contains("load") || method.Name.ToLowerInvariant().Contains("content")) {
                     // "The input must be false.", MSDN says.
-                    Log($"[PreProcess] [HACK!!!] Destroying possible content loading lock in {method.GetFindableID()}");
+                    Log($"[PostProcess] [HACK!!!] Destroying possible content loading lock in {method.GetFindableID()}");
                     DestroyMonitorLock(method, instri);
                 } else {
                     // Check for the previous load field, maximally 4 (dup, st, ld in between) behind.
@@ -186,7 +190,7 @@ namespace XnaToFna {
                         name = name?.ToLowerInvariant();
                         if (name != null && (name.Contains("load") || name.Contains("content"))) {
                             // "The input must be false.", MSDN says.
-                            Log($"[PreProcess] [HACK!!!] Destroying possible content loading lock in {method.GetFindableID()}");
+                            Log($"[PostProcess] [HACK!!!] Destroying possible content loading lock in {method.GetFindableID()}");
                             DestroyMonitorLock(method, instri);
                             break;
                         }

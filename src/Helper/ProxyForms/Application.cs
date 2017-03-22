@@ -7,7 +7,7 @@ namespace XnaToFna.ProxyForms {
     public sealed class Application {
 
         public static void Run(Form mainForm) {
-            // TODO Is an Application.Run replacement required?
+            // TODO: Is an Application.Run replacement required?
         }
 
     }

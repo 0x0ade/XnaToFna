@@ -94,7 +94,7 @@ namespace XnaToFna.ProxyForms {
         }
 
         protected override void SetVisibleCore(bool visible) {
-            // TODO Invoke SetVisibleCore from XnaToFna. Games can override this.
+            // TODO: Invoke SetVisibleCore from XnaToFna. Games can override this.
         }
 
 

@@ -61,6 +61,16 @@
     <Compile Include="src\Helper\ProxyForms\Message.cs" />
     <Compile Include="src\Helper\PInvokeHooks\PInvokeHooks.cs" />
     <Compile Include="src\Helper\PInvokeHooks\KeyboardEvents.cs" />
+    <Compile Include="src\TimeMachine\Attributes\RelinkNameAttribute.cs" />
+    <Compile Include="src\TimeMachine\Attributes\RelinkTypeAttribute.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\Enums.cs" />
+    <Compile Include="src\TimeMachine\TimeMachine.Processor.cs" />
+    <Compile Include="src\TimeMachine\Content\ContentTimeMachine.cs" />
+    <Compile Include="src\TimeMachine\Content\Asset.cs" />
+    <Compile Include="src\TimeMachine\Content\SoundBank.cs" />
+    <Compile Include="src\TimeMachine\Content\WaveBank.cs" />
+    <Compile Include="src\TimeMachine\Content\XACTGlobalSettings.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\OldVertexElement.cs" />
     <Compile Include="src\XnaToFnaGame.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,7 +79,7 @@
     <Compile Include="src\Content\WaveBank.cs" />
     <Compile Include="src\Helper\ProxyForms\Form.cs" />
     <Compile Include="src\Helper\XnaToFnaHelper.cs" />
-    <Compile Include="src\XnaToFnaUtil.PostProcessor.cs" />
+    <Compile Include="src\XnaToFnaUtil.Processor.cs" />
     <Compile Include="src\XnaToFnaUtil.cs" />
   </ItemGroup>
   <!--cecil-->
@@ -218,6 +228,7 @@
       <Name>FNA</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

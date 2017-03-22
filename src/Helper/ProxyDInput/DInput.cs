@@ -46,7 +46,7 @@ namespace XnaToFna.ProxyDInput {
                 stateD.connected = stateX.IsConnected;
                 if (!stateD.connected)
                     continue;
-                // TODO Finalize DInput mappings
+                // TODO: Finalize DInput mappings
 
                 GamePadThumbSticks sticks = stateX.ThumbSticks;
                 stateD.leftX = sticks.Left.X;
