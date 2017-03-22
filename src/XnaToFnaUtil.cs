@@ -210,7 +210,7 @@ namespace XnaToFna {
         }
 
         public void RelinkAll() {
-            SetupHelperRelinkMap();
+            SetupHelperRelinker();
 
             foreach (ModuleDefinition mod in Modules)
                 Modder.DependencyCache[mod.Assembly.Name.Name] = mod;

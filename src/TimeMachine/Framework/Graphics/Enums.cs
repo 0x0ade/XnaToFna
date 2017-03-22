@@ -131,7 +131,7 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
         SrgbWrite = 0x40000,
         PostPixelShaderBlending = 0x80000,
         VertexTexture = 0x100000,
-        WrapAndMip = 0x200000,
+        WrapAndMip = 0x200000
     }
 
     [RelinkType]
@@ -144,6 +144,24 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
         VertexBuffer,
         IndexBuffer,
         RenderTarget
+    }
+
+    [RelinkType]
+    public enum FilterOptions {
+        None = 1,
+        Point = 2,
+        Linear = 3,
+        Triangle = 4,
+        Box = 5,
+        MirrorU = 65536,
+        MirrorV = 131072,
+        MirrorW = 262144,
+        Mirror = 458752,
+        Dither = 524288,
+        DitherDiffusion = 1048576,
+        SrgbIn = 2097152,
+        SrgbOut = 4194304,
+        Srgb = 6291456
     }
 
 }

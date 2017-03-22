@@ -20,7 +20,9 @@ namespace XnaToFna {
 
         public static object Stuff_25;
 
-        public void SetupHelperRelinkMap() {
+        public void SetupHelperRelinker() {
+            Modder.Relinker = DefaultRelinker;
+
             // To use XnaToFnaGame properly, the actual game override needs to call XnaToFnaGame:: as "base" instead.
             Modder.RelinkMap["System.Void Microsoft.Xna.Framework.Game::.ctor()"] =
                 Tuple.Create("XnaToFna.XnaToFnaGame", "System.Void .ctor()");
@@ -49,7 +51,18 @@ namespace XnaToFna {
             }
 
             if (EnableTimeMachine)
-                TimeMachineProcessor.SetupRelinkMap(this);
+                TimeMachineProcessor.SetupRelinker(this);
+        }
+
+        public IMetadataTokenProvider DefaultRelinker(IMetadataTokenProvider mtp, IGenericParameterProvider context) {
+            // Skip MonoModLinkTo attribute handling.
+            try {
+                return Modder.PostRelinker(
+                    Modder.MainRelinker(mtp, context),
+                    context);
+            } catch (Exception e) {
+                throw new InvalidOperationException($"MonoMod failed relinking {mtp} (context: {context})", e);
+            }
         }
 
         public void PreProcessType(TypeDefinition type) {

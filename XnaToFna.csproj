@@ -65,12 +65,15 @@
     <Compile Include="src\TimeMachine\Attributes\RelinkNameAttribute.cs" />
     <Compile Include="src\TimeMachine\Attributes\RelinkTypeAttribute.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\DepthStencilBuffer.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\TextureCreationParameters.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\GraphicsDeviceCreationParameters.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\OldTexture2D.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldRenderTarget2D.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldResolveTexture2D.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldGraphicsDevice.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldColor.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\GraphicsDeviceCapabilities.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\PackedVector\Normalized101010.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\VertexStream.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\RenderState.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\VertexStreamCollection.cs" />

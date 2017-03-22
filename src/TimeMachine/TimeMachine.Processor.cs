@@ -15,7 +15,7 @@ namespace XnaToFna.TimeMachine {
             Console.WriteLine(txt);
         }
 
-        public static void SetupRelinkMap(XnaToFnaUtil xtf) {
+        public static void SetupRelinker(XnaToFnaUtil xtf) {
             MonoModder modder = xtf.Modder;
 
             // Dynamic map generation - any hooks, proxies or additions.
