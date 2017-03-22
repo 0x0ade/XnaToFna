@@ -62,5 +62,12 @@ namespace XnaToFna {
             return t;
         }
 
+        public static T GetTarget<T>(this WeakReference<T> weak) where T : class {
+            T t;
+            if (weak.TryGetTarget(out t))
+                return t;
+            return null;
+        }
+
     }
 }

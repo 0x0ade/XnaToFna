@@ -35,30 +35,50 @@ namespace XnaToFna.TimeMachine {
                         typeName = typeName.Substring(3);
                 }
 
-                string nameFrom = "Microsoft.Xna.Framework." + typeName;
+                string typeNameFrom = "Microsoft.Xna.Framework." + typeName;
 
                 if (type.GetCustomAttribute<RelinkTypeAttribute>() != null) {
-                    modder.RelinkMap[nameFrom] = typeNameTo;
+                    modder.RelinkMap[typeNameFrom] = typeNameTo;
                 } else {
                     foreach (MethodInfo method in type.GetMethods()) {
-                        modder.RelinkMap[method.GetFindableID(simple: true, type: nameFrom)] =
-                            Tuple.Create(typeNameTo, method.Name);
+                        modder.Relink(method, typeNameFrom, typeNameTo);
+                    }
+                    foreach (PropertyInfo property in type.GetProperties()) {
+                        modder.Relink(property.GetGetMethod(), typeNameFrom, typeNameTo);
+                        modder.Relink(property.GetSetMethod(), typeNameFrom, typeNameTo);
                     }
                 }
             }
 
             // Static map generation - any fine tuning and f.e. per-type namespace remaps.
-            xtf.RelinkNamespace(
+            modder.RelinkNamespace(
                 "Microsoft.Xna.Framework.Graphics",
                 "Microsoft.Xna.Framework",
 
                 "Color"
             );
 
+            modder.RelinkMap["Microsoft.Xna.Framework.Graphics.ResolveTexture2D"] =
+                "Microsoft.Xna.Framework.Graphics.RenderTarget2D";
+            modder.RelinkMap["Microsoft.Xna.Framework.Graphics.RenderTarget"] =
+                "Microsoft.Xna.Framework.Graphics.RenderTarget2D";
+
         }
 
-        public static void RelinkNamespace(this XnaToFnaUtil xtf, string from, string to, params string[] types) {
-            MonoModder modder = xtf.Modder;
+        internal static void Relink(this MonoModder modder, MethodInfo method, string typeFrom, string typeTo) {
+            if (method == null)
+                return;
+
+            RelinkFindableIDAttribute fromID = method.GetCustomAttribute<RelinkFindableIDAttribute>();
+
+            modder.RelinkMap[
+                fromID != null ? string.Format(fromID.FindableID, typeFrom, typeTo) :
+                method.GetFindableID(simple: true, type: typeFrom)
+            ] =
+                Tuple.Create(typeTo, method.Name);
+        }
+
+        internal static void RelinkNamespace(this MonoModder modder, string from, string to, params string[] types) {
             for (int i = 0; i < types.Length; i++) {
                 string type = types[i];
                 modder.RelinkMap[$"{from}.{type}"] = $"{to}.{type}";
