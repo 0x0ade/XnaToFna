@@ -34,6 +34,7 @@ namespace XnaToFna.TimeMachine {
             writer.Write((ushort) 46);
 
             // Replace the tool version.
+            reader.ReadInt16();
             writer.Write((ushort) 43);
 
             reader.BaseStream.CopyTo(writer.BaseStream);

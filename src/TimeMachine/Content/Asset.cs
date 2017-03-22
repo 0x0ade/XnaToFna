@@ -30,6 +30,7 @@ namespace XnaToFna.TimeMachine {
                 reader.BaseStream.CopyTo(writer.BaseStream);
                 return;
             }
+            reader.ReadByte();
             writer.Write((byte) 5);
 
             // TODO: [TimeMachine] Hunt down XNB metadata / structure differences
