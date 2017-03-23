@@ -156,20 +156,38 @@ namespace XnaToFna {
             // Only read debug info if it exists
             if (!File.Exists(path + ".mdb") && !File.Exists(Path.ChangeExtension(path, "pdb")))
                 modReaderParams.ReadSymbols = false;
-            Log($"[ScanPath] Loading assembly {name.Name} ({(modReaderParams.ReadWrite ? "rw" : "r-")})");
+            Log($"[ScanPath] Checking assembly {name.Name} ({(modReaderParams.ReadWrite ? "rw" : "r-")})");
             ModuleDefinition mod = MonoModExt.ReadModule(path, modReaderParams);
             if ((mod.Attributes & ModuleAttributes.ILOnly) != ModuleAttributes.ILOnly) {
                 // Mono.Cecil can't handle mixed mode assemblies.
+                Log($"[ScanPath] WARNING: Cannot handle mixed mode assembly {name.Name}");
+                mod.Dispose();
                 return;
             }
-            Modules.Add(mod);
 
-            foreach (Tuple<string, string[]> mappings in Mappings)
-                if (name.Name == mappings.Item1)
-                    foreach (string from in mappings.Item2) {
-                        Log($"[ScanPath] Mapping {from} -> {name.Name}");
-                        Modder.RelinkModuleMap[from] = mod;
+            bool add = !modReaderParams.ReadWrite || name.Name == ThisAssemblyName;
+            if (add && !modReaderParams.ReadWrite) { // XNA replacement
+                foreach (Tuple<string, string[]> mappings in Mappings)
+                    if (name.Name == mappings.Item1)
+                        foreach (string from in mappings.Item2) {
+                            Log($"[ScanPath] Mapping {from} -> {name.Name}");
+                            Modder.RelinkModuleMap[from] = mod;
+                        }
+            } else if (!add) {
+                foreach (Tuple<string, string[]> mappings in Mappings)
+                    if (mod.AssemblyReferences.Any(dep => mappings.Item2.Contains(dep.Name))) {
+                        add = true;
+                        Log($"[ScanPath] XnaToFna-ing {name.Name}");
+                        goto BreakMappings;
                     }
+            }
+            BreakMappings:
+
+            if (add)
+                Modules.Add(mod);
+            else
+                mod.Dispose();
+
         }
 
         public void RestoreBackup(string root) {
@@ -255,6 +273,12 @@ namespace XnaToFna {
             if (!mod.AssemblyReferences.Any(dep => dep.Name == ThisAssemblyName)) {
                 // Add XnaToFna as dependency
                 mod.AssemblyReferences.Add(Modder.DependencyCache[ThisAssemblyName].Assembly.Name);
+            }
+
+            if (EnableTimeMachine) {
+                // XNA 3.0 / 3.1 games depend on a .NET Framework pre-4.0
+                mod.Runtime = TargetRuntime.Net_4_0;
+                // TODO: What about the System.*.dll dependencies?
             }
 
             // MonoMod needs to relink some types (f.e. XnaToFnaHelper) via FindType, which requires a dependency map.
