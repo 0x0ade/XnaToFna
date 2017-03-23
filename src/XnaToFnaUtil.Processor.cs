@@ -70,7 +70,7 @@ namespace XnaToFna {
                 if (!method.HasPInvokeInfo)
                     continue;
                 // Just check if PInvokeHooks contains the entry point, ignoring the module name, except for its end. What can go wrong?...
-                if (!method.PInvokeInfo.Module.Name.EndsWith("32.dll"))
+                if (!method.PInvokeInfo.Module.Name.EndsWith("32.dll") && !method.PInvokeInfo.Module.Name.EndsWith("32"))
                     continue;
                 string entryPoint = method.PInvokeInfo.EntryPoint ?? method.Name;
                 if (typeof(PInvokeHooks).GetMethod(entryPoint) != null) {

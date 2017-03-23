@@ -17,17 +17,17 @@ namespace XnaToFna {
 
         public static void KeyDown(Keys key)
             // From what I can tell, lParam is being used to differentiate between left and right ctrl, alt and shift. 
-            => PInvokeHelper.CallHooks(Messages.WM_KEYDOWN, (IntPtr) key, IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_KEYDOWN, (IntPtr) key, IntPtr.Zero);
 
         public static void KeyUp(Keys key)
-            => PInvokeHelper.CallHooks(Messages.WM_KEYUP, (IntPtr) key, IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_KEYUP, (IntPtr) key, IntPtr.Zero);
 
         public static void CharEntered(char c)
-            => PInvokeHelper.CallHooks(Messages.WM_CHAR, (IntPtr) c, IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_CHAR, (IntPtr) c, IntPtr.Zero);
 
         // Unclear how / where this should be invoked
         public static void SetContext(bool wParam)
-            => PInvokeHelper.CallHooks(Messages.WM_IME_SETCONTEXT, (IntPtr) (wParam ? 1 : 0), IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_IME_SETCONTEXT, (IntPtr) (wParam ? 1 : 0), IntPtr.Zero);
 
         public static void Update() {
             Keys[] keys = Keyboard.GetState().GetPressedKeys();

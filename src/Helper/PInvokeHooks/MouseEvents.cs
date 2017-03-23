@@ -16,31 +16,31 @@ namespace XnaToFna {
         public static MouseState PreviousState;
 
         public static void Moved()
-            => PInvokeHelper.CallHooks(Messages.WM_MOUSEMOVE, IntPtr.Zero, IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_MOUSEMOVE, IntPtr.Zero, IntPtr.Zero);
 
         public static void LMBDown()
-            => PInvokeHelper.CallHooks(Messages.WM_LBUTTONDOWN, IntPtr.Zero, IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_LBUTTONDOWN, IntPtr.Zero, IntPtr.Zero);
         public static void LMBUp()
-            => PInvokeHelper.CallHooks(Messages.WM_LBUTTONUP, IntPtr.Zero, IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_LBUTTONUP, IntPtr.Zero, IntPtr.Zero);
 
         public static void RMBDown()
-            => PInvokeHelper.CallHooks(Messages.WM_RBUTTONDOWN, IntPtr.Zero, IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_RBUTTONDOWN, IntPtr.Zero, IntPtr.Zero);
         public static void RMBUp()
-            => PInvokeHelper.CallHooks(Messages.WM_RBUTTONUP, IntPtr.Zero, IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_RBUTTONUP, IntPtr.Zero, IntPtr.Zero);
 
         public static void MMBDown()
-            => PInvokeHelper.CallHooks(Messages.WM_MBUTTONDOWN, IntPtr.Zero, IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_MBUTTONDOWN, IntPtr.Zero, IntPtr.Zero);
         public static void MMBUp()
-            => PInvokeHelper.CallHooks(Messages.WM_MBUTTONUP, IntPtr.Zero, IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_MBUTTONUP, IntPtr.Zero, IntPtr.Zero);
 
         public static void XMBDown(int mb)
-            => PInvokeHelper.CallHooks(Messages.WM_XBUTTONDOWN, (IntPtr) (mb << 16), IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_XBUTTONDOWN, (IntPtr) (mb << 16), IntPtr.Zero);
         public static void XMBUp(int mb)
-            => PInvokeHelper.CallHooks(Messages.WM_XBUTTONUP, (IntPtr) (mb << 16), IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_XBUTTONUP, (IntPtr) (mb << 16), IntPtr.Zero);
 
         public static void Wheel(int scroll)
             // Damn, FNA is even accurate to WHEEL_DELTA being 120!
-            => PInvokeHelper.CallHooks(Messages.WM_MOUSEWHEEL, (IntPtr) (scroll << 16), IntPtr.Zero);
+            => PInvoke.CallHooks(Messages.WM_MOUSEWHEEL, (IntPtr) (scroll << 16), IntPtr.Zero);
 
         public static void Update() {
             MouseState state = Mouse.GetState();

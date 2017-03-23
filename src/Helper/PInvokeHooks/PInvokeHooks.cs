@@ -12,7 +12,7 @@ namespace XnaToFna {
     public delegate IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
     public delegate IntPtr HookProc(int code, IntPtr wParam, IntPtr lParam);
 
-    public static class PInvokeHelper {
+    public static class PInvoke {
         public static int MessageSize = Marshal.SizeOf(typeof(Message));
 
         // Global hooks added by SetWindowsHookEx.
@@ -23,7 +23,7 @@ namespace XnaToFna {
         public static ThreadLocal<List<Delegate>> CurrentHookChain = new ThreadLocal<List<Delegate>>();
         public static ThreadLocal<int> CurrentHookIndex = new ThreadLocal<int>();
 
-        static PInvokeHelper() {
+        static PInvoke() {
             Array hookTypes = Enum.GetValues(typeof(HookType));
             foreach (HookType hookType in hookTypes)
                 Hooks[hookType] = new List<Delegate>();
@@ -135,9 +135,9 @@ namespace XnaToFna {
 
         public static IntPtr SetWindowsHookEx(HookType hookType, HookProc lpfn, IntPtr hMod, uint dwThreadId) {
             // TODO: SetWindowsHookEx currently ignores the module and thread.
-            int handle = PInvokeHelper.AllHooks.Count + 1;
-            List<Delegate> hooks = PInvokeHelper.Hooks[hookType];
-            PInvokeHelper.AllHooks.Add(Tuple.Create<HookType, Delegate, int>(hookType, lpfn, hooks.Count));
+            int handle = PInvoke.AllHooks.Count + 1;
+            List<Delegate> hooks = PInvoke.Hooks[hookType];
+            PInvoke.AllHooks.Add(Tuple.Create<HookType, Delegate, int>(hookType, lpfn, hooks.Count));
             hooks.Add(lpfn);
             XnaToFnaHelper.Log($"[PInvokeHooks] Added global hook #{handle} of type {hookType}");
             return (IntPtr) handle;
@@ -145,18 +145,18 @@ namespace XnaToFna {
 
         public static bool UnhookWindowsHookEx(IntPtr hhk) {
             int index = (int) hhk - 1;
-            if (index < 0 || PInvokeHelper.Hooks.Count <= index ||
-                PInvokeHelper.AllHooks[index] == null)
+            if (index < 0 || PInvoke.Hooks.Count <= index ||
+                PInvoke.AllHooks[index] == null)
                 return true; // Too lazy to implement Set/GetLastError with Windows' 16000 error codes...
 
-            Tuple<HookType, Delegate, int> hook = PInvokeHelper.AllHooks[index];
-            PInvokeHelper.AllHooks[index] = null;
-            PInvokeHelper.Hooks[hook.Item1].RemoveAt(hook.Item3);
+            Tuple<HookType, Delegate, int> hook = PInvoke.AllHooks[index];
+            PInvoke.AllHooks[index] = null;
+            PInvoke.Hooks[hook.Item1].RemoveAt(hook.Item3);
             return true;
         }
 
         public static IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam)
-            => PInvokeHelper.ContinueHookChain(nCode, wParam, lParam);
+            => PInvoke.ContinueHookChain(nCode, wParam, lParam);
 
         public static bool TranslateMessage(ref Message m) {
             // Currently, all messages are in their pure form.
@@ -178,6 +178,10 @@ namespace XnaToFna {
             }
             return (uint) (form?.ThreadId ?? 0);
         }
+
+        public static int GetCurrentThreadId()
+            // This is the first time we're required to actually proxy a PInvoke call to other PInvoke calls!
+            => (int) PInvokeHelper.CurrentThreadId;
 
     }
 

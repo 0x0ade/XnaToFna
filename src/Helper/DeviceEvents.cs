@@ -30,7 +30,7 @@ namespace XnaToFna {
 
         public static void DeviceChange(Events e, IntPtr data)
             // Device changes like those affect all windows.
-            => PInvokeHelper.CallHooks(Messages.WM_DEVICECHANGE, (IntPtr) e, data, allWindows : true);
+            => PInvoke.CallHooks(Messages.WM_DEVICECHANGE, (IntPtr) e, data, allWindows : true);
 
         // The games I've seen don't care about what connects / disconnects; they just listen to the message ID.
         public static void GamepadConnected(int i)

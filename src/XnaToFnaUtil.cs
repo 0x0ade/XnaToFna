@@ -49,12 +49,15 @@ namespace XnaToFna {
         public string ContentDirectory;
         public List<ModuleDefinition> Modules = new List<ModuleDefinition>();
 
+        public HashSet<string> RemoveDeps = new HashSet<string>();
+
         public bool PatchWaveBanks = true;
         public bool PatchXACTSettings = true;
         public bool PatchVideo = true;
 
         public bool DestroyLocks = true;
         public bool FixOldMonoXML = false;
+        public bool DestroyMixedDeps = true;
 
         public bool EnableTimeMachine = false;
 
@@ -161,6 +164,8 @@ namespace XnaToFna {
             if ((mod.Attributes & ModuleAttributes.ILOnly) != ModuleAttributes.ILOnly) {
                 // Mono.Cecil can't handle mixed mode assemblies.
                 Log($"[ScanPath] WARNING: Cannot handle mixed mode assembly {name.Name}");
+                if (DestroyMixedDeps)
+                    RemoveDeps.Add(name.Name);
                 mod.Dispose();
                 return;
             }
@@ -228,6 +233,10 @@ namespace XnaToFna {
         }
 
         public void RelinkAll() {
+            if (DestroyMixedDeps) {
+                RemoveDeps.Add("Microsoft.DirectX.DirectInput");
+            }
+
             SetupHelperRelinker();
 
             foreach (ModuleDefinition mod in Modules)
@@ -253,6 +262,8 @@ namespace XnaToFna {
             Log($"[Relink] Updating dependencies");
             for (int i = 0; i < mod.AssemblyReferences.Count; i++) {
                 AssemblyNameReference dep = mod.AssemblyReferences[i];
+
+                // Main mapping mass.
                 foreach (Tuple<string, string[]> mappings in Mappings)
                     if (mappings.Item2.Contains(dep.Name) &&
                         // Check if the target module has been found and cached
@@ -262,16 +273,30 @@ namespace XnaToFna {
                             // If so, just remove the dependency.
                             mod.AssemblyReferences.RemoveAt(i);
                             i--;
-                            break;
+                            goto NextDep;
                         }
+                        Log($"[Relink] Replacing dependency {dep.Name} -> {mappings.Item1}");
                         // Replace the dependency.
                         mod.AssemblyReferences[i] = Modder.DependencyCache[mappings.Item1].Assembly.Name;
                         // Only check until first match found.
-                        break;
+                        goto NextDep;
                     }
+
+                // Didn't remap; Check for RemoveDeps
+                if (RemoveDeps.Contains(dep.Name)) {
+                    // Remove any unwanted mixed dependencies.
+                    Log($"[Relink] Removing unwanted dependency {dep.Name}");
+                    mod.AssemblyReferences.RemoveAt(i);
+                    i--;
+                    goto NextDep;
+                }
+
+                NextDep:
+                continue;
             }
             if (!mod.AssemblyReferences.Any(dep => dep.Name == ThisAssemblyName)) {
                 // Add XnaToFna as dependency
+                Log($"[Relink] Adding dependency XnaToFna");
                 mod.AssemblyReferences.Add(Modder.DependencyCache[ThisAssemblyName].Assembly.Name);
             }
 

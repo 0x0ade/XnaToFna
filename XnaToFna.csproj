@@ -49,6 +49,7 @@
     <Compile Include="src\Helper\DeviceEvents.cs" />
     <Compile Include="src\Helper\FakeMonitor.cs" />
     <Compile Include="src\Helper\PInvokeHooks\MouseEvents.cs" />
+    <Compile Include="src\Helper\PInvokeHooks\PInvokeHelper.cs" />
     <Compile Include="src\Helper\ProxyDInput\DInputState.cs" />
     <Compile Include="src\Helper\ProxyDInput\DInput.cs" />
     <Compile Include="src\Helper\ProxyForms\Application.cs" />
@@ -65,6 +66,8 @@
     <Compile Include="src\TimeMachine\Attributes\RelinkNameAttribute.cs" />
     <Compile Include="src\TimeMachine\Attributes\RelinkTypeAttribute.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\DepthStencilBuffer.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\OldPresentationParameters.cs" />
+    <Compile Include="src\TimeMachine\Framework\OldGraphicsDeviceManager.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\TextureCreationParameters.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\GraphicsDeviceCreationParameters.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldTexture2D.cs" />

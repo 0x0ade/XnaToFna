@@ -25,8 +25,10 @@ namespace XnaToFna {
                     xtf.PatchXACTSettings = false;
                 else if (arg == "--skip-video" || arg == "--skip-wma")
                     xtf.PatchVideo = false;
-                else if (arg == "--skip-locks")
+                else if (arg == "--skip-locks" || arg == "--keep-locks")
                     xtf.DestroyLocks = false;
+                else if (arg == "--keep-mixed-deps")
+                    xtf.DestroyMixedDeps = false;
                 else if (arg == "--update-your-copy-of-mono") {
                     Console.WriteLine("YOU SHOULD REALLY UPDATE YOUR COPY OF MONO!... Unless you're stuck with Xamarin.Android.");
                     xtf.FixOldMonoXML = true;

@@ -23,10 +23,15 @@ namespace XnaToFna.ProxyForms {
             get; set;
         }
 
+        public virtual bool KeyPreview {
+            get; set;
+        }
+
 
         public Form() {
             Form = this;
             ThreadId = Thread.CurrentThread.ManagedThreadId;
+            KeyPreview = false;
         }
 
         public event FormClosingEventHandler FormClosing;
