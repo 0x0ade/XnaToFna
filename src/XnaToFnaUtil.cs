@@ -326,6 +326,7 @@ namespace XnaToFna {
             Modder.MapDependencies(mod);
 
             Log($"[Relink] Pre-processing");
+            mod.Attributes &= ~ModuleAttributes.StrongNameSigned;
             foreach (TypeDefinition type in mod.Types)
                 PreProcessType(type);
 

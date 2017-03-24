@@ -14,6 +14,8 @@ using XnaToFna.TimeMachine;
 namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
 
+        public static System.Reflection.ConstructorInfo m_UnverifiableCodeAttribute_ctor = typeof(System.Security.UnverifiableCodeAttribute).GetConstructor(Type.EmptyTypes);
+
         public void Stub(ModuleDefinition mod) {
             Log($"[Stub] Stubbing {mod.Assembly.Name.Name}");
             Modder.Module = mod;
@@ -70,7 +72,20 @@ namespace XnaToFna {
             Modder.MapDependencies(mod);
 
             bool mixed = (mod.Attributes & ModuleAttributes.ILOnly) != ModuleAttributes.ILOnly;
-            mod.Attributes |= ModuleAttributes.ILOnly;
+            if (mixed) {
+                Log("[Stub] Handling mixed mode assembly");
+                mod.Attributes |= ModuleAttributes.ILOnly;
+                for (int i = 0; i < mod.Assembly.CustomAttributes.Count; i++) {
+                    CustomAttribute attrib = mod.Assembly.CustomAttributes[i];
+                    if (attrib.AttributeType.FullName == "System.CLSCompliantAttribute") {
+                        mod.Assembly.CustomAttributes.RemoveAt(i);
+                        i--;
+                    }
+                }
+                if (!mod.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Security.UnverifiableCodeAttribute"))
+                    mod.AddAttribute(mod.ImportReference(m_UnverifiableCodeAttribute_ctor));
+            }
+            mod.Attributes &= ~ModuleAttributes.StrongNameSigned;
 
             Log($"[Stub] Stubbing");
             foreach (TypeDefinition type in mod.Types)
@@ -101,10 +116,14 @@ namespace XnaToFna {
                     method.PInvokeInfo = null;
                 method.IsManaged = true;
                 method.IsIL = true;
+                method.IsNative = false;
+                method.PInvokeInfo = null;
+                method.IsPreserveSig = false;
                 method.IsInternalCall = false;
-                method.IsPInvokeImpl = false;
+                method.IsPInvokeImpl = true;
 
                 MethodBody body = method.Body = new MethodBody(method);
+                body.InitLocals = true;
                 ILProcessor il = body.GetILProcessor();
 
                 for (int i = 0; i < method.Parameters.Count; i++) {

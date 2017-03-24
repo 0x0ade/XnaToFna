@@ -15,7 +15,7 @@ using XnaToFna.TimeMachine;
 namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
 
-        public static ConstructorInfo m_XmlIgnore_ctor = typeof(XmlIgnoreAttribute).GetConstructor(new Type[] { });
+        public static ConstructorInfo m_XmlIgnore_ctor = typeof(XmlIgnoreAttribute).GetConstructor(Type.EmptyTypes);
         public static MethodInfo m_XnaToFnaHelper_PreUpdate = typeof(XnaToFnaHelper).GetMethod("PreUpdate");
 
         public static object Stuff_25;
