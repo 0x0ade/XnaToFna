@@ -97,6 +97,7 @@
     <Compile Include="src\Content\WaveBank.cs" />
     <Compile Include="src\Helper\ProxyForms\Form.cs" />
     <Compile Include="src\Helper\XnaToFnaHelper.cs" />
+    <Compile Include="src\XnaToFnaUtil.Stubber.cs" />
     <Compile Include="src\XnaToFnaUtil.Processor.cs" />
     <Compile Include="src\XnaToFnaUtil.cs" />
   </ItemGroup>

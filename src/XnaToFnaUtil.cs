@@ -50,6 +50,7 @@ namespace XnaToFna {
         public List<ModuleDefinition> Modules = new List<ModuleDefinition>();
 
         public HashSet<string> RemoveDeps = new HashSet<string>();
+        public List<ModuleDefinition> ModulesToStub = new List<ModuleDefinition>();
 
         public bool PatchWaveBanks = true;
         public bool PatchXACTSettings = true;
@@ -57,7 +58,8 @@ namespace XnaToFna {
 
         public bool DestroyLocks = true;
         public bool FixOldMonoXML = false;
-        public bool DestroyMixedDeps = true;
+        public bool DestroyMixedDeps = false;
+        public bool StubMixedDeps = true;
 
         public bool EnableTimeMachine = false;
 
@@ -161,16 +163,23 @@ namespace XnaToFna {
                 modReaderParams.ReadSymbols = false;
             Log($"[ScanPath] Checking assembly {name.Name} ({(modReaderParams.ReadWrite ? "rw" : "r-")})");
             ModuleDefinition mod = MonoModExt.ReadModule(path, modReaderParams);
+            bool add = !modReaderParams.ReadWrite || name.Name == ThisAssemblyName;
+
             if ((mod.Attributes & ModuleAttributes.ILOnly) != ModuleAttributes.ILOnly) {
                 // Mono.Cecil can't handle mixed mode assemblies.
                 Log($"[ScanPath] WARNING: Cannot handle mixed mode assembly {name.Name}");
-                if (DestroyMixedDeps)
-                    RemoveDeps.Add(name.Name);
-                mod.Dispose();
-                return;
+                if (StubMixedDeps) {
+                    ModulesToStub.Add(mod);
+                    add = true;
+                } else {
+                    if (DestroyMixedDeps) {
+                        RemoveDeps.Add(name.Name);
+                    }
+                    mod.Dispose();
+                    return;
+                }
             }
 
-            bool add = !modReaderParams.ReadWrite || name.Name == ThisAssemblyName;
             if (add && !modReaderParams.ReadWrite) { // XNA replacement
                 foreach (Tuple<string, string[]> mappings in Mappings)
                     if (name.Name == mappings.Item1)
@@ -242,14 +251,20 @@ namespace XnaToFna {
             foreach (ModuleDefinition mod in Modules)
                 Modder.DependencyCache[mod.Assembly.Name.Name] = mod;
 
+            foreach (ModuleDefinition mod in ModulesToStub)
+                Stub(mod);
+
             foreach (ModuleDefinition mod in Modules)
                 Relink(mod);
         }
 
         public void Relink(ModuleDefinition mod) {
-            // TODO: Dispose those?
             // Don't relink the relink targets!
             if (Mappings.Exists(mappings => mod.Assembly.Name.Name == mappings.Item1))
+                return;
+
+            // Don't relink stubbed targets again!
+            if (ModulesToStub.Contains(mod))
                 return;
 
             // Don't relink XnaToFna itself!
@@ -350,6 +365,7 @@ namespace XnaToFna {
             foreach (ModuleDefinition mod in Modules)
                 mod.Dispose();
             Modules.Clear();
+            ModulesToStub.Clear();
             Directories.Clear();
         }
 
