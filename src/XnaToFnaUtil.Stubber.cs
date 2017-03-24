@@ -120,7 +120,7 @@ namespace XnaToFna {
                 method.PInvokeInfo = null;
                 method.IsPreserveSig = false;
                 method.IsInternalCall = false;
-                method.IsPInvokeImpl = true;
+                method.IsPInvokeImpl = false;
 
                 MethodBody body = method.Body = new MethodBody(method);
                 body.InitLocals = true;
