@@ -240,6 +240,7 @@
     <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModEnumReplace.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModInline.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\DebugSymbolFormat.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\NET40Shim.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="lib-projs\FNA\FNA.csproj">
