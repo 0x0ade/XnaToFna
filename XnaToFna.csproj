@@ -214,33 +214,15 @@
   </ItemGroup>
   <!--MonoMod-->
   <ItemGroup>
-    <Compile Include="lib-projs\MonoMod\MonoMod\InlineRT\MMILExec.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\InlineRT\MMILProxy.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\InlineRT\MMILRT.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\InlineRT\MMILProxyManager.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\InlineRT\ReflectionHelper.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModHook.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModIfFlag.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModNoNew.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModOnPlatform.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModAdded.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModOriginal.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModOriginalName.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\InlineRT\*.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\DebugIL\*.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Helpers\*.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\*.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\DebugSymbolFormat.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\MonoModder.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\MonoModExt.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\Platform.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\PlatformHelper.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\StringInjectExtension.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModIgnore.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModRemove.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModReplace.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModConstructor.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModLinkTo.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModBlacklisted.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModEnumReplace.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\MonoModInline.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\DebugSymbolFormat.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\NET40Shim.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="lib-projs\FNA\FNA.csproj">
