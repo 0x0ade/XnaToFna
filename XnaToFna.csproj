@@ -64,6 +64,7 @@
     <Compile Include="src\Helper\ProxyForms\Message.cs" />
     <Compile Include="src\Helper\PInvokeHooks\PInvokeHooks.cs" />
     <Compile Include="src\Helper\PInvokeHooks\KeyboardEvents.cs" />
+    <Compile Include="src\Helper\SyncResult.cs" />
     <Compile Include="src\TimeMachine\Attributes\RelinkFindableIDAttribute.cs" />
     <Compile Include="src\TimeMachine\Attributes\RelinkNameAttribute.cs" />
     <Compile Include="src\TimeMachine\Attributes\RelinkTypeAttribute.cs" />

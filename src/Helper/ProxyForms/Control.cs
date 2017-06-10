@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using XnaToFna.ProxyDrawing;
 
 namespace XnaToFna.ProxyForms {
-    public class Control {
+    public class Control : IDisposable {
 
         public static List<WeakReference<Control>> AllControls = new List<WeakReference<Control>>();
 
@@ -19,6 +19,13 @@ namespace XnaToFna.ProxyForms {
         public Form Form;
 
         public virtual Rectangle Bounds { get; set; }
+
+        protected bool _IsDisposed = false;
+        public bool IsDisposed {
+            get {
+                return _IsDisposed;
+            }
+        }
 
         public Control() {
             GlobalIndex = AllControls.Count + 1;
@@ -52,9 +59,37 @@ namespace XnaToFna.ProxyForms {
             // no-op
         }
 
+        // TODO: The delegate passed in Control.Invoke should be invoked on the main thread
+
         public object Invoke(Delegate method) {
-            // TODO: The delegate passed in Control.Invoke should be invoked on the main thread
             return method.DynamicInvoke();
+        }
+
+        public object Invoke(Delegate method, params object[] args) {
+            return method.DynamicInvoke(args);
+        }
+
+        public IAsyncResult BeginInvoke(Delegate method) {
+            return new SyncResult(method.DynamicInvoke());
+        }
+
+        public IAsyncResult BeginInvoke(Delegate method, params object[] args) {
+            return new SyncResult(method.DynamicInvoke(args));
+        }
+
+        public object EndInvoke(IAsyncResult result) {
+            return result.AsyncState;
+        }
+
+        public void Dispose()
+            => Dispose(true);
+        protected virtual void Dispose(bool disposing) {
+            if (_IsDisposed)
+                return;
+
+            // no-op
+
+            _IsDisposed = true;
         }
 
         // Some games override those
