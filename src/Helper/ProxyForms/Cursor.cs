@@ -135,6 +135,7 @@ namespace XnaToFna.ProxyForms {
                 INTERNAL_IsNullCursor = true;
                 return;
             }
+            // TODO: Implement Cursor._Apply
         }
 
         private void _Load(Stream stream) {
