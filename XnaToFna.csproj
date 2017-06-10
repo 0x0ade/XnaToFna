@@ -68,6 +68,8 @@
     <Compile Include="src\TimeMachine\Attributes\RelinkNameAttribute.cs" />
     <Compile Include="src\TimeMachine\Attributes\RelinkTypeAttribute.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\DepthStencilBuffer.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\OldEffect.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\OldDisplayMode.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldPresentationParameters.cs" />
     <Compile Include="src\TimeMachine\Framework\OldGraphicsDeviceManager.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\TextureCreationParameters.cs" />

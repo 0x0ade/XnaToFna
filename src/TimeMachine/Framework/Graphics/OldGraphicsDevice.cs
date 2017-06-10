@@ -28,6 +28,12 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
         public static VertexStreamCollection get_Vertices(this GraphicsDevice device)
             => device.GetOldData()?.Vertices;
 
+        // TODO: [TimeMachine] Don't drop the VertexDeclaration, could be repurposed in device.GetVertexBuffers()[N].VertexBuffer.VertexDeclaration
+        public static VertexDeclaration get_VertexDeclaration(this GraphicsDevice device)
+            => device.GetOldData()?.VertexDeclaration;
+        public static void set_VertexDeclaration(this GraphicsDevice device, VertexDeclaration decl)
+            => device.GetOldData().VertexDeclaration = decl;
+
         public static RenderState get_RenderState(this GraphicsDevice device)
             => device.GetOldData()?.RenderState;
 
@@ -53,6 +59,7 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
     public class OldGraphicsDeviceData {
         public VertexStreamCollection Vertices;
         public RenderState RenderState;
+        public VertexDeclaration VertexDeclaration;
         public GraphicsDeviceCreationParameters CreationParameters;
         public GraphicsDeviceCapabilities GraphicsDeviceCapabilities;
         public DepthStencilBuffer DepthStencilBuffer;
@@ -62,6 +69,7 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
 
             Vertices = new VertexStreamCollection(weak);
             RenderState = new RenderState(weak);
+            VertexDeclaration = null;
             CreationParameters = new GraphicsDeviceCreationParameters(device.Adapter, DeviceType.Hardware, device.Adapter.MonitorHandle, CreateOptions.HardwareVertexProcessing);
             GraphicsDeviceCapabilities = new GraphicsDeviceCapabilities(weak);
             DepthStencilBuffer = new DepthStencilBuffer(device, -1, -1, DepthFormat.None);

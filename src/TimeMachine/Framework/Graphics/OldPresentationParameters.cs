@@ -16,5 +16,10 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
             => 1;
         public static void set_BackBufferCount(this PresentationParameters @params, int value) {}
 
+        // XNA 4.0 dropped refresh rate access / manipulation.
+        public static int get_FullScreenRefreshRateInHz(this PresentationParameters @params)
+            => 0; // Adapter default.
+        public static void set_FullScreenRefreshRateInHz(this PresentationParameters @params, int value) {}
+
     }
 }
