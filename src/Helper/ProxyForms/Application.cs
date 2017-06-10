@@ -9,7 +9,21 @@ namespace XnaToFna.ProxyForms {
 
         public static string ProductVersion {
             get {
-                return Assembly.GetCallingAssembly().ManifestModule.GetCustomAttribute<AssemblyVersionAttribute>().Version;
+                Assembly asm = Assembly.GetEntryAssembly();
+                if (asm == null)
+                    return null;
+
+                Module module = asm.ManifestModule;
+                if (module != null) {
+                    AssemblyInformationalVersionAttribute versionInfo = module.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                    if (versionInfo != null)
+                        return versionInfo.InformationalVersion;
+                    AssemblyVersionAttribute version = module.GetCustomAttribute<AssemblyVersionAttribute>();
+                    if (version != null)
+                        return version.Version;
+                }
+
+                return asm.GetName().Version.ToString();
             }
         }
 

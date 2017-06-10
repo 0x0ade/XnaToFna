@@ -24,6 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -34,6 +35,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -218,11 +220,10 @@
     <Compile Include="lib-projs\MonoMod\MonoMod\DebugIL\*.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\Helpers\*.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\*.cs" />
+    <Compile Include="lib-projs\MonoMod\MonoMod\Detour\*.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\DebugSymbolFormat.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\MonoModder.cs" />
     <Compile Include="lib-projs\MonoMod\MonoMod\MonoModExt.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Platform.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\PlatformHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="lib-projs\FNA\FNA.csproj">
@@ -230,7 +231,6 @@
       <Name>FNA</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -49,7 +49,14 @@ namespace XnaToFna {
         public string ContentDirectory;
         public List<ModuleDefinition> Modules = new List<ModuleDefinition>();
 
-        public HashSet<string> RemoveDeps = new HashSet<string>();
+        public HashSet<string> RemoveDeps = new HashSet<string>() {
+            // Some mixed-mode assemblies refer to nameless dependencies..?
+            null,
+            "",
+            "Microsoft.DirectX.DirectInput",
+            "Microsoft.VisualC"
+
+        };
         public List<ModuleDefinition> ModulesToStub = new List<ModuleDefinition>();
 
         public bool PatchWaveBanks = true;
@@ -91,7 +98,7 @@ namespace XnaToFna {
             Console.WriteLine(txt);
         }
 
-        public ModuleDefinition MissingDependencyResolver(ModuleDefinition main, string name, string fullName) {
+        public ModuleDefinition MissingDependencyResolver(MonoModder modder, ModuleDefinition main, string name, string fullName) {
             LogMonoMod($"Cannot map dependency {main.Name} -> (({fullName}), ({name})) - not found");
             return null;
         }
@@ -242,10 +249,6 @@ namespace XnaToFna {
         }
 
         public void RelinkAll() {
-            if (DestroyMixedDeps) {
-                RemoveDeps.Add("Microsoft.DirectX.DirectInput");
-            }
-
             SetupHelperRelinker();
 
             foreach (ModuleDefinition mod in Modules)
@@ -299,10 +302,21 @@ namespace XnaToFna {
 
                 // Didn't remap; Check for RemoveDeps
                 if (RemoveDeps.Contains(dep.Name)) {
-                    // Remove any unwanted mixed dependencies.
+                    // Remove any unwanted (f.e. mixed) dependencies.
                     Log($"[Relink] Removing unwanted dependency {dep.Name}");
                     mod.AssemblyReferences.RemoveAt(i);
                     i--;
+                    goto NextDep;
+                }
+
+                // Didn't remove; Check for ModulesToStub (formerly managed references)
+                if (ModulesToStub.Any(stub => stub.Assembly.Name.Name == dep.Name)) {
+                    // Fix stubbed dependencies.
+                    Log($"[Relink] Fixing stubbed dependency {dep.Name}");
+                    // mod.AssemblyReferences.RemoveAt(i);
+                    // i--;
+                    dep.IsWindowsRuntime = false;
+                    dep.HasPublicKey = false;
                     goto NextDep;
                 }
 

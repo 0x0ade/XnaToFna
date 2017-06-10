@@ -31,8 +31,19 @@ namespace XnaToFna.TimeMachine {
                     typeName = nameAttrib.Name;
                 } else {
                     typeName = typeNameTo.Substring(31);
+                    string[] typeNameParts = typeName.Split('.');
+                    typeName = typeNameParts[typeNameParts.Length - 1];
+
                     if (typeName.StartsWith("Old"))
                         typeName = typeName.Substring(3);
+
+                    if (typeNameParts.Length != 1) {
+                        StringBuilder typeNameBuilder = new StringBuilder();
+                        for (int i = 0; i < typeNameParts.Length - 1; i++)
+                            typeNameBuilder.Append(typeNameParts[i]).Append('.');
+                        typeNameBuilder.Append(typeName);
+                        typeName = typeNameBuilder.ToString();
+                    }
                 }
 
                 string typeNameFrom = "Microsoft.Xna.Framework." + typeName;

@@ -84,6 +84,7 @@ namespace XnaToFna {
                 }
                 if (!mod.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Security.UnverifiableCodeAttribute"))
                     mod.AddAttribute(mod.ImportReference(m_UnverifiableCodeAttribute_ctor));
+                mod.ModuleReferences.Clear();
             }
             mod.Attributes &= ~ModuleAttributes.StrongNameSigned;
 
