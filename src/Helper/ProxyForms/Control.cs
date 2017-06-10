@@ -16,9 +16,18 @@ namespace XnaToFna.ProxyForms {
             }
         }
 
+        public static Point MousePosition {
+            get {
+                // The MousePosition property is identical to the Cursor.Position property. --MSDN
+                return Cursor.Position;
+            }
+        }
+
         public Form Form;
 
         public virtual Rectangle Bounds { get; set; }
+
+        public virtual Cursor Cursor { get; set; }
 
         protected bool _IsDisposed = false;
         public bool IsDisposed {

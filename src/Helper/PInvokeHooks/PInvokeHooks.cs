@@ -183,6 +183,10 @@ namespace XnaToFna {
             // This is the first time we're required to actually proxy a PInvoke call to other PInvoke calls!
             => (int) PInvokeHelper.CurrentThreadId;
 
+        // LoadCursorFromFile supports .anis while new Cursor() only supports .curs... but we aren't WinForms.
+        public static IntPtr LoadCursorFromFile(string str)
+            => new Cursor(str).Handle;
+
     }
 
 }

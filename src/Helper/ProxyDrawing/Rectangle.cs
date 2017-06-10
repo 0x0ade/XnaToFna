@@ -107,6 +107,8 @@ namespace XnaToFna.ProxyDrawing {
             height = Math.Min(Bottom, rect.Bottom) - y;
         }
 
+        public bool Contains(Point p)
+            => Contains(p.X, p.Y);
         public bool Contains(int x, int y)
             => x >= Left &&
             x < Right &&
@@ -133,6 +135,8 @@ namespace XnaToFna.ProxyDrawing {
                 Bottom < rect.Top
             );
 
+        public void Offset(Point p)
+            => Offset(p.X, p.Y);
         public void Offset(int x, int y) {
             this.x += x;
             this.y += y;

@@ -54,8 +54,10 @@
     <Compile Include="src\Helper\PInvokeHooks\PInvokeHelper.cs" />
     <Compile Include="src\Helper\ProxyDInput\DInputState.cs" />
     <Compile Include="src\Helper\ProxyDInput\DInput.cs" />
+    <Compile Include="src\Helper\ProxyDrawing\Point.cs" />
     <Compile Include="src\Helper\ProxyForms\Application.cs" />
     <Compile Include="src\Helper\ProxyDrawing\Rectangle.cs" />
+    <Compile Include="src\Helper\ProxyForms\Cursor.cs" />
     <Compile Include="src\Helper\ProxyForms\Delegates.cs" />
     <Compile Include="src\Helper\ProxyForms\Enums.cs" />
     <Compile Include="src\Helper\ProxyForms\Events.cs" />
