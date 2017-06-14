@@ -13,7 +13,8 @@ namespace XnaToFna {
     /// </summary>
     public class XnaToFnaGame : Game {
 
-        public XnaToFnaGame() {
+        public XnaToFnaGame()
+            : base() {
             XnaToFnaHelper.Initialize(this);
         }
 

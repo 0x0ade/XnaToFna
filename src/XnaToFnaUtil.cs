@@ -68,6 +68,8 @@ namespace XnaToFna {
         public bool DestroyMixedDeps = false;
         public bool StubMixedDeps = true;
 
+        public bool ForceAnyCPU = false;
+
         public bool EnableTimeMachine = false;
 
         public XnaToFnaUtil() {
@@ -339,8 +341,24 @@ namespace XnaToFna {
             Log("[Relink] Mapping dependencies for MonoMod");
             Modder.MapDependencies(mod);
 
+            if (ModulesToStub.Count != 0) {
+                Log("[Relink] Making assembly unsafe");
+                mod.Attributes |= ModuleAttributes.ILOnly;
+                for (int i = 0; i < mod.Assembly.CustomAttributes.Count; i++) {
+                    CustomAttribute attrib = mod.Assembly.CustomAttributes[i];
+                    if (attrib.AttributeType.FullName == "System.CLSCompliantAttribute") {
+                        mod.Assembly.CustomAttributes.RemoveAt(i);
+                        i--;
+                    }
+                }
+                if (!mod.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Security.UnverifiableCodeAttribute"))
+                    mod.AddAttribute(mod.ImportReference(m_UnverifiableCodeAttribute_ctor));
+            }
+
             Log($"[Relink] Pre-processing");
             mod.Attributes &= ~ModuleAttributes.StrongNameSigned;
+            if (ForceAnyCPU)
+                mod.Attributes &= ~ModuleAttributes.Required32Bit;
             foreach (TypeDefinition type in mod.Types)
                 PreProcessType(type);
 

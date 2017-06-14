@@ -27,6 +27,8 @@ namespace XnaToFna {
                     xtf.PatchVideo = false;
                 else if (arg == "--skip-locks" || arg == "--keep-locks")
                     xtf.DestroyLocks = false;
+                else if (arg == "--anycpu" || arg == "--force-anycpu")
+                    xtf.ForceAnyCPU = true;
                 else if (arg == "--keep-mixed-deps") {
                     xtf.StubMixedDeps = false;
                     xtf.DestroyMixedDeps = false;

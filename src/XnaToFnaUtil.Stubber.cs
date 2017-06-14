@@ -75,6 +75,7 @@ namespace XnaToFna {
             if (mixed) {
                 Log("[Stub] Handling mixed mode assembly");
                 mod.Attributes |= ModuleAttributes.ILOnly;
+                mod.Attributes &= ~((ModuleAttributes) 0x10); // Remove "Native entry point" flag.
                 for (int i = 0; i < mod.Assembly.CustomAttributes.Count; i++) {
                     CustomAttribute attrib = mod.Assembly.CustomAttributes[i];
                     if (attrib.AttributeType.FullName == "System.CLSCompliantAttribute") {
@@ -87,6 +88,8 @@ namespace XnaToFna {
                 mod.ModuleReferences.Clear();
             }
             mod.Attributes &= ~ModuleAttributes.StrongNameSigned;
+            if (ForceAnyCPU)
+                mod.Attributes &= ~ModuleAttributes.Required32Bit;
 
             Log($"[Stub] Stubbing");
             foreach (TypeDefinition type in mod.Types)
@@ -112,6 +115,10 @@ namespace XnaToFna {
         }
 
         public void StubType(TypeDefinition type, bool mixed = false) {
+            foreach (FieldDefinition field in type.Fields) {
+                field.Attributes &= ~FieldAttributes.HasFieldRVA;
+            }
+
             foreach (MethodDefinition method in type.Methods) {
                 if (method.HasPInvokeInfo)
                     method.PInvokeInfo = null;
