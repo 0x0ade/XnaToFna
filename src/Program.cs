@@ -45,6 +45,9 @@ namespace XnaToFna {
                     Console.WriteLine("\"When this baby hits 88 mph, we're gonna see some serious shit.\"");
                     Console.WriteLine("    -- Doc Brown, 1995");
                     xtf.EnableTimeMachine = true;
+                } else if (arg == "--hook-istrialmode" || arg == "--arr") {
+                    Console.WriteLine("Do what you want cause a pirate is free! You are a pirate!");
+                    xtf.HookIsTrialMode = true;
                 } else
                     xtf.ScanPath(arg);
             }

@@ -54,6 +54,9 @@ namespace XnaToFna {
             return GameForm.Instance.Handle;
         }
 
+        // Only used when --hook-istrialmode / --arr is provided when patching.
+        public static bool get_IsTrialMode()
+            => Environment.GetEnvironmentVariable("XNATOFNA_ISTRIALMODE") != "0";
         
         public static void PreUpdate(GameTime time) {
             // Don't ask me why some games use Win32 calls instead of Keyboard.GetState()...

@@ -18,8 +18,6 @@ namespace XnaToFna {
         public static ConstructorInfo m_XmlIgnore_ctor = typeof(XmlIgnoreAttribute).GetConstructor(Type.EmptyTypes);
         public static MethodInfo m_XnaToFnaHelper_PreUpdate = typeof(XnaToFnaHelper).GetMethod("PreUpdate");
 
-        public static object Stuff_25;
-
         public void SetupHelperRelinker() {
             Modder.Relinker = DefaultRelinker;
 
@@ -52,6 +50,10 @@ namespace XnaToFna {
 
             if (EnableTimeMachine)
                 TimeMachineProcessor.SetupRelinker(this);
+
+            if (HookIsTrialMode)
+                Modder.RelinkMap["System.Boolean Microsoft.Xna.Framework.GamerServices.Guide.get_IsTrialMode()"] =
+                    Tuple.Create("XnaToFna.XnaToFnaHelper", "System.IntPtr get_IsTrialMode()");
         }
 
         public IMetadataTokenProvider DefaultRelinker(IMetadataTokenProvider mtp, IGenericParameterProvider context) {

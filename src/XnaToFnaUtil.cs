@@ -72,6 +72,8 @@ namespace XnaToFna {
 
         public bool EnableTimeMachine = false;
 
+        public bool HookIsTrialMode = false;
+
         public XnaToFnaUtil() {
             Modder.ReadingMode = ReadingMode.Immediate;
 
