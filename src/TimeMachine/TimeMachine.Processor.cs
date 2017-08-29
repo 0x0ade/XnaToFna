@@ -48,8 +48,22 @@ namespace XnaToFna.TimeMachine {
 
                 string typeNameFrom = "Microsoft.Xna.Framework." + typeName;
 
-                if (type.GetCustomAttribute<RelinkTypeAttribute>() != null) {
+                if (type.GetCustomAttribute<RelinkTypeInTheMiddleAttribute>() != null) {
                     modder.RelinkMap[typeNameFrom] = typeNameTo;
+                    foreach (ConstructorInfo ctor in typeof(XnaToFnaGame).GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) {
+                        modder.Relink(ctor, typeNameFrom, typeNameTo);
+                    }
+                    foreach (MethodInfo method in typeof(XnaToFnaGame).GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)) {
+                        modder.Relink(method, typeNameFrom, typeNameTo);
+                    }
+                    foreach (PropertyInfo property in type.GetProperties(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)) {
+                        modder.Relink(property.GetGetMethod(), typeNameFrom, typeNameTo);
+                        modder.Relink(property.GetSetMethod(), typeNameFrom, typeNameTo);
+                    }
+
+                } else if (type.GetCustomAttribute<RelinkTypeAttribute>() != null) {
+                    modder.RelinkMap[typeNameFrom] = typeNameTo;
+
                 } else {
                     foreach (MethodInfo method in type.GetMethods()) {
                         modder.Relink(method, typeNameFrom, typeNameTo);
@@ -76,7 +90,53 @@ namespace XnaToFna.TimeMachine {
 
         }
 
-        internal static void Relink(this MonoModder modder, MethodInfo method, string typeFrom, string typeTo) {
+        private static void Relink(this MonoModder modder, ConstructorInfo ctor, string typeFrom, string typeTo) {
+            if (ctor == null)
+                return;
+
+            RelinkFindableIDAttribute fromID = ctor.GetCustomAttribute<RelinkFindableIDAttribute>();
+
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append("System.Void {0}{1}.ctor");
+
+            if (ctor.ContainsGenericParameters) {
+                builder.Append("<");
+                Type[] arguments = ctor.GetGenericArguments();
+                for (int i = 0; i < arguments.Length; i++) {
+                    if (i > 0)
+                        builder.Append(",");
+                    builder.Append(arguments[i].Name);
+                }
+                builder.Append(">");
+            }
+
+            builder.Append("(");
+
+            ParameterInfo[] parameters = ctor.GetParameters();
+            for (int i = 0; i < parameters.Length; i++) {
+                ParameterInfo parameter = parameters[i];
+                if (i > 0)
+                    builder.Append(",");
+
+                if (Attribute.IsDefined(parameter, MonoModExt.t_ParamArrayAttribute))
+                    builder.Append("...,");
+
+                builder.Append(parameter.ParameterType.FullName);
+            }
+
+            builder.Append(")");
+
+            string format = builder.ToString();
+
+            modder.RelinkMap[
+                fromID != null ? string.Format(fromID.FindableID, typeFrom, typeTo) :
+                string.Format(format, typeFrom, "::")
+            ] =
+                Tuple.Create(typeTo, string.Format(format, string.Empty, string.Empty));
+        }
+
+        private static void Relink(this MonoModder modder, MethodInfo method, string typeFrom, string typeTo) {
             if (method == null)
                 return;
 
@@ -89,7 +149,7 @@ namespace XnaToFna.TimeMachine {
                 Tuple.Create(typeTo, method.Name);
         }
 
-        internal static void RelinkNamespace(this MonoModder modder, string from, string to, params string[] types) {
+        private static void RelinkNamespace(this MonoModder modder, string from, string to, params string[] types) {
             for (int i = 0; i < types.Length; i++) {
                 string type = types[i];
                 modder.RelinkMap[$"{from}.{type}"] = $"{to}.{type}";

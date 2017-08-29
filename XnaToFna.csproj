@@ -69,6 +69,7 @@
     <Compile Include="src\Helper\SyncResult.cs" />
     <Compile Include="src\TimeMachine\Attributes\RelinkFindableIDAttribute.cs" />
     <Compile Include="src\TimeMachine\Attributes\RelinkNameAttribute.cs" />
+    <Compile Include="src\TimeMachine\Attributes\RelinkTypeInTheMiddleAttribute.cs" />
     <Compile Include="src\TimeMachine\Attributes\RelinkTypeAttribute.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\DepthStencilBuffer.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldEffect.cs" />

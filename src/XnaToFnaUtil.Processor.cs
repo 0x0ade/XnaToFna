@@ -21,7 +21,7 @@ namespace XnaToFna {
         public void SetupHelperRelinker() {
             Modder.Relinker = DefaultRelinker;
 
-            // To use XnaToFnaGame properly, the actual game override needs to call XnaToFnaGame:: as "base" instead.
+            // To use XnaToFnaGame properly, the actual game override needs to call XnaToFnaGame::.ctor as "base" instead.
             Modder.RelinkMap["System.Void Microsoft.Xna.Framework.Game::.ctor()"] =
                 Tuple.Create("XnaToFna.XnaToFnaGame", "System.Void .ctor()");
             foreach (MethodInfo method in typeof(XnaToFnaGame).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) {
