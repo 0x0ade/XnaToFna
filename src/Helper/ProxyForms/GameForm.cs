@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 
 namespace XnaToFna.ProxyForms {
-    public class GameForm : Form {
+    public sealed class GameForm : Form {
 
         public static GameForm Instance;
 
@@ -26,8 +26,8 @@ namespace XnaToFna.ProxyForms {
 
         private bool FakeFullscreenWindow = false;
 
-        public Rectangle WindowedBounds = new Rectangle();
-        public Rectangle _Bounds = new Rectangle();
+        private Rectangle _WindowedBounds = new Rectangle();
+        private Rectangle _Bounds = new Rectangle();
         public override ProxyDrawing.Rectangle Bounds {
             get {
                 return new ProxyDrawing.Rectangle(
@@ -38,7 +38,7 @@ namespace XnaToFna.ProxyForms {
                 );
             }
             set {
-                SDLBounds = _Bounds = WindowedBounds = new Rectangle(
+                SDLBounds = _Bounds = _WindowedBounds = new Rectangle(
                     value.X,
                     value.Y,
                     value.Width,
@@ -55,6 +55,18 @@ namespace XnaToFna.ProxyForms {
                 IntPtr window = XnaToFnaHelper.Game.Window.Handle;
                 SDL.SDL_SetWindowSize(window, value.Width, value.Height);
                 SDL.SDL_SetWindowPosition(window, value.X, value.Y);
+            }
+        }
+
+        protected override ProxyDrawing.Rectangle _ClientRectangle {
+            get {
+                Rectangle bounds = XnaToFnaHelper.Game.Window.ClientBounds;
+                return new ProxyDrawing.Rectangle(
+                    0,
+                    0,
+                    bounds.Width,
+                    bounds.Height
+                );
             }
         }
 
@@ -93,6 +105,12 @@ namespace XnaToFna.ProxyForms {
             }
         }
 
+        public override bool Focused {
+            get {
+                return XnaToFnaHelper.Game.IsActive;
+            }
+        }
+
         protected override void SetVisibleCore(bool visible) {
             // TODO: Invoke SetVisibleCore from XnaToFna. Games can override this.
         }
@@ -103,7 +121,7 @@ namespace XnaToFna.ProxyForms {
             _Bounds = new Rectangle(sdlBounds.X, sdlBounds.Y, sdlBounds.Width, sdlBounds.Height);
 
             if ((SDL.SDL_GetWindowFlags(XnaToFnaHelper.Game.Window.Handle) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN) == 0 && !FakeFullscreenWindow)
-                WindowedBounds = _Bounds;
+                _WindowedBounds = _Bounds;
         }
 
         public void SDLWindowChanged(
@@ -139,9 +157,9 @@ namespace XnaToFna.ProxyForms {
                 XnaToFnaHelper.Log("[ProxyForms] Game expects borderless fullscreen... give it proper fullscreen instead.");
 
                 if (!fullscreen)
-                    WindowedBounds = SDLBounds;
+                    _WindowedBounds = SDLBounds;
 
-                XnaToFnaHelper.Log($"[ProxyForms] Last window size: {WindowedBounds.Width} x {WindowedBounds.Height}");
+                XnaToFnaHelper.Log($"[ProxyForms] Last window size: {_WindowedBounds.Width} x {_WindowedBounds.Height}");
 
                 DisplayMode dm = gdm.GraphicsDevice.DisplayMode;
                 // This feels so wrong.
@@ -166,7 +184,7 @@ namespace XnaToFna.ProxyForms {
                     _Bounds = SDLBounds;
                 } else {
                     SDL.SDL_RestoreWindow(window);
-                    SDLBounds = _Bounds = WindowedBounds;
+                    SDLBounds = _Bounds = _WindowedBounds;
                 }
 
                 // This also feels so wrong.

@@ -27,7 +27,16 @@ namespace XnaToFna.ProxyForms {
 
         public virtual Rectangle Bounds { get; set; }
 
+        protected virtual Rectangle _ClientRectangle { get; set; }
+        public Rectangle ClientRectangle {
+            get {
+                return _ClientRectangle;
+            }
+        }
+
         public virtual Cursor Cursor { get; set; }
+
+        public virtual bool Focused { get; protected set; }
 
         protected bool _IsDisposed = false;
         public bool IsDisposed {
@@ -88,6 +97,28 @@ namespace XnaToFna.ProxyForms {
 
         public object EndInvoke(IAsyncResult result) {
             return result.AsyncState;
+        }
+
+        public Rectangle RectangleToScreen(Rectangle r) {
+            // This probably isn't correct.
+            Rectangle bounds = Bounds;
+            return new Rectangle(
+                r.X + bounds.X,
+                r.Y + bounds.Y,
+                r.Width,
+                r.Height
+            );
+        }
+
+        public Rectangle RectangleToClient(Rectangle r) {
+            // This probably isn't correct.
+            Rectangle bounds = Bounds;
+            return new Rectangle(
+                r.X - bounds.X,
+                r.Y - bounds.Y,
+                r.Width,
+                r.Height
+            );
         }
 
         public void Dispose()
