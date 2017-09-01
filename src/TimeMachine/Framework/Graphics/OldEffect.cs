@@ -90,5 +90,7 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
             }
         }
 
+        public void CommitChanges() => CurrentTechnique.Passes[0].Apply();
+
     }
 }
