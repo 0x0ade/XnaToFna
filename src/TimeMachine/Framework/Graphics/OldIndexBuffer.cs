@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace XnaToFna.TimeMachine.Framework.Graphics {
     public static class OldIndexBuffer {
 
-        [RelinkFindableID("System.Void {0}::.ctor(Microsoft.Xna.Framework.Graphics.GraphicsDevice,System.Int32,Microsoft.Xna.Framework.Graphics.BufferUsage,Microsoft.Xna.Framework.Graphics.IndexElementSize")]
+        [RelinkFindableID("System.Void {0}::.ctor(Microsoft.Xna.Framework.Graphics.GraphicsDevice,System.Int32,Microsoft.Xna.Framework.Graphics.BufferUsage,Microsoft.Xna.Framework.Graphics.IndexElementSize)")]
         public static IndexBuffer ctor(
             GraphicsDevice graphicsDevice,
             int sizeInBytes,
@@ -26,7 +26,7 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
             BufferTypeHelper.ConvertBufferUsage(usage)
         );
 
-        [RelinkFindableID("System.Void {0}::.ctor(Microsoft.Xna.Framework.Graphics.GraphicsDevice,System.Type,System.Int32,Microsoft.Xna.Framework.Graphics.BufferUsage")]
+        [RelinkFindableID("System.Void {0}::.ctor(Microsoft.Xna.Framework.Graphics.GraphicsDevice,System.Type,System.Int32,Microsoft.Xna.Framework.Graphics.BufferUsage)")]
         public static IndexBuffer ctor(
             GraphicsDevice graphicsDevice,
             Type indexType,

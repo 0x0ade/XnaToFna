@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace XnaToFna.TimeMachine.Framework.Graphics {
     public static class OldVertexBuffer {
 
-        [RelinkFindableID("System.Void {0}::.ctor(Microsoft.Xna.Framework.Graphics.GraphicsDevice,System.Int32,Microsoft.Xna.Framework.Graphics.BufferUsage")]
+        [RelinkFindableID("System.Void {0}::.ctor(Microsoft.Xna.Framework.Graphics.GraphicsDevice,System.Int32,Microsoft.Xna.Framework.Graphics.BufferUsage)")]
         public static VertexBuffer ctor(
             GraphicsDevice graphicsDevice,
             int sizeInBytes,
@@ -18,7 +18,7 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
             throw new InvalidProgramException("XnaToFna didn't replace this .ctor call!");
         }
 
-        [RelinkFindableID("System.Void {0}::.ctor(Microsoft.Xna.Framework.Graphics.GraphicsDevice,System.Type,System.Int32,Microsoft.Xna.Framework.Graphics.BufferUsage")]
+        [RelinkFindableID("System.Void {0}::.ctor(Microsoft.Xna.Framework.Graphics.GraphicsDevice,System.Type,System.Int32,Microsoft.Xna.Framework.Graphics.BufferUsage)")]
         public static VertexBuffer ctor(
             GraphicsDevice graphicsDevice,
             Type vertexType,
