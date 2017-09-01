@@ -76,6 +76,7 @@
     <Compile Include="src\TimeMachine\Framework\Graphics\OldDisplayMode.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldPresentationParameters.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\BufferTypeHelper.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\OldIndexBuffer.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldVertexBuffer.cs" />
     <Compile Include="src\TimeMachine\Framework\OldGraphicsDeviceManager.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\TextureCreationParameters.cs" />
