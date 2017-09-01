@@ -88,6 +88,9 @@ namespace XnaToFna.TimeMachine {
             modder.RelinkMap["Microsoft.Xna.Framework.Graphics.RenderTarget"] =
                 "Microsoft.Xna.Framework.Graphics.RenderTarget2D";
 
+            // Parser addition - for when VertexBuffer gets constructed without VertexDeclaration but the type info is given a few instrs later.
+            modder.MethodParser = BufferTypeHelper.GenerateMethodParser(modder.MethodParser);
+
         }
 
         private static void Relink(this MonoModder modder, ConstructorInfo ctor, string typeFrom, string typeTo) {
@@ -141,10 +144,11 @@ namespace XnaToFna.TimeMachine {
                 return;
 
             RelinkFindableIDAttribute fromID = method.GetCustomAttribute<RelinkFindableIDAttribute>();
+            RelinkNameAttribute fromName = method.GetCustomAttribute<RelinkNameAttribute>();
 
             modder.RelinkMap[
                 fromID != null ? string.Format(fromID.FindableID, typeFrom, typeTo) :
-                method.GetFindableID(simple: true, type: typeFrom)
+                method.GetFindableID(simple: true, type: typeFrom, name: fromName?.Name ?? method.Name)
             ] =
                 Tuple.Create(typeTo, method.Name);
         }
