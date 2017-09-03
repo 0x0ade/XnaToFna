@@ -18,11 +18,7 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
         ) => new IndexBuffer(
             graphicsDevice,
             elementSize,
-            sizeInBytes / (
-                elementSize == IndexElementSize.SixteenBits ? 2 :
-                elementSize == IndexElementSize.ThirtyTwoBits ? 4 :
-                (int) elementSize // ???
-            ),
+            sizeInBytes / BufferTypeHelper.ConvertIndexElementSize(elementSize),
             BufferTypeHelper.ConvertBufferUsage(usage)
         );
 
@@ -38,6 +34,8 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
             elementCount,
             BufferTypeHelper.ConvertBufferUsage(usage)
         );
+
+        public static int get_SizeInBytes(this IndexBuffer self) => self.IndexCount * BufferTypeHelper.ConvertIndexElementSize(self.IndexElementSize);
 
     }
 }

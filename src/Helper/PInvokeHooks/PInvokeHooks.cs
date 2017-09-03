@@ -187,6 +187,24 @@ namespace XnaToFna {
         public static IntPtr LoadCursorFromFile(string str)
             => new Cursor(str).Handle;
 
+        public static IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam) {
+            // This gets called when Duck Game dies...
+            // TODO: Find more games using SendMessage.
+            Form form = Control.FromHandle(hWnd) as Form;
+            if (form == null) {
+                XnaToFnaHelper.Log($"[PInvokeHooks] Called GetWindowThreadProcessId for non-existing hWnd {hWnd}");
+                form = GameForm.Instance;
+            }
+
+            if (Msg == 16 /*WM_CLOSE*/) {
+                form.Close();
+                // TODO: What's the proper return value for SendMessage on WM_CLOSE?
+                return IntPtr.Zero;
+            }
+
+            return IntPtr.Zero;
+        }
+
     }
 
 }

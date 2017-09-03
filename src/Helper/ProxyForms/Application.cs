@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace XnaToFna.ProxyForms {
     public sealed class Application {
+
+        public static event ThreadExceptionEventHandler ThreadException;
 
         public static string ProductVersion {
             get {
@@ -35,6 +38,16 @@ namespace XnaToFna.ProxyForms {
 
         public static void Run(Form mainForm) {
             // TODO: Is an Application.Run replacement required?
+            try {
+                // err...
+            } catch (Exception e) {
+                // ... what is the sender anyway?
+                ThreadException?.Invoke(mainForm, new ThreadExceptionEventArgs(e));
+            }
+        }
+
+        public static void EnableVisualStyles() {
+            // no-op
         }
 
     }

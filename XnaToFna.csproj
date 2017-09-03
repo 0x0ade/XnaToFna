@@ -74,11 +74,15 @@
     <Compile Include="src\TimeMachine\Framework\Graphics\DepthStencilBuffer.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldEffect.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldDisplayMode.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\OldModelMeshPart.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\OldModelMesh.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldPresentationParameters.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\BufferTypeHelper.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldIndexBuffer.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldVertexDeclaration.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\OldVertexBuffer.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\OldEffectPass.cs" />
+    <Compile Include="src\TimeMachine\Framework\Graphics\OldVertexPosition_.cs" />
     <Compile Include="src\TimeMachine\Framework\OldGraphicsDeviceManager.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\TextureCreationParameters.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\GraphicsDeviceCreationParameters.cs" />
@@ -94,6 +98,7 @@
     <Compile Include="src\TimeMachine\Framework\Graphics\VertexStreamCollection.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\Enums.cs" />
     <Compile Include="src\TimeMachine\Framework\Graphics\EffectPool.cs" />
+    <Compile Include="src\TimeMachine\Framework\_OldData.cs" />
     <Compile Include="src\TimeMachine\TimeMachine.Processor.cs" />
     <Compile Include="src\TimeMachine\Content\ContentTimeMachine.cs" />
     <Compile Include="src\TimeMachine\Content\Asset.cs" />

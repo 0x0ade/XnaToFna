@@ -60,6 +60,9 @@ namespace XnaToFna.TimeMachine {
                         modder.Relink(property.GetGetMethod(), typeNameFrom, typeNameTo);
                         modder.Relink(property.GetSetMethod(), typeNameFrom, typeNameTo);
                     }
+                    foreach (FieldInfo field in type.GetFields()) {
+                        modder.Relink(field, typeNameFrom, typeNameTo);
+                    }
 
                 } else if (type.GetCustomAttribute<RelinkTypeAttribute>() != null) {
                     modder.RelinkMap[typeNameFrom] = typeNameTo;
@@ -71,6 +74,9 @@ namespace XnaToFna.TimeMachine {
                     foreach (PropertyInfo property in type.GetProperties()) {
                         modder.Relink(property.GetGetMethod(), typeNameFrom, typeNameTo);
                         modder.Relink(property.GetSetMethod(), typeNameFrom, typeNameTo);
+                    }
+                    foreach (FieldInfo field in type.GetFields()) {
+                        modder.Relink(field, typeNameFrom, typeNameTo);
                     }
                 }
             }
@@ -151,6 +157,20 @@ namespace XnaToFna.TimeMachine {
                 method.GetFindableID(simple: true, type: typeFrom, name: fromName?.Name ?? method.Name)
             ] =
                 Tuple.Create(typeTo, method.Name);
+        }
+
+        private static void Relink(this MonoModder modder, FieldInfo field, string typeFrom, string typeTo) {
+            if (field == null)
+                return;
+
+            RelinkFindableIDAttribute fromID = field.GetCustomAttribute<RelinkFindableIDAttribute>();
+            RelinkNameAttribute fromName = field.GetCustomAttribute<RelinkNameAttribute>();
+
+            modder.RelinkMap[
+                fromID != null ? string.Format(fromID.FindableID, typeFrom, typeTo) :
+                $"{field.FieldType.FullName} {typeFrom}::{fromName?.Name ?? field.Name}"
+            ] =
+                Tuple.Create(typeTo, field.Name);
         }
 
         private static void RelinkNamespace(this MonoModder modder, string from, string to, params string[] types) {

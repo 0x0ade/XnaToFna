@@ -11,42 +11,41 @@ using XnaToFna.ProxyForms;
 namespace XnaToFna.TimeMachine.Framework.Graphics {
     public static class OldGraphicsDevice {
 
-        // Only use weak references so that GraphicsDevices can get disposed proper~
-        // Wait a second, don't they live as long as the game runs anyway?
-        internal static ConditionalWeakTable<GraphicsDevice, OldGraphicsDeviceData> Data = new ConditionalWeakTable<GraphicsDevice, OldGraphicsDeviceData>();
-        internal static OldGraphicsDeviceData GetOldData(this GraphicsDevice device) {
-            OldGraphicsDeviceData data;
-
-            if (Data.TryGetValue(device, out data))
-                return data;
-
-            data = new OldGraphicsDeviceData(device);
-            Data.Add(device, data);
-            return data;
+        static OldGraphicsDevice() {
+            _OldData<GraphicsDevice>.Setup = SetupOldData;
+        }
+        internal static void SetupOldData(_OldData<GraphicsDevice> data, GraphicsDevice device) {
+            WeakReference<GraphicsDevice> weak = data.Weak;
+            data["Vertices"] = new VertexStreamCollection(weak);
+            data["RenderState"] = new RenderState(weak);
+            data["VertexDeclaration"] = null;
+            data["CreationParameters"] = new GraphicsDeviceCreationParameters(device.Adapter, DeviceType.Hardware, device.Adapter.MonitorHandle, CreateOptions.HardwareVertexProcessing);
+            data["GraphicsDeviceCapabilities"] = new GraphicsDeviceCapabilities(weak);
+            data["DepthStencilBuffer"] = new DepthStencilBuffer(device, -1, -1, DepthFormat.None);
         }
 
         public static VertexStreamCollection get_Vertices(this GraphicsDevice device)
-            => device.GetOldData()?.Vertices;
+            => device.GetOldData()?.Get<VertexStreamCollection>("Vertices");
 
-        // TODO: [TimeMachine] Don't drop the VertexDeclaration, could be repurposed in device.GetVertexBuffers()[N].VertexBuffer.VertexDeclaration
+        // TODO: [TimeMachine] Reuse the VertexDeclaration when drawing primitives without explicit vertex declaration!
         public static VertexDeclaration get_VertexDeclaration(this GraphicsDevice device)
-            => device.GetOldData()?.VertexDeclaration;
+            => device.GetOldData()?.Get<VertexDeclaration>("VertexDeclaration");
         public static void set_VertexDeclaration(this GraphicsDevice device, VertexDeclaration decl)
-            => device.GetOldData().VertexDeclaration = decl;
+            => device.GetOldData().Set("VertexDeclaration", decl);
 
         public static RenderState get_RenderState(this GraphicsDevice device)
-            => device.GetOldData()?.RenderState;
+            => device.GetOldData()?.Get<RenderState>("RenderState");
 
         public static GraphicsDeviceCreationParameters get_CreationParameters(this GraphicsDevice device)
-            => device.GetOldData()?.CreationParameters;
+            => device.GetOldData()?.Get<GraphicsDeviceCreationParameters>("CreationParameters");
 
         public static GraphicsDeviceCapabilities get_GraphicsDeviceCapabilities(this GraphicsDevice device)
-            => device.GetOldData()?.GraphicsDeviceCapabilities;
+            => device.GetOldData()?.Get<GraphicsDeviceCapabilities>("GraphicsDeviceCapabilities");
 
         public static DepthStencilBuffer get_DepthStencilBuffer(this GraphicsDevice device)
-            => device.GetOldData()?.DepthStencilBuffer;
+            => device.GetOldData()?.Get<DepthStencilBuffer>("DepthStencilBuffer");
         public static void set_DepthStencilBuffer(this GraphicsDevice device, DepthStencilBuffer buffer)
-            => device.GetOldData().DepthStencilBuffer = buffer;
+            => device.GetOldData()?.Set("DepthStencilBuffer", buffer);
 
         public static void ResolveBackBuffer(this GraphicsDevice device, RenderTarget2D target)
             => device.SetRenderTarget(target);
@@ -54,25 +53,5 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
         public static bool CheckDeviceFormat(this GraphicsDevice device, DeviceType deviceType, SurfaceFormat adapterFormat, TextureUsage usage, QueryUsages queryUsages, ResourceType resourceType, SurfaceFormat checkFormat)
             => true;
 
-    }
-    
-    public class OldGraphicsDeviceData {
-        public VertexStreamCollection Vertices;
-        public RenderState RenderState;
-        public VertexDeclaration VertexDeclaration;
-        public GraphicsDeviceCreationParameters CreationParameters;
-        public GraphicsDeviceCapabilities GraphicsDeviceCapabilities;
-        public DepthStencilBuffer DepthStencilBuffer;
-
-        public OldGraphicsDeviceData(GraphicsDevice device) {
-            WeakReference<GraphicsDevice> weak = new WeakReference<GraphicsDevice>(device);
-
-            Vertices = new VertexStreamCollection(weak);
-            RenderState = new RenderState(weak);
-            VertexDeclaration = null;
-            CreationParameters = new GraphicsDeviceCreationParameters(device.Adapter, DeviceType.Hardware, device.Adapter.MonitorHandle, CreateOptions.HardwareVertexProcessing);
-            GraphicsDeviceCapabilities = new GraphicsDeviceCapabilities(weak);
-            DepthStencilBuffer = new DepthStencilBuffer(device, -1, -1, DepthFormat.None);
-        }
     }
 }

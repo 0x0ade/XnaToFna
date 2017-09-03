@@ -31,5 +31,7 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
             BufferTypeHelper.ConvertBufferUsage(usage)
         );
 
+        public static int get_SizeInBytes(this VertexBuffer self) => self.VertexCount * self.VertexDeclaration.VertexStride;
+
     }
 }

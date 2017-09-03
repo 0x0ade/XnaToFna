@@ -70,6 +70,20 @@ namespace XnaToFna.ProxyForms {
             }
         }
 
+        public override ProxyDrawing.Point Location {
+            get {
+                int x, y;
+                IntPtr window = XnaToFnaHelper.Game.Window.Handle;
+                SDL.SDL_GetWindowPosition(window, out x, out y);
+                return new ProxyDrawing.Point(x, y);
+            }
+            set {
+                IntPtr window = XnaToFnaHelper.Game.Window.Handle;
+                SDL.SDL_SetWindowPosition(window, value.X, value.Y);
+            }
+        }
+
+
         private FormBorderStyle _FormBorderStyle = FormBorderStyle.FixedDialog;
         public override FormBorderStyle FormBorderStyle {
             get {
@@ -133,6 +147,10 @@ namespace XnaToFna.ProxyForms {
             ref string resultDeviceName
         ) {
             SDLWindowSizeChanged(null, null);
+        }
+
+        protected override void _Close() {
+            XnaToFnaHelper.Game.Exit();
         }
 
 

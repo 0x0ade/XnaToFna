@@ -40,10 +40,13 @@ namespace XnaToFna.ProxyForms {
         }
         protected virtual void OnFormClosed(FormClosedEventArgs e) {
         }
+        protected virtual void _Close() { }
         public void Close() {
             FormClosingEventArgs closingArgs = new FormClosingEventArgs(CloseReason.None, false);
             OnFormClosing(closingArgs);
             FormClosing(this, closingArgs);
+
+            _Close();
 
             FormClosedEventArgs closedArgs = new FormClosedEventArgs(CloseReason.None);
             OnFormClosed(closedArgs);

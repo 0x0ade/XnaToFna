@@ -34,6 +34,8 @@ namespace XnaToFna.ProxyForms {
             }
         }
 
+        public virtual Point Location { get; set; }
+
         public virtual Cursor Cursor { get; set; }
 
         public virtual bool Focused { get; protected set; }

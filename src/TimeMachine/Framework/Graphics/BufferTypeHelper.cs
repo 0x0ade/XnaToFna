@@ -22,6 +22,12 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
             ((int) usage == 8) ? BufferUsage.WriteOnly :
             usage; // ???
 
+        public static int ConvertIndexElementSize(IndexElementSize size)
+            =>
+            size == IndexElementSize.SixteenBits ? 2 :
+            size == IndexElementSize.ThirtyTwoBits ? 4 :
+            (int) size; // ???
+
         public static MethodParser GenerateMethodParser(MethodParser parser)
             => delegate (MonoModder mod, MethodBody body, Instruction instr, ref int instri) {
                 if (instr.OpCode == OpCodes.Newobj && (instr.Operand as MethodReference)?.GetFindableID() ==

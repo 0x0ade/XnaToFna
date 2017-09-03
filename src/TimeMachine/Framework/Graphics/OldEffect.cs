@@ -90,7 +90,24 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
             }
         }
 
-        public void CommitChanges() => CurrentTechnique.Passes[0].Apply();
+        public void CommitChanges() {
+            for (int i = CurrentTechnique.Passes.Count - 1; i > -1; --i)
+                CurrentTechnique.Passes[i].Apply();
+        }
+
+        // TODO: [TimeMachine] Find out which SaveStateMode is the default one.
+        public void Begin() => Begin(SaveStateMode.None);
+        public void Begin(SaveStateMode saveStateMode) {
+            // TODO: [TimeMachine] Implement SaveStateMode.SaveState
+            if (saveStateMode == SaveStateMode.SaveState)
+                throw new NotSupportedException("SaveStateMode.SaveState currently not supported by XnaToFna");
+
+            // Do nothing else - CurrentTechnique.Passes[0].Begin() gets called next.
+        }
+
+        public void End() {
+            // Any state "resetting" will end up here.
+        }
 
     }
 }

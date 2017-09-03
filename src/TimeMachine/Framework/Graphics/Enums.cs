@@ -164,4 +164,10 @@ namespace XnaToFna.TimeMachine.Framework.Graphics {
         Srgb = 6291456
     }
 
+    [RelinkType]
+    public enum SaveStateMode {
+        None,
+        SaveState
+    }
+
 }
