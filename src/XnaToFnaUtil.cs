@@ -70,8 +70,6 @@ namespace XnaToFna {
 
         public bool ForceAnyCPU = false;
 
-        public bool EnableTimeMachine = false;
-
         public bool HookIsTrialMode = false;
 
         public XnaToFnaUtil() {
@@ -333,12 +331,6 @@ namespace XnaToFna {
                 mod.AssemblyReferences.Add(Modder.DependencyCache[ThisAssemblyName].Assembly.Name);
             }
 
-            if (EnableTimeMachine) {
-                // XNA 3.0 / 3.1 games depend on a .NET Framework pre-4.0
-                mod.Runtime = TargetRuntime.Net_4_0;
-                // TODO: What about the System.*.dll dependencies?
-            }
-
             // MonoMod needs to relink some types (f.e. XnaToFnaHelper) via FindType, which requires a dependency map.
             Log("[Relink] Mapping dependencies for MonoMod");
             Modder.MapDependencies(mod);
@@ -391,7 +383,7 @@ namespace XnaToFna {
 
             // List all content files and update accordingly.
             foreach (string path in Directory.EnumerateFiles(ContentDirectory, "*", SearchOption.AllDirectories))
-                ContentHelper.UpdateContent(path, EnableTimeMachine, PatchWaveBanks, PatchXACTSettings, PatchVideo);
+                ContentHelper.UpdateContent(path, PatchWaveBanks, PatchXACTSettings, PatchVideo);
         }
 
         public void Dispose() {

@@ -9,7 +9,6 @@ using XnaToFna.ProxyForms;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Linq;
-using XnaToFna.TimeMachine;
 
 namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
@@ -59,12 +58,6 @@ namespace XnaToFna {
                 // Add XnaToFna as dependency
                 Log($"[Stub] Adding dependency XnaToFna");
                 mod.AssemblyReferences.Add(Modder.DependencyCache[ThisAssemblyName].Assembly.Name);
-            }
-
-            if (EnableTimeMachine) {
-                // XNA 3.0 / 3.1 games depend on a .NET Framework pre-4.0
-                mod.Runtime = TargetRuntime.Net_4_0;
-                // TODO: What about the System.*.dll dependencies?
             }
 
             // MonoMod needs to relink some types (f.e. XnaToFnaHelper) via FindType, which requires a dependency map.

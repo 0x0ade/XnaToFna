@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using XnaToFna.TimeMachine;
 
 namespace XnaToFna {
     public static partial class ContentHelper {
@@ -41,10 +40,7 @@ namespace XnaToFna {
             Console.WriteLine(txt);
         }
 
-        public static void UpdateContent(string path, bool enableTimeMachine = false, bool patchWaveBanks = true, bool patchXACTSettings = true, bool patchVideo = true) {
-            if (enableTimeMachine)
-                ContentTimeMachine.UpdateContent(path, patchWaveBanks, patchXACTSettings, patchVideo);
-
+        public static void UpdateContent(string path, bool patchWaveBanks = true, bool patchXACTSettings = true, bool patchVideo = true) {
             if (patchWaveBanks && path.EndsWith(".xwb")) {
                 PatchContent(path, UpdateWaveBank);
                 return;

@@ -10,7 +10,6 @@ using XnaToFna.ProxyForms;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Linq;
-using XnaToFna.TimeMachine;
 
 namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
@@ -47,9 +46,6 @@ namespace XnaToFna {
                 else if (name.StartsWith("XnaToFna.ProxyDInput."))
                     Modder.RelinkMap[/* no namespace */ name.Substring(9 + 12)] = name;
             }
-
-            if (EnableTimeMachine)
-                TimeMachineProcessor.SetupRelinker(this);
 
             if (HookIsTrialMode)
                 Modder.RelinkMap["System.Boolean Microsoft.Xna.Framework.GamerServices.Guide.get_IsTrialMode()"] =

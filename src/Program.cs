@@ -42,9 +42,8 @@ namespace XnaToFna {
                     Console.WriteLine("YOU SHOULD REALLY UPDATE YOUR COPY OF MONO!... Unless you're stuck with Xamarin.Android.");
                     xtf.FixOldMonoXML = true;
                 } else if (arg == "--update-xna" || arg == "--xna3" || arg == "--enable-flux-capacitor") {
-                    Console.WriteLine("\"When this baby hits 88 mph, we're gonna see some serious shit.\"");
-                    Console.WriteLine("    -- Doc Brown, 1995");
-                    xtf.EnableTimeMachine = true;
+                    Console.WriteLine("Please get yourself a copy of XnaToFna from the \"timemachine\" branch to enable the time machine.");
+                    return;
                 } else if (arg == "--hook-istrialmode" || arg == "--arr") {
                     Console.WriteLine("Do what you want cause a pirate is free! You are a pirate!");
                     xtf.HookIsTrialMode = true;
