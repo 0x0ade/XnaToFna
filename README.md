@@ -1,7 +1,7 @@
 # XnaToFna
 ### Relink C# assemblies from XNA Framework 4.0 to FNA instead
-#### MIT-licensed
-#### clone recursively
+#### MIT-licensed, clone recursively
+#### XnaToFna game status tracker: https://github.com/0x0ade/XnaToFna-Tracker
 ----
 
 #### TL;DR:
