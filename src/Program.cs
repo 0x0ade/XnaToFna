@@ -15,8 +15,9 @@ namespace XnaToFna {
 
             bool updateContent = true;
 
-            for (int i = 0; i < args.Length; i++) {
-                string arg = args[i];
+            Queue<string> argq = new Queue<string>(args);
+            while (argq.Count > 0) {
+                string arg = argq.Dequeue();
                 if (arg == "--skip-content")
                     updateContent = false;
                 else if (arg == "--skip-wavebanks" || arg == "--skip-xwb")
@@ -38,15 +39,17 @@ namespace XnaToFna {
                 } else if (arg == "--remove-mixed-deps") {
                     xtf.StubMixedDeps = false;
                     xtf.DestroyMixedDeps = true;
-                } else if (arg == "--update-your-copy-of-mono") {
+                } else if (arg == "--fix-old-mono-xml") {
                     Console.WriteLine("YOU SHOULD REALLY UPDATE YOUR COPY OF MONO!... Unless you're stuck with Xamarin.Android.");
                     xtf.FixOldMonoXML = true;
                 } else if (arg == "--update-xna" || arg == "--xna3" || arg == "--enable-flux-capacitor") {
                     Console.WriteLine("Please get yourself a copy of XnaToFna from the \"timemachine\" branch to enable the time machine.");
                     return;
-                } else if (arg == "--hook-istrialmode" || arg == "--arr") {
+                } else if (arg == "--hook-istrialmode") {
                     Console.WriteLine("Do what you want cause a pirate is free! You are a pirate!");
                     xtf.HookIsTrialMode = true;
+                } else if (arg == "--content" && argq.Count > 1) {
+                    xtf.ContentDirectoryName = argq.Dequeue();
                 } else
                     xtf.ScanPath(arg);
             }

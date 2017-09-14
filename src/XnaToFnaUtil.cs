@@ -46,6 +46,7 @@ namespace XnaToFna {
 
         public DefaultAssemblyResolver AssemblyResolver = new DefaultAssemblyResolver();
         public List<string> Directories = new List<string>();
+        public string ContentDirectoryName = "Content";
         public string ContentDirectory;
         public List<ModuleDefinition> Modules = new List<ModuleDefinition>();
 
@@ -123,7 +124,7 @@ namespace XnaToFna {
                 Directories.Add(path);
                 AssemblyResolver.AddSearchDirectory(path); // Needs to be added manually as DependencyDirs was already added
 
-                if (ContentDirectory == null && Directory.Exists(ContentDirectory = Path.Combine(path, "Content"))) {
+                if (ContentDirectory == null && Directory.Exists(ContentDirectory = Path.Combine(path, ContentDirectoryName))) {
                     // Most probably the actual game directory - let's just copy XnaToFna.exe to there to be referenced properly.
                     string xtfPath = Path.Combine(path, Path.GetFileName(ThisAssembly.Location));
                     if (Path.GetDirectoryName(ThisAssembly.Location) != path) {
