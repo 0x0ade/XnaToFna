@@ -48,8 +48,10 @@ namespace XnaToFna {
                 } else if (arg == "--hook-istrialmode") {
                     Console.WriteLine("Do what you want cause a pirate is free! You are a pirate!");
                     xtf.HookIsTrialMode = true;
-                } else if (arg == "--content" && argq.Count > 1) {
+                } else if (arg == "--content" && argq.Count >= 1) {
                     xtf.ContentDirectoryName = argq.Dequeue();
+                } else if (arg.StartsWith("--content=")) {
+                    xtf.ContentDirectoryName = arg.Substring("--content=".Length);
                 } else
                     xtf.ScanPath(arg);
             }
