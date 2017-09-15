@@ -13,7 +13,7 @@ namespace XnaToFna {
         public static void Main(string[] args) {
             XnaToFnaUtil xtf = new XnaToFnaUtil();
 
-            xtf.Log($"[VERSION] {MonoMod.MonoModder.Version}");
+            xtf.Log($"[Version] {MonoMod.MonoModder.Version}");
 
             bool updateContent = true;
 
@@ -43,6 +43,10 @@ namespace XnaToFna {
                 } else if (arg == "--remove-mixed-deps") {
                     xtf.StubMixedDeps = false;
                     xtf.DestroyMixedDeps = true;
+                } else if (arg == "--remove-public-key-token" && argq.Count >= 1) {
+                    xtf.DestroyPublicKeyTokens.Add(argq.Dequeue());
+                } else if (arg.StartsWith("--remove-public-key-token=")) {
+                    xtf.DestroyPublicKeyTokens.Add(arg.Substring("--remove-public-key-tokens=".Length));
                 } else if (arg == "--fix-old-mono-xml") {
                     Console.WriteLine("YOU SHOULD REALLY UPDATE YOUR COPY OF MONO!... Unless you're stuck with Xamarin.Android.");
                     xtf.FixOldMonoXML = true;

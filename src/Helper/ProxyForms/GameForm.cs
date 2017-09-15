@@ -119,6 +119,34 @@ namespace XnaToFna.ProxyForms {
             }
         }
 
+        private FormStartPosition _StartPosition = FormStartPosition.WindowsDefaultLocation;
+        public override FormStartPosition StartPosition {
+            get {
+                return _StartPosition;
+            }
+            set {
+                if ((SDL.SDL_GetWindowFlags(XnaToFnaHelper.Game.Window.Handle) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_HIDDEN) != (uint) SDL.SDL_WindowFlags.SDL_WINDOW_HIDDEN)
+                    // Window not hidden anymore, this won't change the "start" position.
+                    return;
+                // Setting Dirty = true isn't required (yet) - this is just manipulating the window position.
+                switch (value) {
+                    case FormStartPosition.CenterParent:
+                    case FormStartPosition.CenterScreen:
+                        SDL.SDL_SetWindowPosition(XnaToFnaHelper.Game.Window.Handle, SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED);
+                        break;
+                    case FormStartPosition.WindowsDefaultBounds:
+                        // Inaccurate because the window bounds aren't "system default."
+                    case FormStartPosition.WindowsDefaultLocation:
+                        SDL.SDL_SetWindowPosition(XnaToFnaHelper.Game.Window.Handle, SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED);
+                        break;
+                    case FormStartPosition.Manual:
+                        // Setting Location is enough.
+                        break;
+                }
+                _StartPosition = value;
+            }
+        }
+
         public override bool Focused {
             get {
                 return XnaToFnaHelper.Game.IsActive;

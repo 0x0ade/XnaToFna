@@ -23,6 +23,10 @@ namespace XnaToFna.ProxyForms {
             get; set;
         }
 
+        public virtual FormStartPosition StartPosition {
+            get; set;
+        }
+
         public virtual bool KeyPreview {
             get; set;
         }
@@ -31,6 +35,7 @@ namespace XnaToFna.ProxyForms {
         public Form() {
             Form = this;
             ThreadId = Thread.CurrentThread.ManagedThreadId;
+            StartPosition = FormStartPosition.WindowsDefaultLocation;
             KeyPreview = false;
         }
 

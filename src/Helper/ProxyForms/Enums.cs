@@ -18,6 +18,14 @@ namespace XnaToFna.ProxyForms {
         Maximized
     }
 
+    public enum FormStartPosition {
+        Manual,
+        CenterScreen,
+        WindowsDefaultLocation,
+        WindowsDefaultBounds,
+        CenterParent
+    }
+
     public enum CloseReason {
         None,
         WindowsShutDown,

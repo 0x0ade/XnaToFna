@@ -70,6 +70,8 @@ namespace XnaToFna {
         public bool DestroyMixedDeps = false;
         public bool StubMixedDeps = true;
 
+        public List<string> DestroyPublicKeyTokens = new List<string>();
+
         public bool ForceAnyCPU = false;
 
         public bool HookIsTrialMode = false;
@@ -281,6 +283,11 @@ namespace XnaToFna {
             Log($"[Relink] Relinking {mod.Assembly.Name.Name}");
             Modder.Module = mod;
 
+            if (DestroyPublicKeyTokens.Contains(mod.Assembly.Name.Name)) {
+                Log($"[Relink] Destroying public key token for module {mod.Assembly.Name.Name}");
+                mod.Assembly.Name.PublicKeyToken = new byte[0];
+            }
+
             Log($"[Relink] Updating dependencies");
             for (int i = 0; i < mod.AssemblyReferences.Count; i++) {
                 AssemblyNameReference dep = mod.AssemblyReferences[i];
@@ -313,15 +320,18 @@ namespace XnaToFna {
                     goto NextDep;
                 }
 
+                // Didn't remove; Check for DestroyPublicKeyTokens
+                if (DestroyPublicKeyTokens.Contains(dep.Name)) {
+                    Log($"[Relink] Destroying public key token for dependency {dep.Name}");
+                    dep.PublicKeyToken = new byte[0];
+                }
+
                 // Didn't remove; Check for ModulesToStub (formerly managed references)
                 if (ModulesToStub.Any(stub => stub.Assembly.Name.Name == dep.Name)) {
                     // Fix stubbed dependencies.
                     Log($"[Relink] Fixing stubbed dependency {dep.Name}");
-                    // mod.AssemblyReferences.RemoveAt(i);
-                    // i--;
                     dep.IsWindowsRuntime = false;
                     dep.HasPublicKey = false;
-                    goto NextDep;
                 }
 
                 NextDep:
