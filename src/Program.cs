@@ -13,11 +13,15 @@ namespace XnaToFna {
         public static void Main(string[] args) {
             XnaToFnaUtil xtf = new XnaToFnaUtil();
 
+            xtf.Log($"[VERSION] {MonoMod.MonoModder.Version}");
+
             bool updateContent = true;
 
             Queue<string> argq = new Queue<string>(args);
             while (argq.Count > 0) {
                 string arg = argq.Dequeue();
+                if (arg == "--version" || arg.ToLowerInvariant() == "-v")
+                    return;
                 if (arg == "--skip-content")
                     updateContent = false;
                 else if (arg == "--skip-wavebanks" || arg == "--skip-xwb")

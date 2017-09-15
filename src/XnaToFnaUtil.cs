@@ -15,6 +15,7 @@ namespace XnaToFna {
 
         protected static Assembly ThisAssembly = Assembly.GetExecutingAssembly();
         protected static string ThisAssemblyName = ThisAssembly.GetName().Name;
+        public readonly static Version Version = ThisAssembly.GetName().Version;
 
         public List<Tuple<string, string[]>> Mappings = new List<Tuple<string, string[]>> {
             Tuple.Create("FNA", new string[] {
