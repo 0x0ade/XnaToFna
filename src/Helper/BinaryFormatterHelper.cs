@@ -38,7 +38,7 @@ namespace XnaToFna {
             }
 
             public override Type BindToType(string assemblyName, string typeName) {
-                if (assemblyName != "Microsoft.Xna.Framework" && !assemblyName.StartsWith("Microsoft.Xna.Framework."))
+                if (assemblyName != "Microsoft.Xna.Framework" && !assemblyName.StartsWith("Microsoft.Xna.Framework,") && !assemblyName.StartsWith("Microsoft.Xna.Framework."))
                     return Inner?.BindToType(assemblyName, typeName);
                 return FNA.GetType(typeName);
             }
