@@ -19,74 +19,15 @@ namespace XnaToFna {
             Log($"[Stub] Stubbing {mod.Assembly.Name.Name}");
             Modder.Module = mod;
 
-            Log($"[Stub] Updating dependencies");
-            for (int i = 0; i < mod.AssemblyReferences.Count; i++) {
-                AssemblyNameReference dep = mod.AssemblyReferences[i];
-
-                // Main mapping mass.
-                foreach (Tuple<string, string[]> mappings in Mappings)
-                    if (mappings.Item2.Contains(dep.Name) &&
-                        // Check if the target module has been found and cached
-                        Modder.DependencyCache.ContainsKey(mappings.Item1)) {
-                        // Check if module already depends on the remap
-                        if (mod.AssemblyReferences.Any(existingDep => existingDep.Name == mappings.Item1)) {
-                            // If so, just remove the dependency.
-                            mod.AssemblyReferences.RemoveAt(i);
-                            i--;
-                            goto NextDep;
-                        }
-                        Log($"[Stub] Replacing dependency {dep.Name} -> {mappings.Item1}");
-                        // Replace the dependency.
-                        mod.AssemblyReferences[i] = Modder.DependencyCache[mappings.Item1].Assembly.Name;
-                        // Only check until first match found.
-                        goto NextDep;
-                    }
-
-                // Didn't remap; Check for RemoveDeps
-                if (RemoveDeps.Contains(dep.Name)) {
-                    // Remove any unwanted mixed dependencies.
-                    Log($"[Stub] Removing unwanted dependency {dep.Name}");
-                    mod.AssemblyReferences.RemoveAt(i);
-                    i--;
-                    goto NextDep;
-                }
-
-                NextDep:
-                continue;
-            }
-            if (!mod.AssemblyReferences.Any(dep => dep.Name == ThisAssemblyName)) {
-                // Add XnaToFna as dependency
-                Log($"[Stub] Adding dependency XnaToFna");
-                mod.AssemblyReferences.Add(Modder.DependencyCache[ThisAssemblyName].Assembly.Name);
-            }
+            ApplyCommonChanges(mod, "Stub");
 
             // MonoMod needs to relink some types (f.e. XnaToFnaHelper) via FindType, which requires a dependency map.
             Log("[Stub] Mapping dependencies for MonoMod");
             Modder.MapDependencies(mod);
 
-            bool mixed = (mod.Attributes & ModuleAttributes.ILOnly) != ModuleAttributes.ILOnly;
-            if (mixed) {
-                Log("[Stub] Handling mixed mode assembly");
-                mod.Attributes |= ModuleAttributes.ILOnly;
-                mod.Attributes &= ~((ModuleAttributes) 0x10); // Remove "Native entry point" flag.
-                for (int i = 0; i < mod.Assembly.CustomAttributes.Count; i++) {
-                    CustomAttribute attrib = mod.Assembly.CustomAttributes[i];
-                    if (attrib.AttributeType.FullName == "System.CLSCompliantAttribute") {
-                        mod.Assembly.CustomAttributes.RemoveAt(i);
-                        i--;
-                    }
-                }
-                if (!mod.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Security.UnverifiableCodeAttribute"))
-                    mod.AddAttribute(mod.ImportReference(m_UnverifiableCodeAttribute_ctor));
-                mod.ModuleReferences.Clear();
-            }
-            mod.Attributes &= ~ModuleAttributes.StrongNameSigned;
-            if (ForceAnyCPU)
-                mod.Attributes &= ~ModuleAttributes.Required32Bit;
-
             Log($"[Stub] Stubbing");
             foreach (TypeDefinition type in mod.Types)
-                StubType(type, mixed);
+                StubType(type);
 
             Log($"[Stub] Pre-processing");
             foreach (TypeDefinition type in mod.Types)
@@ -107,7 +48,7 @@ namespace XnaToFna {
             Modder.ClearCaches(moduleSpecific: true);
         }
 
-        public void StubType(TypeDefinition type, bool mixed = false) {
+        public void StubType(TypeDefinition type) {
             foreach (FieldDefinition field in type.Fields) {
                 field.Attributes &= ~FieldAttributes.HasFieldRVA;
             }

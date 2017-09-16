@@ -22,6 +22,7 @@ namespace XnaToFna {
                 string arg = argq.Dequeue();
                 if (arg == "--version" || arg.ToLowerInvariant() == "-v")
                     return;
+
                 if (arg == "--skip-content")
                     updateContent = false;
                 else if (arg == "--skip-wavebanks" || arg == "--skip-xwb")
@@ -30,10 +31,17 @@ namespace XnaToFna {
                     xtf.PatchXACTSettings = false;
                 else if (arg == "--skip-video" || arg == "--skip-wma")
                     xtf.PatchVideo = false;
+
                 else if (arg == "--skip-locks" || arg == "--keep-locks")
                     xtf.DestroyLocks = false;
+
                 else if (arg == "--anycpu" || arg == "--force-anycpu")
-                    xtf.ForceAnyCPU = true;
+                    Console.WriteLine("WARNING: --anycpu / --force-anycpu is now default. To set the preferred platform, use --platform x86 / x64 instead.");
+                else if (arg == "--platform" && argq.Count >= 1)
+                    xtf.PreferredPlatform = ParseEnum(argq.Dequeue(), ILPlatform.AnyCPU);
+                else if (arg.StartsWith("--platform="))
+                    xtf.PreferredPlatform = ParseEnum(arg.Substring("--platform=".Length), ILPlatform.AnyCPU);
+
                 else if (arg == "--keep-mixed-deps") {
                     xtf.StubMixedDeps = false;
                     xtf.DestroyMixedDeps = false;
@@ -43,24 +51,33 @@ namespace XnaToFna {
                 } else if (arg == "--remove-mixed-deps") {
                     xtf.StubMixedDeps = false;
                     xtf.DestroyMixedDeps = true;
-                } else if (arg == "--remove-public-key-token" && argq.Count >= 1) {
+
+                } else if (arg == "--remove-public-key-token" && argq.Count >= 1)
                     xtf.DestroyPublicKeyTokens.Add(argq.Dequeue());
-                } else if (arg.StartsWith("--remove-public-key-token=")) {
-                    xtf.DestroyPublicKeyTokens.Add(arg.Substring("--remove-public-key-tokens=".Length));
-                } else if (arg == "--fix-old-mono-xml") {
+                else if (arg.StartsWith("--remove-public-key-token="))
+                    xtf.DestroyPublicKeyTokens.Add(arg.Substring("--remove-public-key-token=".Length));
+
+                else if (arg == "--fix-old-mono-xml") {
                     Console.WriteLine("YOU SHOULD REALLY UPDATE YOUR COPY OF MONO!... Unless you're stuck with Xamarin.Android.");
                     xtf.FixOldMonoXML = true;
+
                 } else if (arg == "--update-xna" || arg == "--xna3" || arg == "--enable-flux-capacitor") {
                     Console.WriteLine("Please get yourself a copy of XnaToFna from the \"timemachine\" branch to enable the time machine.");
                     return;
+
                 } else if (arg == "--hook-istrialmode") {
                     Console.WriteLine("Do what you want cause a pirate is free! You are a pirate!");
                     xtf.HookIsTrialMode = true;
-                } else if (arg == "--content" && argq.Count >= 1) {
+
+                } else if (arg == "--content" && argq.Count >= 1)
                     xtf.ContentDirectoryName = argq.Dequeue();
-                } else if (arg.StartsWith("--content=")) {
+                else if (arg.StartsWith("--content="))
                     xtf.ContentDirectoryName = arg.Substring("--content=".Length);
-                } else
+
+                else if (arg == "--skip-binaryformatter" || arg == "--skip-bf")
+                    xtf.HookBinaryFormatter = false;
+
+                else
                     xtf.ScanPath(arg);
             }
 
@@ -78,6 +95,13 @@ namespace XnaToFna {
 
             if (Debugger.IsAttached) // Keep window open when running in IDE
                 Console.ReadKey();
+        }
+
+        private static T ParseEnum<T>(string value, T defaultResult) where T : struct {
+            T result;
+            if (Enum.TryParse<T>(value, true, out result))
+                return result;
+            return defaultResult;
         }
 
     }

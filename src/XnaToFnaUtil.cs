@@ -69,12 +69,12 @@ namespace XnaToFna {
         public bool FixOldMonoXML = false;
         public bool DestroyMixedDeps = false;
         public bool StubMixedDeps = true;
+        public bool HookIsTrialMode = false;
+        public bool HookBinaryFormatter = true;
 
         public List<string> DestroyPublicKeyTokens = new List<string>();
 
-        public bool ForceAnyCPU = false;
-
-        public bool HookIsTrialMode = false;
+        public ILPlatform PreferredPlatform = ILPlatform.AnyCPU;
 
         public XnaToFnaUtil() {
             Modder.ReadingMode = ReadingMode.Immediate;
@@ -220,7 +220,7 @@ namespace XnaToFna {
         public void RestoreBackup(string root) {
             string origRoot = Path.Combine(root, "orig");
             // Check for an "orig" folder to restore any backups from
-            if (!Directory.Exists(root))
+            if (!Directory.Exists(origRoot))
                 return;
             RestoreBackup(root, origRoot);
         }
@@ -283,88 +283,11 @@ namespace XnaToFna {
             Log($"[Relink] Relinking {mod.Assembly.Name.Name}");
             Modder.Module = mod;
 
-            if (DestroyPublicKeyTokens.Contains(mod.Assembly.Name.Name)) {
-                Log($"[Relink] Destroying public key token for module {mod.Assembly.Name.Name}");
-                mod.Assembly.Name.PublicKeyToken = new byte[0];
-            }
+            ApplyCommonChanges(mod);
 
-            Log($"[Relink] Updating dependencies");
-            for (int i = 0; i < mod.AssemblyReferences.Count; i++) {
-                AssemblyNameReference dep = mod.AssemblyReferences[i];
 
-                // Main mapping mass.
-                foreach (Tuple<string, string[]> mappings in Mappings)
-                    if (mappings.Item2.Contains(dep.Name) &&
-                        // Check if the target module has been found and cached
-                        Modder.DependencyCache.ContainsKey(mappings.Item1)) {
-                        // Check if module already depends on the remap
-                        if (mod.AssemblyReferences.Any(existingDep => existingDep.Name == mappings.Item1)) {
-                            // If so, just remove the dependency.
-                            mod.AssemblyReferences.RemoveAt(i);
-                            i--;
-                            goto NextDep;
-                        }
-                        Log($"[Relink] Replacing dependency {dep.Name} -> {mappings.Item1}");
-                        // Replace the dependency.
-                        mod.AssemblyReferences[i] = Modder.DependencyCache[mappings.Item1].Assembly.Name;
-                        // Only check until first match found.
-                        goto NextDep;
-                    }
-
-                // Didn't remap; Check for RemoveDeps
-                if (RemoveDeps.Contains(dep.Name)) {
-                    // Remove any unwanted (f.e. mixed) dependencies.
-                    Log($"[Relink] Removing unwanted dependency {dep.Name}");
-                    mod.AssemblyReferences.RemoveAt(i);
-                    i--;
-                    goto NextDep;
-                }
-
-                // Didn't remove; Check for DestroyPublicKeyTokens
-                if (DestroyPublicKeyTokens.Contains(dep.Name)) {
-                    Log($"[Relink] Destroying public key token for dependency {dep.Name}");
-                    dep.PublicKeyToken = new byte[0];
-                }
-
-                // Didn't remove; Check for ModulesToStub (formerly managed references)
-                if (ModulesToStub.Any(stub => stub.Assembly.Name.Name == dep.Name)) {
-                    // Fix stubbed dependencies.
-                    Log($"[Relink] Fixing stubbed dependency {dep.Name}");
-                    dep.IsWindowsRuntime = false;
-                    dep.HasPublicKey = false;
-                }
-
-                NextDep:
-                continue;
-            }
-            if (!mod.AssemblyReferences.Any(dep => dep.Name == ThisAssemblyName)) {
-                // Add XnaToFna as dependency
-                Log($"[Relink] Adding dependency XnaToFna");
-                mod.AssemblyReferences.Add(Modder.DependencyCache[ThisAssemblyName].Assembly.Name);
-            }
-
-            // MonoMod needs to relink some types (f.e. XnaToFnaHelper) via FindType, which requires a dependency map.
-            Log("[Relink] Mapping dependencies for MonoMod");
-            Modder.MapDependencies(mod);
-
-            if (ModulesToStub.Count != 0) {
-                Log("[Relink] Making assembly unsafe");
-                mod.Attributes |= ModuleAttributes.ILOnly;
-                for (int i = 0; i < mod.Assembly.CustomAttributes.Count; i++) {
-                    CustomAttribute attrib = mod.Assembly.CustomAttributes[i];
-                    if (attrib.AttributeType.FullName == "System.CLSCompliantAttribute") {
-                        mod.Assembly.CustomAttributes.RemoveAt(i);
-                        i--;
-                    }
-                }
-                if (!mod.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Security.UnverifiableCodeAttribute"))
-                    mod.AddAttribute(mod.ImportReference(m_UnverifiableCodeAttribute_ctor));
-            }
 
             Log($"[Relink] Pre-processing");
-            mod.Attributes &= ~ModuleAttributes.StrongNameSigned;
-            if (ForceAnyCPU)
-                mod.Attributes &= ~ModuleAttributes.Required32Bit;
             foreach (TypeDefinition type in mod.Types)
                 PreProcessType(type);
 
@@ -381,6 +304,109 @@ namespace XnaToFna {
             Modder.Module.Dispose();
             Modder.Module = null;
             Modder.ClearCaches(moduleSpecific: true);
+        }
+
+        public void ApplyCommonChanges(ModuleDefinition mod, string tag = "Relink") {
+            if (DestroyPublicKeyTokens.Contains(mod.Assembly.Name.Name)) {
+                Log($"[{tag}] Destroying public key token for module {mod.Assembly.Name.Name}");
+                mod.Assembly.Name.PublicKeyToken = new byte[0];
+            }
+
+            Log($"[{tag}] Updating dependencies");
+            for (int i = 0; i < mod.AssemblyReferences.Count; i++) {
+                AssemblyNameReference dep = mod.AssemblyReferences[i];
+
+                // Main mapping mass.
+                foreach (Tuple<string, string[]> mappings in Mappings)
+                    if (mappings.Item2.Contains(dep.Name) &&
+                        // Check if the target module has been found and cached
+                        Modder.DependencyCache.ContainsKey(mappings.Item1)) {
+                        // Check if module already depends on the remap
+                        if (mod.AssemblyReferences.Any(existingDep => existingDep.Name == mappings.Item1)) {
+                            // If so, just remove the dependency.
+                            mod.AssemblyReferences.RemoveAt(i);
+                            i--;
+                            goto NextDep;
+                        }
+                        Log($"[{tag}] Replacing dependency {dep.Name} -> {mappings.Item1}");
+                        // Replace the dependency.
+                        mod.AssemblyReferences[i] = Modder.DependencyCache[mappings.Item1].Assembly.Name;
+                        // Only check until first match found.
+                        goto NextDep;
+                    }
+
+                // Didn't remap; Check for RemoveDeps
+                if (RemoveDeps.Contains(dep.Name)) {
+                    // Remove any unwanted (f.e. mixed) dependencies.
+                    Log($"[{tag}] Removing unwanted dependency {dep.Name}");
+                    mod.AssemblyReferences.RemoveAt(i);
+                    i--;
+                    goto NextDep;
+                }
+
+                // Didn't remove; Check for DestroyPublicKeyTokens
+                if (DestroyPublicKeyTokens.Contains(dep.Name)) {
+                    Log($"[{tag}] Destroying public key token for dependency {dep.Name}");
+                    dep.PublicKeyToken = new byte[0];
+                }
+
+                // Didn't remove; Check for ModulesToStub (formerly managed references)
+                if (ModulesToStub.Any(stub => stub.Assembly.Name.Name == dep.Name)) {
+                    // Fix stubbed dependencies.
+                    Log($"[{tag}] Fixing stubbed dependency {dep.Name}");
+                    dep.IsWindowsRuntime = false;
+                    dep.HasPublicKey = false;
+                }
+
+                NextDep:
+                continue;
+            }
+            if (!mod.AssemblyReferences.Any(dep => dep.Name == ThisAssemblyName)) {
+                // Add XnaToFna as dependency
+                Log($"[{tag}] Adding dependency XnaToFna");
+                mod.AssemblyReferences.Add(Modder.DependencyCache[ThisAssemblyName].Assembly.Name);
+            }
+
+            Log($"[{tag}] Updating module attributes");
+            mod.Attributes &= ~ModuleAttributes.StrongNameSigned;
+            if (PreferredPlatform != ILPlatform.Keep) {
+                // "Clear" to AnyCPU.
+                mod.Architecture = TargetArchitecture.I386;
+                mod.Attributes &= ~ModuleAttributes.Required32Bit & ~ModuleAttributes.Preferred32Bit;
+
+                switch (PreferredPlatform) {
+                    case ILPlatform.x86:
+                        mod.Architecture = TargetArchitecture.I386;
+                        mod.Attributes |= ModuleAttributes.Required32Bit;
+                        break;
+                    case ILPlatform.x64:
+                        mod.Architecture = TargetArchitecture.AMD64;
+                        break;
+                    case ILPlatform.x86Pref:
+                        mod.Architecture = TargetArchitecture.I386;
+                        mod.Attributes |= ModuleAttributes.Preferred32Bit;
+                        break;
+                }
+            }
+
+            bool mixed = (mod.Attributes & ModuleAttributes.ILOnly) != ModuleAttributes.ILOnly;
+            if (ModulesToStub.Count != 0 || mixed) {
+                Log($"[{tag}] Making assembly unsafe");
+                mod.Attributes |= ModuleAttributes.ILOnly;
+                for (int i = 0; i < mod.Assembly.CustomAttributes.Count; i++) {
+                    CustomAttribute attrib = mod.Assembly.CustomAttributes[i];
+                    if (attrib.AttributeType.FullName == "System.CLSCompliantAttribute") {
+                        mod.Assembly.CustomAttributes.RemoveAt(i);
+                        i--;
+                    }
+                }
+                if (!mod.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Security.UnverifiableCodeAttribute"))
+                    mod.AddAttribute(mod.ImportReference(m_UnverifiableCodeAttribute_ctor));
+            }
+
+            // MonoMod needs to relink some types (f.e. XnaToFnaHelper) via FindType, which requires a dependency map.
+            Log($"[{tag}] Mapping dependencies for MonoMod");
+            Modder.MapDependencies(mod);
         }
 
         public void UpdateContent() {
