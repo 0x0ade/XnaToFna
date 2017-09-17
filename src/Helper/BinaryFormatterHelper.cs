@@ -42,6 +42,15 @@ namespace XnaToFna {
                     return Inner?.BindToType(assemblyName, typeName);
                 return FNA.GetType(typeName);
             }
+
+            public override void BindToName(Type serializedType, out string assemblyName, out string typeName) {
+                if (Inner != null) {
+                    Inner.BindToName(serializedType, out assemblyName, out typeName);
+                    return;
+                }
+                base.BindToName(serializedType, out assemblyName, out typeName);
+            }
+
         }
     }
 }
