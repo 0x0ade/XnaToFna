@@ -16,6 +16,8 @@ namespace XnaToFna {
 
         public static ConstructorInfo m_XmlIgnore_ctor = typeof(XmlIgnoreAttribute).GetConstructor(Type.EmptyTypes);
         public static MethodInfo m_XnaToFnaHelper_PreUpdate = typeof(XnaToFnaHelper).GetMethod("PreUpdate");
+        public static MethodInfo m_XnaToFnaHelper_MainHook = typeof(XnaToFnaHelper).GetMethod("MainHook");
+        public static MethodInfo m_FileSystemHelper_FixPath = typeof(FileSystemHelper).GetMethod("FixPath");
 
         public void SetupHelperRelinker() {
             Modder.Relinker = DefaultRelinker;
@@ -153,6 +155,9 @@ namespace XnaToFna {
                     if (DestroyLocks)
                         CheckAndDestroyLock(method, i);
 
+                    if (FixPathsFor.Count != 0)
+                        CheckAndInjectFixPath(method, ref i);
+
                 }
             }
 
@@ -257,6 +262,56 @@ namespace XnaToFna {
                 Modder.FindTypeDeep("XnaToFna.FakeMonitor").Resolve().FindMethod("System.Void Exit(System.Object)")
             );
         }
+
+
+        public void CheckAndInjectFixPath(MethodDefinition method, ref int instri) {
+            Mono.Collections.Generic.Collection<Instruction> instrs = method.Body.Instructions;
+            Instruction instr = instrs[instri];
+
+            /* This hack at least is somewhat reasonable...
+             * """Fix""" paths being passed to methods that heavily rely on proper paths.
+             * This is for when MONO_IOMAP=all isn't enough because it doesn't affect native libs.
+             * -ade
+             */
+
+            if (instr.OpCode != OpCodes.Call && instr.OpCode != OpCodes.Callvirt && instr.OpCode != OpCodes.Newobj)
+                return;
+
+            MethodReference called = (MethodReference) instr.Operand;
+            if (!FixPathsFor.Contains(called.GetFindableID()) &&
+                !FixPathsFor.Contains(called.GetFindableID(withType: false)) &&
+                !FixPathsFor.Contains(called.GetFindableID(simple: true)) &&
+                !FixPathsFor.Contains(called.GetFindableID(withType: false, simple: true)))
+                return;
+
+            MethodReference mr_Push = method.Module.ImportReference(StackOpHelper.m_Push);
+            MethodReference mr_Pop = method.Module.ImportReference(StackOpHelper.m_Pop);
+            MethodReference mr_FixPath = method.Module.ImportReference(m_FileSystemHelper_FixPath);
+
+            ILProcessor il = method.Body.GetILProcessor();
+            // Go through all parameters in stack, store all passed parameters in StackOpHelper and handle accordingly.
+            for (int i = called.Parameters.Count - 1; i > -1; --i) {
+                if (called.Parameters[i].ParameterType.MetadataType == MetadataType.String) {
+                    // Before pushing to StackOpHelper, try to fix the path (we're assuming it's a path).
+                    il.InsertBefore(instrs[instri], il.Create(OpCodes.Call, mr_FixPath));
+                    instri++;
+                }
+
+                GenericInstanceMethod push = new GenericInstanceMethod(mr_Push);
+                push.GenericArguments.Add(called.Parameters[i].ParameterType);
+                il.InsertBefore(instrs[instri], il.Create(OpCodes.Call, push));
+                instri++;
+            }
+
+            // Pop StackOpHelper.
+            for (int i = 0; i <  called.Parameters.Count; i++) {
+                GenericInstanceMethod pop = new GenericInstanceMethod(mr_Pop);
+                pop.GenericArguments.Add(called.Parameters[i].ParameterType);
+                il.InsertBefore(instrs[instri], il.Create(OpCodes.Call, pop));
+                instri++;
+            }
+        }
+
 
     }
 }

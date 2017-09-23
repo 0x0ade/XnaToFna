@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Input;
 using MonoMod.InlineRT;
 using SDL2;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using XnaToFna.ProxyForms;
@@ -16,6 +18,10 @@ namespace XnaToFna {
         public static XnaToFnaGame Game;
 
         public static int MaximumGamepadCount;
+
+        public static void MainHook(string[] args) {
+            // Future pre-Initialize runtime fancyness goes in here.
+        }
 
         public static void Initialize(XnaToFnaGame game) {
             Game = game;

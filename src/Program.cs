@@ -23,7 +23,12 @@ namespace XnaToFna {
                 if (arg == "--version" || arg.ToLowerInvariant() == "-v")
                     return;
 
-                if (arg == "--skip-content")
+                else if (arg == "--skip-entrypoint") {
+                    Console.WriteLine("Skipping entry point hook. This will limit and even disable some runtime features.");
+                    xtf.HookEntryPoint = false;
+                }
+
+                else if (arg == "--skip-content")
                     updateContent = false;
                 else if (arg == "--skip-wavebanks" || arg == "--skip-xwb")
                     xtf.PatchWaveBanks = false;
@@ -51,7 +56,6 @@ namespace XnaToFna {
                 } else if (arg == "--remove-mixed-deps") {
                     xtf.StubMixedDeps = false;
                     xtf.DestroyMixedDeps = true;
-
                 } else if (arg == "--remove-public-key-token" && argq.Count >= 1)
                     xtf.DestroyPublicKeyTokens.Add(argq.Dequeue());
                 else if (arg.StartsWith("--remove-public-key-token="))
@@ -64,18 +68,23 @@ namespace XnaToFna {
                 } else if (arg == "--update-xna" || arg == "--xna3" || arg == "--enable-flux-capacitor") {
                     Console.WriteLine("Please get yourself a copy of XnaToFna from the \"timemachine\" branch to enable the time machine.");
                     return;
-
                 } else if (arg == "--hook-istrialmode") {
                     Console.WriteLine("Do what you want cause a pirate is free! You are a pirate!");
                     xtf.HookIsTrialMode = true;
+                }
 
-                } else if (arg == "--content" && argq.Count >= 1)
+                else if (arg == "--content" && argq.Count >= 1)
                     xtf.ContentDirectoryName = argq.Dequeue();
                 else if (arg.StartsWith("--content="))
                     xtf.ContentDirectoryName = arg.Substring("--content=".Length);
 
                 else if (arg == "--skip-binaryformatter" || arg == "--skip-bf")
                     xtf.HookBinaryFormatter = false;
+
+                else if (arg == "--fix-path-arg" && argq.Count >= 1)
+                    xtf.FixPathsFor.Add(argq.Dequeue());
+                else if (arg.StartsWith("--fix-path-arg="))
+                    xtf.FixPathsFor.Add(arg.Substring("--fix-path-arg=".Length));
 
                 else
                     xtf.ScanPath(arg);

@@ -1,4 +1,5 @@
 ﻿using Mono.Cecil;
+using Mono.Cecil.Cil;
 using MonoMod;
 using System;
 using System.Collections.Generic;
@@ -61,6 +62,8 @@ namespace XnaToFna {
         };
         public List<ModuleDefinition> ModulesToStub = new List<ModuleDefinition>();
 
+        public bool HookEntryPoint = true;
+
         public bool PatchWaveBanks = true;
         public bool PatchXACTSettings = true;
         public bool PatchVideo = true;
@@ -73,6 +76,8 @@ namespace XnaToFna {
         public bool HookBinaryFormatter = true;
 
         public List<string> DestroyPublicKeyTokens = new List<string>();
+
+        public List<string> FixPathsFor = new List<string>();
 
         public ILPlatform PreferredPlatform = ILPlatform.AnyCPU;
 
@@ -285,20 +290,26 @@ namespace XnaToFna {
 
             ApplyCommonChanges(mod);
 
-
-
-            Log($"[Relink] Pre-processing");
+            Log("[Relink] Pre-processing");
             foreach (TypeDefinition type in mod.Types)
                 PreProcessType(type);
 
-            Log($"[Relink] Relinking (MonoMod PatchRefs pass)");
+            Log("[Relink] Relinking (MonoMod PatchRefs pass)");
             Modder.PatchRefs();
 
-            Log($"[Relink] Post-processing");
+            Log("[Relink] Post-processing");
             foreach (TypeDefinition type in mod.Types)
                 PostProcessType(type);
 
-            Log($"[Relink] Rewriting and disposing module\n");
+            if (HookEntryPoint && mod.EntryPoint != null) {
+                Log("[Relink] Injecting XnaToFna entry point hook");
+                ILProcessor il = mod.EntryPoint.Body.GetILProcessor();
+                Instruction call = il.Create(OpCodes.Call, mod.ImportReference(m_XnaToFnaHelper_MainHook));
+                il.InsertBefore(mod.EntryPoint.Body.Instructions[0], call);
+                il.InsertBefore(call, il.Create(OpCodes.Ldarg_0));
+            }
+
+            Log("[Relink] Rewriting and disposing module\n");
             Modder.Module.Write(Modder.WriterParameters);
             // Dispose the module so other modules can read it as a dependency again.
             Modder.Module.Dispose();
