@@ -25,7 +25,7 @@ namespace XnaToFna {
             // To use XnaToFnaGame properly, the actual game override needs to call XnaToFnaGame::.ctor as "base" instead.
             Modder.RelinkMap["System.Void Microsoft.Xna.Framework.Game::.ctor()"] =
                 Tuple.Create("XnaToFna.XnaToFnaGame", "System.Void .ctor()");
-            foreach (MethodInfo method in typeof(XnaToFnaGame).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) {
+            foreach (MethodInfo method in typeof(XnaToFnaGame).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)) {
                 Modder.RelinkMap[method.GetFindableID(type: "Microsoft.Xna.Framework.Game")] =
                     Tuple.Create("XnaToFna.XnaToFnaGame", method.GetFindableID(withType: false));
             }
@@ -72,13 +72,9 @@ namespace XnaToFna {
 
         public IMetadataTokenProvider DefaultRelinker(IMetadataTokenProvider mtp, IGenericParameterProvider context) {
             // Skip MonoModLinkTo attribute handling.
-            try {
-                return Modder.PostRelinker(
-                    Modder.MainRelinker(mtp, context),
-                    context);
-            } catch (Exception e) {
-                throw new InvalidOperationException($"MonoMod failed relinking {mtp} (context: {context})", e);
-            }
+            return Modder.PostRelinker(
+                Modder.MainRelinker(mtp, context),
+                context);
         }
 
         public void PreProcessType(TypeDefinition type) {
@@ -147,7 +143,7 @@ namespace XnaToFna {
                 for (int i = 0; i < method.Body.Instructions.Count; i++) {
                     Instruction instr = method.Body.Instructions[i];
 
-                    // Fix XnaToFnaHelper calls still being callvirt calls
+                    // Fix XnaToFnaHelper calls still being callvirt calls.
                     if (instr.OpCode == OpCodes.Callvirt && ((MethodReference) instr.Operand).DeclaringType.FullName == "XnaToFna.XnaToFnaHelper") {
                         instr.OpCode = OpCodes.Call;
                     }
@@ -159,10 +155,51 @@ namespace XnaToFna {
                         CheckAndInjectFixPath(method, ref i);
 
                 }
+
+                // Calculate updated offsets required for any further manual fixes.
+                // ... could this be useful outside of XnaToFna?
+                {
+                    int offs = 0;
+                    for (int i = 0; i < method.Body.Instructions.Count; i++) {
+                        Instruction instr = method.Body.Instructions[i];
+                        instr.Offset = offs;
+                        offs += instr.GetSize();
+                    }
+                }
+
+
+                for (int i = 0; i < method.Body.Instructions.Count; i++) {
+                    Instruction instr = method.Body.Instructions[i];
+
+                    // Change short <-> long operations as the method grows / shrinks.
+                    if (instr.Operand is Instruction) {
+                        int offs = ((Instruction) instr.Operand).Offset - instr.Offset;
+                        if (offs < sbyte.MinValue || offs > sbyte.MaxValue)
+                            instr.OpCode = ShortToLongOp(instr.OpCode);
+                        else
+                            instr.OpCode = LongToShortOp(instr.OpCode);
+                    }
+
+                }
+
             }
 
             foreach (TypeDefinition nested in type.NestedTypes)
                 PostProcessType(nested);
+        }
+
+        public OpCode ShortToLongOp(OpCode op) {
+            string name = Enum.GetName(typeof(Code), op.Code);
+            if (!name.EndsWith("_S"))
+                return op;
+            return (OpCode?) typeof(OpCodes).GetField(name.Substring(0, name.Length - 2))?.GetValue(null) ?? op;
+        }
+
+        public OpCode LongToShortOp(OpCode op) {
+            string name = Enum.GetName(typeof(Code), op.Code);
+            if (name.EndsWith("_S"))
+                return op;
+            return (OpCode?) typeof(OpCodes).GetField(name + "_S")?.GetValue(null) ?? op;
         }
 
         public void CheckAndDestroyLock(MethodDefinition method, int instri) {
@@ -263,7 +300,6 @@ namespace XnaToFna {
             );
         }
 
-
         public void CheckAndInjectFixPath(MethodDefinition method, ref int instri) {
             Mono.Collections.Generic.Collection<Instruction> instrs = method.Body.Instructions;
             Instruction instr = instrs[instri];
@@ -281,7 +317,8 @@ namespace XnaToFna {
             if (!FixPathsFor.Contains(called.GetFindableID()) &&
                 !FixPathsFor.Contains(called.GetFindableID(withType: false)) &&
                 !FixPathsFor.Contains(called.GetFindableID(simple: true)) &&
-                !FixPathsFor.Contains(called.GetFindableID(withType: false, simple: true)))
+                !FixPathsFor.Contains(called.GetFindableID(withType: false, simple: true))
+                )
                 return;
 
             MethodReference mr_Push = method.Module.ImportReference(StackOpHelper.m_Push);
