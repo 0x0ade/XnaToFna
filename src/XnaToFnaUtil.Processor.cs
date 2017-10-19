@@ -70,11 +70,40 @@ namespace XnaToFna {
 
         }
 
-        public IMetadataTokenProvider DefaultRelinker(IMetadataTokenProvider mtp, IGenericParameterProvider context) {
+        public IMetadataTokenProvider DefaultRelinker(IMetadataTokenProvider mtp, IGenericParameterProvider context)
+            => _DefaultRelinker(mtp, context);
+        public IMetadataTokenProvider _DefaultRelinker(IMetadataTokenProvider mtp, IGenericParameterProvider context, bool retry = false) {
             // Skip MonoModLinkTo attribute handling.
-            return Modder.PostRelinker(
-                Modder.MainRelinker(mtp, context),
-                context);
+            try {
+                return Modder.PostRelinker(
+                    Modder.MainRelinker(mtp, context),
+                    context);
+            } catch (RelinkTargetNotFoundException e) {
+                if (retry)
+                    throw;
+                MemberReference member = mtp as MemberReference;
+                if (member == null)
+                    throw;
+
+                // If this is a .GamerServices reference pointing towards .Game or similar, flip tables. (X360!)
+
+                string name;
+                object target;
+                if (mtp is TypeReference) {
+                    target = name = ((TypeReference) mtp).FullName;
+                } else if (mtp is MethodReference) {
+                    name = ((MethodReference) mtp).GetFindableID(withType: true);
+                    target = Tuple.Create(member.DeclaringType.FullName, ((MethodReference) mtp).GetFindableID(withType: false));
+                } else if (mtp is FieldReference) {
+                    name = ((FieldReference) mtp).FullName;
+                    target = Tuple.Create(member.DeclaringType.FullName, ((FieldReference) mtp).Name);
+                } else
+                    throw;
+
+                Modder.RelinkMap[name] = target;
+                Modder.RelinkMapCache[name] = null;
+                return _DefaultRelinker(mtp, context, true);
+            }
         }
 
         public void PreProcessType(TypeDefinition type) {
