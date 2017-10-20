@@ -18,7 +18,6 @@ namespace XnaToFna {
         public readonly static Version DotNetFramework4Version = new Version(4, 0, 0, 0);
         public readonly static Version DotNetFramework2Version = new Version(2, 0, 0, 0);
 
-        public readonly static byte[] DotNetX360KeyToken = { 0x7c, 0xec, 0x85, 0xd7, 0xbe, 0xa7, 0x79, 0x8e }; // 7cec85d7bea7798e
         public readonly static Version DotNetX360Version = new Version(2, 0, 5, 0);
 
         protected static Assembly ThisAssembly = Assembly.GetExecutingAssembly();
@@ -383,8 +382,8 @@ namespace XnaToFna {
                     dep.HasPublicKey = false;
                 }
 
-                // Check for .NET X360 public key token.
-                if (dep.Version == DotNetX360Version && dep.PublicKeyToken.SequenceEqual(DotNetX360KeyToken)) {
+                // Check for .NET compact (X360) version
+                if (dep.Version == DotNetX360Version) {
                     // Replace public key token.
                     dep.PublicKeyToken = DotNetFrameworkKeyToken;
                     // Technically .NET 2(?), but let's just bump the version.
