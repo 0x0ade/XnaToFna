@@ -14,6 +14,13 @@ using System.Threading.Tasks;
 namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
 
+        public readonly static byte[] DotNetFrameworkKeyToken = { 0xb7, 0x7a, 0x5c, 0x56, 0x19, 0x34, 0xe0, 0x89 }; // b77a5c561934e089
+        public readonly static Version DotNetFramework4Version = new Version(4, 0, 0, 0);
+        public readonly static Version DotNetFramework2Version = new Version(2, 0, 0, 0);
+
+        public readonly static byte[] DotNetX360KeyToken = { 0x7c, 0xec, 0x85, 0xd7, 0xbe, 0xa7, 0x79, 0x8e }; // 7cec85d7bea7798e
+        public readonly static Version DotNetX360Version = new Version(2, 0, 5, 0);
+
         protected static Assembly ThisAssembly = Assembly.GetExecutingAssembly();
         protected static string ThisAssemblyName = ThisAssembly.GetName().Name;
         public readonly static Version Version = ThisAssembly.GetName().Version;
@@ -360,18 +367,28 @@ namespace XnaToFna {
                     goto NextDep;
                 }
 
-                // Didn't remove; Check for DestroyPublicKeyTokens
+                // Didn't remove
+
+                // Check for DestroyPublicKeyTokens
                 if (DestroyPublicKeyTokens.Contains(dep.Name)) {
                     Log($"[{tag}] Destroying public key token for dependency {dep.Name}");
                     dep.PublicKeyToken = new byte[0];
                 }
 
-                // Didn't remove; Check for ModulesToStub (formerly managed references)
+                // Check for ModulesToStub (formerly managed references)
                 if (ModulesToStub.Any(stub => stub.Assembly.Name.Name == dep.Name)) {
                     // Fix stubbed dependencies.
                     Log($"[{tag}] Fixing stubbed dependency {dep.Name}");
                     dep.IsWindowsRuntime = false;
                     dep.HasPublicKey = false;
+                }
+
+                // Check for .NET X360 public key token.
+                if (dep.Version == DotNetX360Version && dep.PublicKeyToken.SequenceEqual(DotNetX360KeyToken)) {
+                    // Replace public key token.
+                    dep.PublicKeyToken = DotNetFrameworkKeyToken;
+                    // Technically .NET 2(?), but let's just bump the version.
+                    dep.Version = DotNetFramework4Version;
                 }
 
                 NextDep:

@@ -68,6 +68,10 @@ namespace XnaToFna {
                     Tuple.Create("XnaToFna.BinaryFormatterHelper", "System.Void set_Binder(System.Runtime.Serialization.Formatters.Binary.BinaryFormatter,System.Runtime.Serialization.SerializationBinder)");
             }
 
+            // X360 uses the ".NET Compact Framework", which actually ships with some additional stuff...
+            Modder.RelinkMap["System.Void System.Threading.Thread::SetProcessorAffinity(System.Int32[])"] =
+                Tuple.Create("XnaToFna.X360Helper", "System.Void SetProcessorAffinity(System.Threading.Thread,System.Int32[])");
+
             foreach (XnaToFnaMapping mapping in Mappings)
                 if (mapping.IsActive && mapping.Setup != null)
                     mapping.Setup(this, mapping);
