@@ -68,42 +68,30 @@ namespace XnaToFna {
                     Tuple.Create("XnaToFna.BinaryFormatterHelper", "System.Void set_Binder(System.Runtime.Serialization.Formatters.Binary.BinaryFormatter,System.Runtime.Serialization.SerializationBinder)");
             }
 
+            foreach (XnaToFnaMapping mapping in Mappings)
+                if (mapping.IsActive && mapping.Setup != null)
+                    mapping.Setup(this, mapping);
+
         }
 
-        public IMetadataTokenProvider DefaultRelinker(IMetadataTokenProvider mtp, IGenericParameterProvider context)
-            => _DefaultRelinker(mtp, context);
-        public IMetadataTokenProvider _DefaultRelinker(IMetadataTokenProvider mtp, IGenericParameterProvider context, bool retry = false) {
+        public static void SetupDirectRelinkMap(XnaToFnaUtil xtf, XnaToFnaMapping mapping) {
+            // Required as some games (X360 ones) contain .GamerServices references pointing to .Game:
+            // Remap all types.
+            foreach (TypeDefinition type in mapping.Module.Types)
+                SetupGamerServicesType(xtf, type);
+        }
+        public static void SetupGamerServicesType(XnaToFnaUtil xtf, TypeDefinition type) {
+            xtf.Modder.RelinkMap[type.FullName] = type;
+
+            foreach (TypeDefinition nested in type.NestedTypes)
+                SetupGamerServicesType(xtf, nested);
+        }
+
+        public IMetadataTokenProvider DefaultRelinker(IMetadataTokenProvider mtp, IGenericParameterProvider context) {
             // Skip MonoModLinkTo attribute handling.
-            try {
-                return Modder.PostRelinker(
-                    Modder.MainRelinker(mtp, context),
-                    context);
-            } catch (RelinkTargetNotFoundException e) {
-                if (retry)
-                    throw;
-                MemberReference member = mtp as MemberReference;
-                if (member == null)
-                    throw;
-
-                // If this is a .GamerServices reference pointing towards .Game or similar, flip tables. (X360!)
-
-                string name;
-                object target;
-                if (mtp is TypeReference) {
-                    target = name = ((TypeReference) mtp).FullName;
-                } else if (mtp is MethodReference) {
-                    name = ((MethodReference) mtp).GetFindableID(withType: true);
-                    target = Tuple.Create(member.DeclaringType.FullName, ((MethodReference) mtp).GetFindableID(withType: false));
-                } else if (mtp is FieldReference) {
-                    name = ((FieldReference) mtp).FullName;
-                    target = Tuple.Create(member.DeclaringType.FullName, ((FieldReference) mtp).Name);
-                } else
-                    throw;
-
-                Modder.RelinkMap[name] = target;
-                Modder.RelinkMapCache[name] = null;
-                return _DefaultRelinker(mtp, context, true);
-            }
+            return Modder.PostRelinker(
+                Modder.MainRelinker(mtp, context),
+                context);
         }
 
         public void PreProcessType(TypeDefinition type) {

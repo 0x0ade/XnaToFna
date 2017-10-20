@@ -23,6 +23,9 @@ namespace XnaToFna {
                 if (arg == "--version" || arg.ToLowerInvariant() == "-v")
                     return;
 
+                else if (arg == "--mm-strict")
+                    xtf.Modder.Strict = true;
+
                 else if (arg == "--skip-entrypoint") {
                     Console.WriteLine("Skipping entry point hook. This will limit and even disable some runtime features.");
                     xtf.HookEntryPoint = false;

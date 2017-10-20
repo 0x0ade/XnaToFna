@@ -18,8 +18,8 @@ namespace XnaToFna {
         protected static string ThisAssemblyName = ThisAssembly.GetName().Name;
         public readonly static Version Version = ThisAssembly.GetName().Version;
 
-        public List<Tuple<string, string[]>> Mappings = new List<Tuple<string, string[]>> {
-            Tuple.Create("FNA", new string[] {
+        public List<XnaToFnaMapping> Mappings = new List<XnaToFnaMapping> {
+            new XnaToFnaMapping("FNA", new string[] {
                 "Microsoft.Xna.Framework",
                 "Microsoft.Xna.Framework.Avatar",
                 "Microsoft.Xna.Framework.Content.Pipeline",
@@ -31,16 +31,16 @@ namespace XnaToFna {
                 "Microsoft.Xna.Framework.Xact"
             }),
 
-            Tuple.Create("MonoGame.Framework.Net", new string[] {
+            new XnaToFnaMapping("MonoGame.Framework.Net", new string[] {
                 "Microsoft.Xna.Framework.GamerServices",
                 "Microsoft.Xna.Framework.Net"
-            }),
+            }, SetupDirectRelinkMap),
 
-            Tuple.Create("FNA.Steamworks", new string[] {
+            new XnaToFnaMapping("FNA.Steamworks", new string[] {
                 "FNA.Steamworks",
                 "Microsoft.Xna.Framework.GamerServices",
                 "Microsoft.Xna.Framework.Net"
-            })
+            }, SetupDirectRelinkMap)
         };
 
 
@@ -83,6 +83,8 @@ namespace XnaToFna {
 
         public XnaToFnaUtil() {
             Modder.ReadingMode = ReadingMode.Immediate;
+
+            Modder.Strict = false;
 
             Modder.AssemblyResolver = AssemblyResolver;
             Modder.DependencyDirs = Directories;
@@ -175,7 +177,7 @@ namespace XnaToFna {
             // Don't ReadWrite if the module being read is XnaToFna or a relink target.
             modReaderParams.ReadWrite =
                 path != ThisAssembly.Location &&
-                !Mappings.Exists(mappings => name.Name == mappings.Item1);
+                !Mappings.Exists(mappings => name.Name == mappings.Target);
             // Only read debug info if it exists
             if (!File.Exists(path + ".mdb") && !File.Exists(Path.ChangeExtension(path, "pdb")))
                 modReaderParams.ReadSymbols = false;
@@ -199,15 +201,18 @@ namespace XnaToFna {
             }
 
             if (add && !modReaderParams.ReadWrite) { // XNA replacement
-                foreach (Tuple<string, string[]> mappings in Mappings)
-                    if (name.Name == mappings.Item1)
-                        foreach (string from in mappings.Item2) {
+                foreach (XnaToFnaMapping mapping in Mappings)
+                    if (name.Name == mapping.Target) {
+                        mapping.IsActive = true;
+                        mapping.Module = mod;
+                        foreach (string from in mapping.Sources) {
                             Log($"[ScanPath] Mapping {from} -> {name.Name}");
                             Modder.RelinkModuleMap[from] = mod;
                         }
+                    }
             } else if (!add) {
-                foreach (Tuple<string, string[]> mappings in Mappings)
-                    if (mod.AssemblyReferences.Any(dep => mappings.Item2.Contains(dep.Name))) {
+                foreach (XnaToFnaMapping mapping in Mappings)
+                    if (mod.AssemblyReferences.Any(dep => mapping.Sources.Contains(dep.Name))) {
                         add = true;
                         Log($"[ScanPath] XnaToFna-ing {name.Name}");
                         goto BreakMappings;
@@ -274,7 +279,7 @@ namespace XnaToFna {
 
         public void Relink(ModuleDefinition mod) {
             // Don't relink the relink targets!
-            if (Mappings.Exists(mappings => mod.Assembly.Name.Name == mappings.Item1))
+            if (Mappings.Exists(mappings => mod.Assembly.Name.Name == mappings.Target))
                 return;
 
             // Don't relink stubbed targets again!
@@ -328,20 +333,20 @@ namespace XnaToFna {
                 AssemblyNameReference dep = mod.AssemblyReferences[i];
 
                 // Main mapping mass.
-                foreach (Tuple<string, string[]> mappings in Mappings)
-                    if (mappings.Item2.Contains(dep.Name) &&
+                foreach (XnaToFnaMapping mapping in Mappings)
+                    if (mapping.Sources.Contains(dep.Name) &&
                         // Check if the target module has been found and cached
-                        Modder.DependencyCache.ContainsKey(mappings.Item1)) {
+                        Modder.DependencyCache.ContainsKey(mapping.Target)) {
                         // Check if module already depends on the remap
-                        if (mod.AssemblyReferences.Any(existingDep => existingDep.Name == mappings.Item1)) {
+                        if (mod.AssemblyReferences.Any(existingDep => existingDep.Name == mapping.Target)) {
                             // If so, just remove the dependency.
                             mod.AssemblyReferences.RemoveAt(i);
                             i--;
                             goto NextDep;
                         }
-                        Log($"[{tag}] Replacing dependency {dep.Name} -> {mappings.Item1}");
+                        Log($"[{tag}] Replacing dependency {dep.Name} -> {mapping.Target}");
                         // Replace the dependency.
-                        mod.AssemblyReferences[i] = Modder.DependencyCache[mappings.Item1].Assembly.Name;
+                        mod.AssemblyReferences[i] = Modder.DependencyCache[mapping.Target].Assembly.Name;
                         // Only check until first match found.
                         goto NextDep;
                     }
@@ -376,6 +381,12 @@ namespace XnaToFna {
                 // Add XnaToFna as dependency
                 Log($"[{tag}] Adding dependency XnaToFna");
                 mod.AssemblyReferences.Add(Modder.DependencyCache[ThisAssemblyName].Assembly.Name);
+            }
+
+            if (mod.Runtime < TargetRuntime.Net_4_0) {
+                // XNA 3.0 / 3.1 and X360 games depend on a .NET Framework pre-4.0
+                mod.Runtime = TargetRuntime.Net_4_0;
+                // TODO: What about the System.*.dll dependencies?
             }
 
             Log($"[{tag}] Updating module attributes");
