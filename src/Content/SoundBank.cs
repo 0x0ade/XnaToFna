@@ -62,7 +62,6 @@ namespace XnaToFna {
                 Log($"[UpdateSoundBank] Possible platform mismatch! Platform: 0x{platform.ToString("X2")}; Big endian (X360): {x360}");
             }
 
-
             ushort cuesSimple = SwapEndian(x360, reader.ReadUInt16());
             writer.Write(cuesSimple);
             ushort cuesComplex = SwapEndian(x360, reader.ReadUInt16());
@@ -72,27 +71,31 @@ namespace XnaToFna {
             writer.Write(reader.ReadByte());
             ushort sounds = SwapEndian(x360, reader.ReadUInt16());
             writer.Write(sounds);
-            writer.Write(SwapEndian(x360, reader.ReadUInt16()));
+            long cueNamesLengthPos = reader.BaseStream.Position; // We need to update this afterwards.
+            ushort cueNamesLength = SwapEndian(x360, reader.ReadUInt16());
+            writer.Write(cueNamesLength);
             writer.Write(SwapEndian(x360, reader.ReadUInt16()));
 
             uint cuesSimplePos = SwapEndian(x360, reader.ReadUInt32());
             writer.Write(cuesSimplePos);
             uint cuesComplexPos = SwapEndian(x360, reader.ReadUInt32());
             writer.Write(cuesComplexPos);
-            writer.Write(SwapEndian(x360, reader.ReadUInt32()));
+            uint cueNamesPos = SwapEndian(x360, reader.ReadUInt32());
+            writer.Write(cueNamesPos);
             writer.Write(SwapEndian(x360, reader.ReadUInt32()));
             uint variationsPos = SwapEndian(x360, reader.ReadUInt32());
             writer.Write(variationsPos);
             writer.Write(SwapEndian(x360, reader.ReadUInt32()));
             writer.Write(SwapEndian(x360, reader.ReadUInt32()));
             writer.Write(SwapEndian(x360, reader.ReadUInt32()));
-            writer.Write(SwapEndian(x360, reader.ReadUInt32()));
+            uint cueNamesIndicesPos = SwapEndian(x360, reader.ReadUInt32());
+            writer.Write(cueNamesIndicesPos);
             uint soundsPos = SwapEndian(x360, reader.ReadUInt32());
             writer.Write(soundsPos);
 
             writer.Write(reader.ReadBytes(64));
 
-            // We don't care about names...
+            // We don't care about what lies here...
 
             writer.Write(reader.ReadBytesUntil(soundsPos));
             for (ushort i = 0; i < sounds; i++) {
@@ -368,7 +371,42 @@ namespace XnaToFna {
                 }
             }
 
-            // We don't care about the rest.
+            // Keep track of name indices. Update the table in the file afterwards.
+            uint[] cueNameIndices = new uint[cuesSimple + cuesComplex];
+            writer.Write(reader.ReadBytesUntil(cueNamesPos));
+            cueNamesLength = 0; // This seems to be 0 in X360; let's just count on our own...
+            for (int i = 0; i < cueNameIndices.Length; i++) {
+                cueNameIndices[i] = (uint) writer.BaseStream.Position;
+
+                // If the name isn't empty, continue on.
+                if (reader.PeekChar() != 0) {
+                    for (int c; (c = reader.PeekChar()) != 0; cueNamesLength++)
+                        writer.Write(reader.ReadByte());
+                    writer.Write(reader.ReadByte()); 
+                    cueNamesLength++;
+                    continue;
+                }
+
+                // If the name is empty, replace it with a dummy.
+                string name = $"Nameless Cue #{i}";
+                cueNamesLength += (ushort) name.Length;
+                writer.Write(name.ToCharArray());
+                writer.Write(reader.ReadByte());
+            }
+
+            // Update the cue name table length and indices.
+            long offset = writer.BaseStream.Position;
+
+            writer.BaseStream.Seek(cueNamesLengthPos, SeekOrigin.Begin);
+            writer.Write(cueNamesLength);
+
+            writer.BaseStream.Seek(cueNamesIndicesPos, SeekOrigin.Begin);
+            for (int i = 0; i < cueNameIndices.Length; i++)
+                writer.Write(cueNameIndices[i]);
+
+            writer.BaseStream.Seek(offset, SeekOrigin.Begin);
+
+            // Nothing else should come afterwards...
             reader.BaseStream.CopyTo(writer.BaseStream);
         }
 
