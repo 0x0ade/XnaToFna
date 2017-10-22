@@ -14,9 +14,18 @@ namespace XnaToFna {
     public static partial class ContentHelper {
 
         public static class XWMAInfo {
-            public static int[] BytesPerSecond = { 12000, 24000, 4000, 6000, 8000, 20000 };
-            public static short[] BlockAlign = { 929, 1487, 1280, 2230, 8917, 8192, 4459, 5945, 2304, 1536, 1485, 1008, 2731, 4096, 6827, 5462 };
+            public readonly static int[] BytesPerSecond = { 12000, 24000, 4000, 6000, 8000, 20000 };
+            public readonly static short[] BlockAlign = { 929, 1487, 1280, 2230, 8917, 8192, 4459, 5945, 2304, 1536, 1485, 1008, 2731, 4096, 6827, 5462 };
         }
+
+        // Assume the same info - XMA is just WMA Pro, right? Right?! >.<
+        public static class XMAInfo {
+            public readonly static int[] BytesPerSecond = { 12000, 24000, 4000, 6000, 8000, 20000 };
+            public readonly static short[] BlockAlign = { 929, 1487, 1280, 2230, 8917, 8192, 4459, 5945, 2304, 1536, 1485, 1008, 2731, 4096, 6827, 5462 };
+        }
+
+        public const uint XWBHeader = 0x444E4257; // WBND
+        public const uint XWBHeaderX360 = 0x57424E44; // DNBW
 
         public static void UpdateWaveBank(string path, BinaryReader reader, BinaryWriter writer) {
             if (!IsFFMPEGAvailable) {
@@ -28,41 +37,50 @@ namespace XnaToFna {
 
             uint offset;
 
-            // WaveBank header and versions
-            writer.Write(reader.ReadBytes(3 * 4));
+            // Check WaveBank header against XNBHeader / XNBHeaderX360
+            uint header = reader.ReadUInt32();
+            bool x360 = header == XWBHeaderX360;
+            writer.Write(XWBHeader);
+
+            // WaveBank versions (content, tool)
+            writer.Write(SwapEndian(x360, reader.ReadUInt32()));
+            writer.Write(SwapEndian(x360, reader.ReadUInt32()));
 
             uint[] regionOffsets = new uint[5];
             uint[] regionLengths = new uint[5];
             long regionPosition = reader.BaseStream.Position; // Used to update the regions after conversion
             for (int i = 0; i < 5; i++) {
-                regionOffsets[i] = reader.ReadUInt32();
+                regionOffsets[i] = SwapEndian(x360, reader.ReadUInt32());
                 writer.Write(regionOffsets[i]);
-                regionLengths[i] = reader.ReadUInt32();
+                regionLengths[i] = SwapEndian(x360, reader.ReadUInt32());
                 writer.Write(regionLengths[i]);
             }
 
-            writer.Write(reader.ReadBytesUntil(regionOffsets[0] + 2)); // Offset + streaming flag (ushort)
+            // We don't really care about what's going on here... but we should, especially taking X360 into account.
 
-            ushort flags = reader.ReadUInt16();
+            writer.Write(reader.ReadBytesUntil(regionOffsets[0])); // Offset
+
+            uint flags = SwapEndian(x360, reader.ReadUInt32());
             writer.Write(flags);
-            if ((flags & 2) == 2) {
+            if ((flags & 0x00000002) == 0x00000002) {
                 // Compact mode - abort!
+                if (x360)
+                    throw new InvalidDataException("Can't handle compact mode Xbox 360 wave banks - Content directory left in unstable state");
                 reader.BaseStream.CopyTo(writer.BaseStream);
                 return;
             }
-            uint count = reader.ReadUInt32();
+            uint count = SwapEndian(x360, reader.ReadUInt32());
             writer.Write(count);
             writer.Write(reader.ReadBytes(64)); // Name
 
-            uint metaSize = reader.ReadUInt32();
+            uint metaSize = SwapEndian(x360, reader.ReadUInt32());
             writer.Write(metaSize);
-            writer.Write(reader.ReadUInt32()); // Name size
-            writer.Write(reader.ReadUInt32()); // Alignment
+            writer.Write(SwapEndian(x360, reader.ReadUInt32())); // Name size
+            writer.Write(SwapEndian(x360, reader.ReadUInt32())); // Alignment
 
             uint playRegionOffset = regionOffsets[4];
             if (playRegionOffset == 0)
                 playRegionOffset = regionOffsets[1] + count * metaSize;
-
 
             uint[] duration = new uint[count];
 
@@ -86,29 +104,30 @@ namespace XnaToFna {
             uint format = 0;
             // Metadata
             for (int i = 0; i < count; i++) {
+                // Whoops, we're leaving a bunch of data as-is...
                 writer.Write(reader.ReadBytesUntil(offset));
 
                 if (metaSize >= 4) {
-                    durationRaw = reader.ReadUInt32();
+                    durationRaw = SwapEndian(x360, reader.ReadUInt32());
                     writer.Write(durationRaw);
                     duration[i] = durationRaw >> 4;
                 }
                 if (metaSize >= 8) {
                     formatPos[i] = reader.BaseStream.Position;
-                    writer.Write(format = reader.ReadUInt32());
+                    writer.Write(format = SwapEndian(x360, reader.ReadUInt32()));
                 }
                 if (metaSize >= 12) {
                     playOffsetPos[i] = reader.BaseStream.Position;
-                    writer.Write(playOffset[i] = playOffsetUpdated[i] = reader.ReadUInt32());
+                    writer.Write(playOffset[i] = playOffsetUpdated[i] = SwapEndian(x360, reader.ReadUInt32()));
                 }
                 if (metaSize >= 16) {
                     playLengthPos[i] = reader.BaseStream.Position;
-                    writer.Write(((uint) (playLength[i] = playLengthUpdated[i] = (int) reader.ReadUInt32())));
+                    writer.Write(((uint) (playLength[i] = playLengthUpdated[i] = (int) SwapEndian(x360, reader.ReadUInt32()))));
                 }
                 if (metaSize >= 20)
-                    writer.Write(reader.ReadUInt32());
+                    writer.Write(SwapEndian(x360, reader.ReadUInt32()));
                 if (metaSize >= 24) {
-                    writer.Write(reader.ReadUInt32());
+                    writer.Write(SwapEndian(x360, reader.ReadUInt32()));
                 } else if (playLength[i] != 0)
                     playLength[i] = (int) regionLengths[4];
 
@@ -122,6 +141,32 @@ namespace XnaToFna {
                 depth[i] =      (format >> (2 + 3 + 18 + 8));
             }
 
+
+            // Read "seek tables" if they exist. They're required for XMA support. (Thanks, xnb_parse!)
+            uint[][] seekTables = new uint[count][];
+            if ((flags & 0x00080000) == 0x00080000) {
+                // Whoops, we're leaving a bunch of data as-is...
+                writer.Write(reader.ReadBytesUntil(regionOffsets[2]));
+
+                uint[] seekOffsets = new uint[count];
+                for (int i = 0; i < count; i++) {
+                    seekOffsets[i] = SwapEndian(x360, reader.ReadUInt32());
+                    writer.Write(seekOffsets[i]);
+                }
+
+                offset = (uint) writer.BaseStream.Position;
+                for (int i = 0; i < count; i++) {
+                    writer.Write(reader.ReadBytesUntil(offset + seekOffsets[i]));
+                    uint packetCount = SwapEndian(x360, reader.ReadUInt32());
+                    writer.Write(packetCount);
+                    uint[] data = seekTables[i] = new uint[packetCount];
+                    for (int pi = 0; pi < packetCount; pi++) {
+                        data[pi] = SwapEndian(x360, reader.ReadUInt32());
+                        writer.Write(data[pi]);
+                    }
+                }
+            }
+
             // Sound data
             for (int i = 0; i < count; i++) {
                 writer.Write(reader.ReadBytesUntil(playOffset[i]));
@@ -133,6 +178,7 @@ namespace XnaToFna {
 
                 offset = (uint) writer.BaseStream.Position;
 
+                // We need to feed FFMPEG with correctly formatted data.
                 Action<Process> feeder = null;
 
                 if (codec[i] == 3) // XWMA
@@ -150,9 +196,10 @@ namespace XnaToFna {
                             int spareBlocks = blocks - blocksPerPacket * packets;
 
                             ffmpegWriter.Write("RIFF".ToCharArray());
-                            ffmpegWriter.Write(playLength[i] + 4 + 4 + 8 + 4 + 2 + 2 + 4 + 4 + 2 + 4 + 4 + 4 + packets * 4 + 4 + 4 - 8);
+                            ffmpegWriter.Write(playLength[i] + 4 + 4 + 8 /**/ + 4 + 2 + 2 + 4 + 4 + 2 + 2 + 2 /**/ + 4 + 4 + packets * 4 /**/ + 4 + 4 - 8);
                             ffmpegWriter.Write("XWMAfmt ".ToCharArray());
-                            ffmpegWriter.Write(0x12);
+
+                            ffmpegWriter.Write(18);
                             ffmpegWriter.Write((short) 0x0161);
                             ffmpegWriter.Write((short) channels[i]);
                             ffmpegWriter.Write(rate[i]);
@@ -162,7 +209,9 @@ namespace XnaToFna {
                                 XWMAInfo.BytesPerSecond[align[i]]
                             );
                             ffmpegWriter.Write(blockAlign);
-                            ffmpegWriter.Write(0x0F);
+                            ffmpegWriter.Write((short) 0x0F);
+                            ffmpegWriter.Write((short) 0x00);
+
                             ffmpegWriter.Write("dpds".ToCharArray());
                             ffmpegWriter.Write(packets * 4);
                             for (int packet = 0, accu = 0; packet < packets; packet++) {
@@ -189,11 +238,78 @@ namespace XnaToFna {
 
                         ffmpegStream.Close();
                     };
-                
-                // What about XMA?
+
+                else if (codec[i] == 1) // XMA
+                    feeder = delegate (Process ffmpeg) {
+                        Stream ffmpegStream = ffmpeg.StandardInput.BaseStream;
+
+                        using (BinaryWriter ffmpegWriter = new BinaryWriter(ffmpegStream, Encoding.ASCII, true)) {
+                            short blockAlign =
+                                align[i] >= XMAInfo.BlockAlign.Length ?
+                                XMAInfo.BlockAlign[align[i] & 0x0F] :
+                                XMAInfo.BlockAlign[align[i]];
+                            int packets = playLength[i] / blockAlign;
+                            int blocks = (int) Math.Ceiling(duration[i] / 2048D);
+                            int blocksPerPacket = blocks / packets;
+                            int spareBlocks = blocks - blocksPerPacket * packets;
+
+                            uint[] seekData = seekTables[i];
+
+                            ffmpegWriter.Write("RIFF".ToCharArray());
+                            ffmpegWriter.Write(playLength[i] + 4 + 4 + 8 /**/ + 4 + 2 + 2 + 4 + 4 + 2 + 2 + 2 /**/ + 2 + 4 + 6 * 4 + 1 + 1 + 2 /**/ + 4 + 4 + seekData.Length * 4 /**/ + 4 + 4 - 8);
+                            ffmpegWriter.Write("WAVEfmt ".ToCharArray());
+
+                            ffmpegWriter.Write(18 + 34);
+                            ffmpegWriter.Write((short) 0x0166);
+                            ffmpegWriter.Write((short) channels[i]);
+                            ffmpegWriter.Write(rate[i]);
+                            ffmpegWriter.Write(
+                                align[i] >= XMAInfo.BytesPerSecond.Length ?
+                                XMAInfo.BytesPerSecond[align[i] >> 5] :
+                                XMAInfo.BytesPerSecond[align[i]]
+                            );
+                            ffmpegWriter.Write(blockAlign);
+                            ffmpegWriter.Write((short) 0x0F);
+                            ffmpegWriter.Write((short) 34); // size of header extra
+
+                            ffmpegWriter.Write((short) 1); // number of streams
+                            ffmpegWriter.Write(channels[i] == 2 ? 3U : 0U); // channel mask
+                            // The following values are definitely incorrect, but they should work until they don't.
+                            ffmpegWriter.Write(0U); // samples encoded
+                            ffmpegWriter.Write(0U); // bytes per block
+                            ffmpegWriter.Write(0U); // start
+                            ffmpegWriter.Write(0U); // length
+                            ffmpegWriter.Write(0U); // loop start
+                            ffmpegWriter.Write(0U); // loop length
+                            ffmpegWriter.Write((byte) 0); // loop count
+                            ffmpegWriter.Write((byte) 0x04); // version
+                            ffmpegWriter.Write((short) 1); // block count
+
+                            ffmpegWriter.Write("seek".ToCharArray());
+                            ffmpegWriter.Write(seekData.Length * 4);
+                            for (int si = 0; si < seekData.Length; si++) {
+                                ffmpegWriter.Write(seekData[si]);
+                            }
+
+                            ffmpegWriter.Write("data".ToCharArray());
+                            ffmpegWriter.Write(playLength[i]);
+                            ffmpegWriter.Flush();
+                        }
+
+                        byte[] dataRaw = new byte[4096];
+                        int sizeRaw;
+                        long destination = reader.BaseStream.Position + playLength[i];
+                        while (!ffmpeg.HasExited && reader.BaseStream.Position < destination) {
+                            sizeRaw = reader.BaseStream.Read(dataRaw, 0, Math.Min(dataRaw.Length, (int) (destination - reader.BaseStream.Position)));
+                            ffmpegStream.Write(dataRaw, 0, sizeRaw);
+                            ffmpegStream.Flush();
+                        }
+
+                        ffmpegStream.Close();
+                    };
 
                 Log($"[UpdateWaveBank] Converting #{i}");
-                // FIXME stereo causes "Hell Yeah!" to sound horrible with pcm_u8 and OpenAL to simply fail everywhere with pcm_s16le
+                // FIXME: stereo causes "Hell Yeah!" to sound horrible with pcm_u8 and OpenAL to simply fail everywhere with pcm_s16le
                 RunFFMPEG($"-y -i - -acodec pcm_u8 -ac 1 -f wav -", reader.BaseStream, writer.BaseStream, feeder: feeder, inputLength: playLength[i]);
                 channels[i] = 1;
 

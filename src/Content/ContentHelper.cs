@@ -79,6 +79,53 @@ namespace XnaToFna {
             }
         }
 
+        public static byte[] SwapEndian(bool swap, byte[] data) {
+            if (!swap)
+                return data;
+
+            for (int i = data.Length / 2; i > -1; --i) {
+                int ii = data.Length - 1 - i;
+                byte t = data[i];
+                data[i] = data[ii];
+                data[ii] = t;
+            }
+
+            return data;
+        }
+
+        public static ushort SwapEndian(bool swap, ushort data) {
+            if (!swap)
+                return data;
+            return (ushort) (
+                ((ushort) ((data & 0xFF) << 8)) |
+                ((ushort) ((data >> 8) & 0xFF))
+            );
+        }
+
+        public static uint SwapEndian(bool swap, uint data) {
+            if (!swap)
+                return data;
+            return
+                ((data & 0xFF) << 24) |
+                (((data >> 8) & 0xFF) << 16) |
+                (((data >> 16) & 0xFF) << 8) |
+                ((data >> 24) & 0xFF);
+        }
+
+        public static ulong SwapEndian(bool swap, ulong data) {
+            if (!swap)
+                return data;
+            return
+                ((data & 0xFF) << 56) |
+                (((data >> 8) & 0xFF) << 48) |
+                (((data >> 16) & 0xFF) << 40) |
+                (((data >> 24) & 0xFF) << 32) |
+                (((data >> 32) & 0xFF) << 24) |
+                (((data >> 40) & 0xFF) << 16) |
+                (((data >> 48) & 0xFF) << 8) |
+                ((data >> 56) & 0xFF);
+        }
+
         public static void RunFFMPEG(string args, Stream input, Stream output, Action<Process> feeder = null, long inputLength = 0) {
             Process ffmpeg = new Process();
             ffmpeg.StartInfo = new ProcessStartInfo {
