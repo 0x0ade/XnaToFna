@@ -40,9 +40,14 @@ namespace XnaToFna {
             Console.WriteLine(txt);
         }
 
-        public static void UpdateContent(string path, bool patchWaveBanks = true, bool patchXACTSettings = true, bool patchVideo = true) {
+        public static void UpdateContent(string path, bool patchWaveBanks = true, bool patchSoundBanks = true, bool patchXACTSettings = true, bool patchVideo = true) {
             if (patchWaveBanks && path.EndsWith(".xwb")) {
                 PatchContent(path, UpdateWaveBank);
+                return;
+            }
+
+            if (patchSoundBanks && path.EndsWith(".xsb")) {
+                PatchContent(path, UpdateSoundBank);
                 return;
             }
 

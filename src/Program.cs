@@ -35,6 +35,8 @@ namespace XnaToFna {
                     updateContent = false;
                 else if (arg == "--skip-wavebanks" || arg == "--skip-xwb")
                     xtf.PatchWaveBanks = false;
+                else if (arg == "--skip-soundbanks" || arg == "--skip-xsb")
+                    xtf.PatchSoundBanks = false;
                 else if (arg == "--skip-xactsettings" || arg == "--skip-xgs")
                     xtf.PatchXACTSettings = false;
                 else if (arg == "--skip-video" || arg == "--skip-wma")

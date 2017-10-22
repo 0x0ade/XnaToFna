@@ -71,6 +71,7 @@ namespace XnaToFna {
         public bool HookEntryPoint = true;
 
         public bool PatchWaveBanks = true;
+        public bool PatchSoundBanks = true;
         public bool PatchXACTSettings = true;
         public bool PatchVideo = true;
 
@@ -459,7 +460,7 @@ namespace XnaToFna {
 
             // List all content files and update accordingly.
             foreach (string path in Directory.EnumerateFiles(ContentDirectory, "*", SearchOption.AllDirectories))
-                ContentHelper.UpdateContent(path, PatchWaveBanks, PatchXACTSettings, PatchVideo);
+                ContentHelper.UpdateContent(path, PatchWaveBanks, PatchSoundBanks, PatchXACTSettings, PatchVideo);
         }
 
         public void Dispose() {
