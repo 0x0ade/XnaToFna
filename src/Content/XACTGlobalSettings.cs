@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 namespace XnaToFna {
     public static partial class ContentHelper {
 
+        // Many thanks to Ethan Lee and everyone else involved for his reverse-engineering work that powers this!
+        // This is heavily based on FNA / FACT.
+
         public enum CrossfadeType : byte {
             Linear,
             Logarithmic,

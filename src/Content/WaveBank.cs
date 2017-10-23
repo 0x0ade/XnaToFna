@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 namespace XnaToFna {
     public static partial class ContentHelper {
 
+        // Many thanks to Ethan Lee and everyone else involved for his reverse-engineering work that powers this!
+        // This is heavily based on FNA / FACT.
+
         public static class XWMAInfo {
             public readonly static int[] BytesPerSecond = { 12000, 24000, 4000, 6000, 8000, 20000 };
             public readonly static short[] BlockAlign = { 929, 1487, 1280, 2230, 8917, 8192, 4459, 5945, 2304, 1536, 1485, 1008, 2731, 4096, 6827, 5462 };

@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 namespace XnaToFna {
     public static partial class ContentHelper {
 
+        // Many thanks to Ethan Lee and everyone else involved for his reverse-engineering work that powers this!
+        // This is heavily based on FNA / FACT.
+
         public enum SoundBankEventType : uint {
             Stop = 0,
             PlayWave = 1,
@@ -306,9 +309,10 @@ namespace XnaToFna {
                 writer.Write(reader.ReadBytesUntil(cuesComplexPos));
                 for (ushort i = 0; i < cuesComplex; i++) {
                     byte flags = reader.ReadByte();
-                    writer.Write(flags);
-                    if ((flags & 0x04) == 0x04)
+                    if ((flags & 0x04) == 0x00) {
                         variations++;
+                    }
+                    writer.Write(flags);
                     writer.Write(SwapEndian(x360, reader.ReadUInt32()));
                     writer.Write(SwapEndian(x360, reader.ReadUInt32()));
                     writer.Write(reader.ReadByte());
@@ -318,17 +322,24 @@ namespace XnaToFna {
                 }
 
                 if (variations != 0) {
+                    // Variation data seems to... vary... between X360 and PC.
                     writer.Write(reader.ReadBytesUntil(variationsPos));
                     for (ushort i = 0; i < variations; i++) {
-                        ushort count = SwapEndian(x360, reader.ReadUInt16());
+                        ushort count;
+                        ushort flags;
+                        if (platform == 1) {
+                            count = SwapEndian(x360, reader.ReadUInt16());
+                            flags = SwapEndian(x360, reader.ReadUInt16());
+                        } else {
+                            flags = SwapEndian(x360, reader.ReadUInt16());
+                            count = SwapEndian(x360, reader.ReadUInt16());
+                        }
                         writer.Write(count);
-                        ushort flags = SwapEndian(x360, reader.ReadUInt16());
                         writer.Write(flags);
-                        flags = (ushort) ((short) (flags >> 3) & 0x7);
                         writer.Write(SwapEndian(x360, reader.ReadUInt16()));
                         writer.Write(SwapEndian(x360, reader.ReadUInt16()));
 
-                        switch (flags) {
+                        switch ((flags >> 3) & 0x07) {
                             case 0:
                                 for (ushort ci = 0; ci < count; ci++) {
                                     writer.Write(SwapEndian(x360, reader.ReadUInt16()));
