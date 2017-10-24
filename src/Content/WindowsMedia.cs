@@ -23,6 +23,8 @@ namespace XnaToFna {
 
             // Rename the .xnb as it only causes conflicts.
             string pathXnb = Path.ChangeExtension(path, "xnb");
+            if (File.Exists(pathXnb + "_"))
+                File.Delete(pathXnb + "_");
             if (File.Exists(pathXnb))
                 File.Move(pathXnb, pathXnb + "_");
 
@@ -37,6 +39,34 @@ namespace XnaToFna {
                 RunFFMPEG($"-i {(reader == null ? $"\"{path}\"" : "-")} -acodec libvorbis -vcodec libtheora \"{pathOutput}\"", reader?.BaseStream, null);
             else
                 RunFFMPEG($"-y -i - -acodec libvorbis -vcodec libtheora -", reader.BaseStream, writer.BaseStream);
+        }
+
+        public static void UpdateAudio(string path, BinaryReader reader = null, BinaryWriter writer = null) {
+            if (!IsFFMPEGAvailable) {
+                Log("[UpdateAudio] FFMPEG is missing - won't convert unsupported audio files");
+                if (reader != null && writer != null)
+                    reader.BaseStream.CopyTo(writer.BaseStream);
+                return;
+            }
+
+            // Rename the .xnb as it only causes conflicts.
+            string pathXnb = Path.ChangeExtension(path, "xnb");
+            if (File.Exists(pathXnb + "_"))
+                File.Delete(pathXnb + "_");
+            if (File.Exists(pathXnb))
+                File.Move(pathXnb, pathXnb + "_");
+
+            string pathOutput = Path.ChangeExtension(path, "ogg");
+            // If not writing to a stream and the ogv already exists, keep the ogv.
+            if (writer == null && (!string.IsNullOrEmpty(path) && File.Exists(pathOutput)))
+                return;
+
+            Log($"[UpdateAudio] Updating audio {path}");
+
+            if (writer == null)
+                RunFFMPEG($"-i {(reader == null ? $"\"{path}\"" : "-")} -acodec libvorbis \"{pathOutput}\"", reader?.BaseStream, null);
+            else
+                RunFFMPEG($"-y -i - -acodec libvorbis -", reader.BaseStream, writer.BaseStream);
         }
 
     }

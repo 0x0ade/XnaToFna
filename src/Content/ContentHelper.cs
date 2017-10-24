@@ -61,6 +61,11 @@ namespace XnaToFna {
                 return;
             }
 
+            if (patchVideo && path.EndsWith(".wma")) {
+                UpdateAudio(path); // FFMPEG reads from a file and needs to write to another file; Just use the path.
+                return;
+            }
+
         }
 
         public static void PatchContent(string path, Action<string, BinaryReader, BinaryWriter> patcher, bool writeToTmp = true) {

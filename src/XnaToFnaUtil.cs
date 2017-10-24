@@ -243,8 +243,10 @@ namespace XnaToFna {
         }
         public void RestoreBackup(string root, string origRoot) {
             Log($"[RestoreBackup] Restoring from {origRoot} to {root}");
-            foreach (string origPath in Directory.EnumerateFiles(origRoot, "*", SearchOption.AllDirectories))
+            foreach (string origPath in Directory.EnumerateFiles(origRoot, "*", SearchOption.AllDirectories)) {
+                Directory.CreateDirectory(Path.GetDirectoryName(root + origPath.Substring(origRoot.Length)));
                 File.Copy(origPath, root + origPath.Substring(origRoot.Length), true);
+            }
         }
 
         public void OrderModules() {

@@ -46,7 +46,7 @@
   <ItemGroup>
     <Compile Include="src\cecil\MdbHelper.cs" />
     <Compile Include="src\cecil\PdbHelper.cs" />
-    <Compile Include="src\Content\Video.cs" />
+    <Compile Include="src\Content\WindowsMedia.cs" />
     <Compile Include="src\Content\SoundBank.cs" />
     <Compile Include="src\Content\XACTGlobalSettings.cs" />
     <Compile Include="src\Helper\X360Helper.cs" />
