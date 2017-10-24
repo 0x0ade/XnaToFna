@@ -195,7 +195,8 @@ namespace XnaToFna {
                     // Change short <-> long operations as the method grows / shrinks.
                     if (instr.Operand is Instruction) {
                         int offs = ((Instruction) instr.Operand).Offset - instr.Offset;
-                        if (offs <= sbyte.MinValue || offs >= sbyte.MaxValue)
+                        // sbyte.MinValue is -128, but -127 is the first "long" value.
+                        if (offs <= 127 || offs >= 127)
                             instr.OpCode = ShortToLongOp(instr.OpCode);
                         else
                             instr.OpCode = LongToShortOp(instr.OpCode);
