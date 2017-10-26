@@ -46,6 +46,11 @@
   <ItemGroup>
     <Compile Include="src\cecil\MdbHelper.cs" />
     <Compile Include="src\cecil\PdbHelper.cs" />
+    <Compile Include="src\Content\ContentHelperGame.cs" />
+    <Compile Include="src\Content\ContentTransformers\EffectTransformer.cs" />
+    <Compile Include="src\Content\ContentTransformers\SoundEffectTransformer.cs" />
+    <Compile Include="src\Content\CopyingStream.cs" />
+    <Compile Include="src\Content\XNBContent.cs" />
     <Compile Include="src\Content\WindowsMedia.cs" />
     <Compile Include="src\Content\SoundBank.cs" />
     <Compile Include="src\Content\XACTGlobalSettings.cs" />
@@ -214,6 +219,7 @@
       <Name>FNA</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

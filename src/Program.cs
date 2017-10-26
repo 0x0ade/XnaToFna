@@ -33,14 +33,19 @@ namespace XnaToFna {
 
                 else if (arg == "--skip-content")
                     updateContent = false;
-                else if (arg == "--skip-wavebanks" || arg == "--skip-xwb")
-                    xtf.PatchWaveBanks = false;
-                else if (arg == "--skip-soundbanks" || arg == "--skip-xsb")
-                    xtf.PatchSoundBanks = false;
-                else if (arg == "--skip-xactsettings" || arg == "--skip-xgs")
-                    xtf.PatchXACTSettings = false;
+                else if (arg == "--skip-xnb")
+                    xtf.PatchXNB = false;
+                else if (arg == "--skip-xact")
+                    xtf.PatchXACT = false;
+                else if (arg == "--skip-windowsmedia" || arg == "--skip-wm")
+                    xtf.PatchWindowsMedia = false;
+                else if (
+                    arg == "--skip-wavebanks" || arg == "--skip-xwb" ||
+                    arg == "--skip-soundbanks" || arg == "--skip-xsb" ||
+                    arg == "--skip-xactsettings" || arg == "--skip-xgs")
+                    Console.WriteLine("WARNING: --skip-xwb, --skip-xsb and --skip-xsg have been replaced with --skip-xact.");
                 else if (arg == "--skip-video" || arg == "--skip-wma")
-                    xtf.PatchVideo = false;
+                    Console.WriteLine("WARNING: --skip-video and --skip-wma have been replaced with --skip-wm.");
 
                 else if (arg == "--skip-locks" || arg == "--keep-locks")
                     xtf.DestroyLocks = false;
@@ -102,8 +107,10 @@ namespace XnaToFna {
 
             xtf.RelinkAll();
 
-            if (updateContent)
+            if (updateContent) {
+                xtf.LoadModules();
                 xtf.UpdateContent();
+            }
 
             xtf.Log("[Main] Done!");
 

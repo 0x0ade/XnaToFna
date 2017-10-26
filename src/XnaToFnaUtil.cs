@@ -57,6 +57,7 @@ namespace XnaToFna {
         public string ContentDirectoryName = "Content";
         public string ContentDirectory;
         public List<ModuleDefinition> Modules = new List<ModuleDefinition>();
+        public Dictionary<ModuleDefinition, string> ModulePaths = new Dictionary<ModuleDefinition, string>();
 
         public HashSet<string> RemoveDeps = new HashSet<string>() {
             // Some mixed-mode assemblies refer to nameless dependencies..?
@@ -70,10 +71,9 @@ namespace XnaToFna {
 
         public bool HookEntryPoint = true;
 
-        public bool PatchWaveBanks = true;
-        public bool PatchSoundBanks = true;
-        public bool PatchXACTSettings = true;
-        public bool PatchVideo = true;
+        public bool PatchXNB = true;
+        public bool PatchXACT = true;
+        public bool PatchWindowsMedia = true;
 
         public bool DestroyLocks = true;
         public bool FixOldMonoXML = false;
@@ -227,9 +227,10 @@ namespace XnaToFna {
             }
             BreakMappings:
 
-            if (add)
+            if (add) {
                 Modules.Add(mod);
-            else
+                ModulePaths[mod] = path;
+            } else
                 mod.Dispose();
 
         }
@@ -450,6 +451,21 @@ namespace XnaToFna {
             Modder.MapDependencies(mod);
         }
 
+        public void LoadModules() {
+            foreach (ModuleDefinition mod in Modules) {
+                if (Mappings.Exists(mappings => mod.Assembly.Name.Name == mappings.Target))
+                    return;
+
+                if (ModulesToStub.Contains(mod))
+                    return;
+
+                Assembly asm = Assembly.LoadFrom(ModulePaths[mod]);
+                AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) => {
+                    return args.Name == asm.FullName || args.Name == asm.GetName().Name ? asm : null;
+                };
+            }
+        }
+
         public void UpdateContent() {
             // Verify ContentDirectory path
             if (ContentDirectory != null && !Directory.Exists(ContentDirectory))
@@ -460,9 +476,16 @@ namespace XnaToFna {
                 return;
             }
 
-            // List all content files and update accordingly.
-            foreach (string path in Directory.EnumerateFiles(ContentDirectory, "*", SearchOption.AllDirectories))
-                ContentHelper.UpdateContent(path, PatchWaveBanks, PatchSoundBanks, PatchXACTSettings, PatchVideo);
+            // Do everthing in a game ever since we're patching XNBs.
+            using (ContentHelper.Game = new ContentHelperGame()) {
+                ContentHelper.Game.ActionQueue.Enqueue(() => {
+                    // List all content files and update accordingly.
+                    foreach (string path in Directory.EnumerateFiles(ContentDirectory, "*", SearchOption.AllDirectories))
+                        ContentHelper.UpdateContent(path, PatchXNB, PatchXACT, PatchWindowsMedia);
+                });
+                ContentHelper.Game.Run();
+            }
+            ContentHelper.Game = null;
         }
 
         public void Dispose() {

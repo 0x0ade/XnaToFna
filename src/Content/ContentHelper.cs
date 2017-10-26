@@ -1,5 +1,8 @@
-﻿using Mono.Cecil;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Mono.Cecil;
 using MonoMod;
+using SDL2;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -35,33 +38,41 @@ namespace XnaToFna {
             }
         }
 
+        public static ContentHelperGame Game;
+
         public static void Log(string txt) {
             Console.Write("[XnaToFna] [ContentHelper] ");
             Console.WriteLine(txt);
         }
 
-        public static void UpdateContent(string path, bool patchWaveBanks = true, bool patchSoundBanks = true, bool patchXACTSettings = true, bool patchVideo = true) {
-            if (patchWaveBanks && path.EndsWith(".xwb")) {
+        public static void UpdateContent(string path, bool patchXNB = true, bool patchXACT = true, bool patchWindowsMedia = true) {
+            if (patchXNB && path.EndsWith(".xnb")) {
+                // TransformContent does dirty things; Just use the path.
+                TransformContent(path);
+                return;
+            }
+
+            if (patchXACT && path.EndsWith(".xwb")) {
                 PatchContent(path, UpdateWaveBank);
                 return;
             }
 
-            if (patchSoundBanks && path.EndsWith(".xsb")) {
+            if (patchXACT && path.EndsWith(".xsb")) {
                 PatchContent(path, UpdateSoundBank);
                 return;
             }
 
-            if (patchXACTSettings && path.EndsWith(".xgs")) {
+            if (patchXACT && path.EndsWith(".xgs")) {
                 PatchContent(path, UpdateXACTSettings);
                 return;
             }
 
-            if (patchVideo && path.EndsWith(".wmv")) {
+            if (patchWindowsMedia && path.EndsWith(".wmv")) {
                 UpdateVideo(path); // FFMPEG reads from a file and needs to write to another file; Just use the path.
                 return;
             }
 
-            if (patchVideo && path.EndsWith(".wma")) {
+            if (patchWindowsMedia && path.EndsWith(".wma")) {
                 UpdateAudio(path); // FFMPEG reads from a file and needs to write to another file; Just use the path.
                 return;
             }

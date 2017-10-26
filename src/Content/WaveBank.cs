@@ -185,135 +185,12 @@ namespace XnaToFna {
                 Action<Process> feeder = null;
 
                 if (codec[i] == 3) // XWMA
-                    feeder = delegate (Process ffmpeg) {
-                        Stream ffmpegStream = ffmpeg.StandardInput.BaseStream;
-
-                        using (BinaryWriter ffmpegWriter = new BinaryWriter(ffmpegStream, Encoding.ASCII, true)) {
-                            short blockAlign =
-                                align[i] >= XWMAInfo.BlockAlign.Length ?
-                                XWMAInfo.BlockAlign[align[i] & 0x0F] :
-                                XWMAInfo.BlockAlign[align[i]];
-                            int packets = playLength[i] / blockAlign;
-                            int blocks = (int) Math.Ceiling(duration[i] / 2048D);
-                            int blocksPerPacket = blocks / packets;
-                            int spareBlocks = blocks - blocksPerPacket * packets;
-
-                            ffmpegWriter.Write("RIFF".ToCharArray());
-                            ffmpegWriter.Write(playLength[i] + 4 + 4 + 8 /**/ + 4 + 2 + 2 + 4 + 4 + 2 + 2 + 2 /**/ + 4 + 4 + packets * 4 /**/ + 4 + 4 - 8);
-                            ffmpegWriter.Write("XWMAfmt ".ToCharArray());
-
-                            ffmpegWriter.Write(18);
-                            ffmpegWriter.Write((short) 0x0161);
-                            ffmpegWriter.Write((short) channels[i]);
-                            ffmpegWriter.Write(rate[i]);
-                            ffmpegWriter.Write(
-                                align[i] >= XWMAInfo.BytesPerSecond.Length ?
-                                XWMAInfo.BytesPerSecond[align[i] >> 5] :
-                                XWMAInfo.BytesPerSecond[align[i]]
-                            );
-                            ffmpegWriter.Write(blockAlign);
-                            ffmpegWriter.Write((short) 0x0F);
-                            ffmpegWriter.Write((short) 0x00);
-
-                            ffmpegWriter.Write("dpds".ToCharArray());
-                            ffmpegWriter.Write(packets * 4);
-                            for (int packet = 0, accu = 0; packet < packets; packet++) {
-                                accu += blocksPerPacket * 4096;
-                                if (spareBlocks > 0) {
-                                    accu += 4096;
-                                    --spareBlocks;
-                                }
-                                ffmpegWriter.Write(accu);
-                            }
-                            ffmpegWriter.Write("data".ToCharArray());
-                            ffmpegWriter.Write(playLength[i]);
-                            ffmpegWriter.Flush();
-                        }
-
-                        byte[] dataRaw = new byte[4096];
-                        int sizeRaw;
-                        long destination = reader.BaseStream.Position + playLength[i];
-                        while (!ffmpeg.HasExited && reader.BaseStream.Position < destination) {
-                            sizeRaw = reader.BaseStream.Read(dataRaw, 0, Math.Min(dataRaw.Length, (int) (destination - reader.BaseStream.Position)));
-                            ffmpegStream.Write(dataRaw, 0, sizeRaw);
-                            ffmpegStream.Flush();
-                        }
-
-                        ffmpegStream.Close();
-                    };
-
-                else if (codec[i] == 1) // XMA
-                    feeder = delegate (Process ffmpeg) {
-                        Stream ffmpegStream = ffmpeg.StandardInput.BaseStream;
-
-                        using (BinaryWriter ffmpegWriter = new BinaryWriter(ffmpegStream, Encoding.ASCII, true)) {
-                            short blockAlign =
-                                align[i] >= XMAInfo.BlockAlign.Length ?
-                                XMAInfo.BlockAlign[align[i] & 0x0F] :
-                                XMAInfo.BlockAlign[align[i]];
-                            int packets = playLength[i] / blockAlign;
-                            int blocks = (int) Math.Ceiling(duration[i] / 2048D);
-                            int blocksPerPacket = blocks / packets;
-                            int spareBlocks = blocks - blocksPerPacket * packets;
-
-                            uint[] seekData = seekTables[i];
-
-                            ffmpegWriter.Write("RIFF".ToCharArray());
-                            ffmpegWriter.Write(playLength[i] + 4 + 4 + 8 /**/ + 4 + 2 + 2 + 4 + 4 + 2 + 2 + 2 /**/ + 2 + 4 + 6 * 4 + 1 + 1 + 2 /**/ + 4 + 4 + seekData.Length * 4 /**/ + 4 + 4 - 8);
-                            ffmpegWriter.Write("WAVEfmt ".ToCharArray());
-
-                            ffmpegWriter.Write(18 + 34);
-                            ffmpegWriter.Write((short) 0x0166);
-                            ffmpegWriter.Write((short) channels[i]);
-                            ffmpegWriter.Write(rate[i]);
-                            ffmpegWriter.Write(
-                                align[i] >= XMAInfo.BytesPerSecond.Length ?
-                                XMAInfo.BytesPerSecond[align[i] >> 5] :
-                                XMAInfo.BytesPerSecond[align[i]]
-                            );
-                            ffmpegWriter.Write(blockAlign);
-                            ffmpegWriter.Write((short) 0x0F);
-                            ffmpegWriter.Write((short) 34); // size of header extra
-
-                            ffmpegWriter.Write((short) 1); // number of streams
-                            ffmpegWriter.Write(channels[i] == 2 ? 3U : 0U); // channel mask
-                            // The following values are definitely incorrect, but they should work until they don't.
-                            ffmpegWriter.Write(0U); // samples encoded
-                            ffmpegWriter.Write(0U); // bytes per block
-                            ffmpegWriter.Write(0U); // start
-                            ffmpegWriter.Write(0U); // length
-                            ffmpegWriter.Write(0U); // loop start
-                            ffmpegWriter.Write(0U); // loop length
-                            ffmpegWriter.Write((byte) 0); // loop count
-                            ffmpegWriter.Write((byte) 0x04); // version
-                            ffmpegWriter.Write((short) 1); // block count
-
-                            ffmpegWriter.Write("seek".ToCharArray());
-                            ffmpegWriter.Write(seekData.Length * 4);
-                            for (int si = 0; si < seekData.Length; si++) {
-                                ffmpegWriter.Write(seekData[si]);
-                            }
-
-                            ffmpegWriter.Write("data".ToCharArray());
-                            ffmpegWriter.Write(playLength[i]);
-                            ffmpegWriter.Flush();
-                        }
-
-                        byte[] dataRaw = new byte[4096];
-                        int sizeRaw;
-                        long destination = reader.BaseStream.Position + playLength[i];
-                        while (!ffmpeg.HasExited && reader.BaseStream.Position < destination) {
-                            sizeRaw = reader.BaseStream.Read(dataRaw, 0, Math.Min(dataRaw.Length, (int) (destination - reader.BaseStream.Position)));
-                            ffmpegStream.Write(dataRaw, 0, sizeRaw);
-                            ffmpegStream.Flush();
-                        }
-
-                        ffmpegStream.Close();
-                    };
+                    feeder = GenerateXWMAFeeder(reader, align[i], playLength[i], duration[i], channels[i], rate[i]);
+                else if (codec[i] == 1) // XMA2
+                    feeder = GenerateXMA2Feeder(reader, align[i], playLength[i], duration[i], channels[i], rate[i], seekTables[i]);
 
                 Log($"[UpdateWaveBank] Converting #{i}");
-                // FIXME: stereo causes "Hell Yeah!" to sound horrible with pcm_u8 and OpenAL to simply fail everywhere with pcm_s16le
-                RunFFMPEG($"-y -i - -acodec pcm_u8 -ac 1 -f wav -", reader.BaseStream, writer.BaseStream, feeder: feeder, inputLength: playLength[i]);
+                ConvertAudio(reader.BaseStream, writer.BaseStream, feeder, playLength[i]);
                 channels[i] = 1;
 
                 uint length = (uint) writer.BaseStream.Position - offset;
@@ -365,6 +242,190 @@ namespace XnaToFna {
             reader.BaseStream.CopyTo(writer.BaseStream);
 
         }
+
+
+        public static void ConvertAudio(Stream input, Stream output, Action<Process> feeder, long length)
+            // FIXME: stereo causes "Hell Yeah!" to sound horrible with pcm_u8 and OpenAL to simply fail everywhere with pcm_s16le
+            => RunFFMPEG($"-y -i - -acodec pcm_u8 -ac 1 -f wav -", input, output, feeder, length);
+
+        public static Action<Process> GenerateSoundEffectFeeder(
+            BinaryReader reader,
+            string format, uint fmtLength, uint dataLength, uint extraLength,
+            bool x360 = false, Action<BinaryWriter> fmtExtraWriter = null
+        ) => (Process ffmpeg) => {
+            Stream ffmpegStream = ffmpeg.StandardInput.BaseStream;
+
+            using (BinaryWriter ffmpegWriter = new BinaryWriter(ffmpegStream, Encoding.ASCII, true)) {
+                ffmpegWriter.Write("RIFF".ToCharArray());
+                ffmpegWriter.Write(dataLength + 4 + 4 + 8 /**/ + 4 + fmtLength /**/ + extraLength + 4 + 4 - 8);
+                ffmpegWriter.Write(format.ToCharArray());
+                ffmpegWriter.Write("fmt ".ToCharArray());
+
+                // Ignore XNB SoundEffect fmt size.
+                reader.ReadUInt32();
+                ffmpegWriter.Write(fmtLength);
+
+                ffmpegWriter.Write(SwapEndian(x360, reader.ReadUInt16()));
+                ffmpegWriter.Write(SwapEndian(x360, reader.ReadUInt16()));
+                ffmpegWriter.Write(SwapEndian(x360, reader.ReadUInt32()));
+                ffmpegWriter.Write(SwapEndian(x360, reader.ReadUInt32()));
+                ffmpegWriter.Write(SwapEndian(x360, reader.ReadUInt16()));
+                ffmpegWriter.Write(SwapEndian(x360, reader.ReadUInt16()));
+
+                if (fmtExtraWriter == null) {
+                    // Just pass on any extra data.
+                    ushort extraSize = SwapEndian(x360, reader.ReadUInt16());
+                    ffmpegWriter.Write(extraSize);
+                    ffmpegWriter.Write(reader.ReadBytes(extraSize));
+                } else {
+                    // Pass on manually crafted extra data.
+                    fmtExtraWriter?.Invoke(ffmpegWriter);
+                }
+
+                ffmpegWriter.Write("data".ToCharArray());
+                // Ignore XNB SoundEffect data size.
+                reader.ReadUInt32();
+                ffmpegWriter.Write(reader.ReadUInt32());
+                ffmpegWriter.Flush();
+            }
+
+            byte[] dataRaw = new byte[4096];
+            int sizeRaw;
+            long destination = reader.BaseStream.Position + dataLength;
+            while (!ffmpeg.HasExited && reader.BaseStream.Position < destination) {
+                sizeRaw = reader.BaseStream.Read(dataRaw, 0, Math.Min(dataRaw.Length, (int) (destination - reader.BaseStream.Position)));
+                ffmpegStream.Write(dataRaw, 0, sizeRaw);
+                ffmpegStream.Flush();
+            }
+
+            ffmpegStream.Close();
+        };
+
+
+        public static Action<Process> GenerateXWMAFeeder(
+            BinaryReader reader,
+            uint align, int playLength, uint duration, uint channels, uint rate
+        ) => (Process ffmpeg) => {
+            Stream ffmpegStream = ffmpeg.StandardInput.BaseStream;
+
+            using (BinaryWriter ffmpegWriter = new BinaryWriter(ffmpegStream, Encoding.ASCII, true)) {
+                short blockAlign =
+                    align >= XWMAInfo.BlockAlign.Length ?
+                    XWMAInfo.BlockAlign[align & 0x0F] :
+                    XWMAInfo.BlockAlign[align];
+                int packets = playLength / blockAlign;
+                int blocks = (int) Math.Ceiling(duration / 2048D);
+                int blocksPerPacket = blocks / packets;
+                int spareBlocks = blocks - blocksPerPacket * packets;
+
+                ffmpegWriter.Write("RIFF".ToCharArray());
+                ffmpegWriter.Write(playLength + 4 + 4 + 8 /**/ + 4 + 2 + 2 + 4 + 4 + 2 + 2 + 2 /**/ + 4 + 4 + packets * 4 /**/ + 4 + 4 - 8);
+                ffmpegWriter.Write("XWMAfmt ".ToCharArray());
+
+                ffmpegWriter.Write(18);
+                ffmpegWriter.Write((short) 0x0161);
+                ffmpegWriter.Write((short) channels);
+                ffmpegWriter.Write(rate);
+                ffmpegWriter.Write(
+                    align >= XWMAInfo.BytesPerSecond.Length ?
+                    XWMAInfo.BytesPerSecond[align >> 5] :
+                    XWMAInfo.BytesPerSecond[align]
+                );
+                ffmpegWriter.Write(blockAlign);
+                ffmpegWriter.Write((short) 0x0F);
+                ffmpegWriter.Write((short) 0x00);
+
+                ffmpegWriter.Write("dpds".ToCharArray());
+                ffmpegWriter.Write(packets * 4);
+                for (int packet = 0, accu = 0; packet < packets; packet++) {
+                    accu += blocksPerPacket * 4096;
+                    if (spareBlocks > 0) {
+                        accu += 4096;
+                        --spareBlocks;
+                    }
+                    ffmpegWriter.Write(accu);
+                }
+                ffmpegWriter.Write("data".ToCharArray());
+                ffmpegWriter.Write(playLength);
+                ffmpegWriter.Flush();
+            }
+
+            byte[] dataRaw = new byte[4096];
+            int sizeRaw;
+            long destination = reader.BaseStream.Position + playLength;
+            while (!ffmpeg.HasExited && reader.BaseStream.Position < destination) {
+                sizeRaw = reader.BaseStream.Read(dataRaw, 0, Math.Min(dataRaw.Length, (int) (destination - reader.BaseStream.Position)));
+                ffmpegStream.Write(dataRaw, 0, sizeRaw);
+                ffmpegStream.Flush();
+            }
+
+            ffmpegStream.Close();
+        };
+
+        public static Action<Process> GenerateXMA2Feeder(
+            BinaryReader reader,
+            uint align, int playLength, uint duration, uint channels, uint rate,
+            uint[] seekData
+        ) => (Process ffmpeg) => {
+            Stream ffmpegStream = ffmpeg.StandardInput.BaseStream;
+
+            using (BinaryWriter ffmpegWriter = new BinaryWriter(ffmpegStream, Encoding.ASCII, true)) {
+                ffmpegWriter.Write("RIFF".ToCharArray());
+                ffmpegWriter.Write(playLength + 4 + 4 + 8 /**/ + 4 + 2 + 2 + 4 + 4 + 2 + 2 + 2 /**/ + 2 + 4 + 6 * 4 + 1 + 1 + 2 /**/ + 4 + 4 + seekData.Length * 4 /**/ + 4 + 4 - 8);
+                ffmpegWriter.Write("WAVEfmt ".ToCharArray());
+
+                ffmpegWriter.Write(18 + 34);
+                ffmpegWriter.Write((short) 0x0166);
+                ffmpegWriter.Write((short) channels);
+                ffmpegWriter.Write(rate);
+                ffmpegWriter.Write(
+                    align >= XMAInfo.BytesPerSecond.Length ?
+                    XMAInfo.BytesPerSecond[align >> 5] :
+                    XMAInfo.BytesPerSecond[align]
+                );
+                ffmpegWriter.Write(
+                    align >= XMAInfo.BlockAlign.Length ?
+                    XMAInfo.BlockAlign[align & 0x0F] :
+                    XMAInfo.BlockAlign[align]
+                );
+                ffmpegWriter.Write((short) 0x0F);
+                ffmpegWriter.Write((short) 34); // size of header extra
+
+                ffmpegWriter.Write((short) 1); // number of streams
+                ffmpegWriter.Write(channels == 2 ? 3U : 0U); // channel mask
+                // The following values are definitely incorrect, but they should work until they don't.
+                ffmpegWriter.Write(0U); // samples encoded
+                ffmpegWriter.Write(0U); // bytes per block
+                ffmpegWriter.Write(0U); // start
+                ffmpegWriter.Write(0U); // length
+                ffmpegWriter.Write(0U); // loop start
+                ffmpegWriter.Write(0U); // loop length
+                ffmpegWriter.Write((byte) 0); // loop count
+                ffmpegWriter.Write((byte) 0x04); // version
+                ffmpegWriter.Write((short) 1); // block count
+
+                ffmpegWriter.Write("seek".ToCharArray());
+                ffmpegWriter.Write(seekData.Length * 4);
+                for (int si = 0; si < seekData.Length; si++) {
+                    ffmpegWriter.Write(seekData[si]);
+                }
+
+                ffmpegWriter.Write("data".ToCharArray());
+                ffmpegWriter.Write(playLength);
+                ffmpegWriter.Flush();
+            }
+
+            byte[] dataRaw = new byte[4096];
+            int sizeRaw;
+            long destination = reader.BaseStream.Position + playLength;
+            while (!ffmpeg.HasExited && reader.BaseStream.Position < destination) {
+                sizeRaw = reader.BaseStream.Read(dataRaw, 0, Math.Min(dataRaw.Length, (int) (destination - reader.BaseStream.Position)));
+                ffmpegStream.Write(dataRaw, 0, sizeRaw);
+                ffmpegStream.Flush();
+            }
+
+            ffmpegStream.Close();
+        };
 
     }
 }
