@@ -63,8 +63,6 @@ namespace XnaToFna.ContentTransformers {
                     // Keep the size field empty for now, we'll fill it in a second.
                     output.Write(0U);
 
-                    // FIXME: [xma2 @ 000002523d386780] broken frame: channel len > samples_per_frame
-
                     // Feed everything into ffmpeg.
                     input.BaseStream.Seek(startPos, SeekOrigin.Begin);
                     ContentHelper.ConvertAudio(input.BaseStream, mixed.Output, ContentHelper.GenerateSoundEffectFeeder(
