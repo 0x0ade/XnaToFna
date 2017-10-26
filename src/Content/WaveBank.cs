@@ -285,7 +285,7 @@ namespace XnaToFna {
                 ffmpegWriter.Write("data".ToCharArray());
                 // Ignore XNB SoundEffect data size.
                 reader.ReadUInt32();
-                ffmpegWriter.Write(reader.ReadUInt32());
+                ffmpegWriter.Write(dataLength);
                 ffmpegWriter.Flush();
             }
 

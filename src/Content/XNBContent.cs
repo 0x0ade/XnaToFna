@@ -38,6 +38,14 @@ namespace XnaToFna {
             // Replace .xnb with .tmp
             File.Delete(path);
             File.Move(path + ".tmp", path);
+
+            // Update the size embedded in the .xnb.
+            using (Stream stream = File.Open(path, FileMode.Open, FileAccess.ReadWrite))
+            using (BinaryWriter writer = new BinaryWriter(stream)) {
+                // We know that the size is always past the header, version and flags.
+                stream.Position = 6;
+                writer.Write((uint) stream.Length);
+            }
         }
 
         // Yo dawg, I heard you like patching...
