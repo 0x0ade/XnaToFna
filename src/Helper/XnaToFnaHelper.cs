@@ -73,12 +73,12 @@ namespace XnaToFna {
                 self.IsFullScreen = true;
 
             int forceWidth;
-            if (int.TryParse(Environment.GetEnvironmentVariable("XNATOFNA_DISPLAY_WIDTH"), out forceWidth))
+            if (int.TryParse(Environment.GetEnvironmentVariable("XNATOFNA_DISPLAY_WIDTH") ?? "", out forceWidth))
                 self.PreferredBackBufferWidth = forceWidth;
             int forceHeight;
-            if (int.TryParse(Environment.GetEnvironmentVariable("XNATOFNA_DISPLAY_HEIGHT"), out forceHeight))
+            if (int.TryParse(Environment.GetEnvironmentVariable("XNATOFNA_DISPLAY_HEIGHT") ?? "", out forceHeight))
                 self.PreferredBackBufferHeight = forceHeight;
-            string[] forceSize = Environment.GetEnvironmentVariable("XNATOFNA_DISPLAY_SIZE").Split('x');
+            string[] forceSize = (Environment.GetEnvironmentVariable("XNATOFNA_DISPLAY_SIZE") ?? "").Split('x');
             if (forceSize.Length == 2) {
                 if (int.TryParse(forceSize[0], out forceWidth))
                     self.PreferredBackBufferWidth = forceWidth;
