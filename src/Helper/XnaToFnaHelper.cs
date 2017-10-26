@@ -63,6 +63,31 @@ namespace XnaToFna {
         // Only used when --hook-istrialmode / --arr is provided when patching.
         public static bool get_IsTrialMode()
             => Environment.GetEnvironmentVariable("XNATOFNA_ISTRIALMODE") != "0";
+
+        // This needs to be hooked to check for the env vars at runtime.
+        public static void ApplyChanges(GraphicsDeviceManager self) {
+            string forceFullscreen = Environment.GetEnvironmentVariable("XNATOFNA_DISPLAY_FULLSCREEN");
+            if (forceFullscreen == "0")
+                self.IsFullScreen = false;
+            else if (forceFullscreen == "1")
+                self.IsFullScreen = true;
+
+            int forceWidth;
+            if (int.TryParse(Environment.GetEnvironmentVariable("XNATOFNA_DISPLAY_WIDTH"), out forceWidth))
+                self.PreferredBackBufferWidth = forceWidth;
+            int forceHeight;
+            if (int.TryParse(Environment.GetEnvironmentVariable("XNATOFNA_DISPLAY_HEIGHT"), out forceHeight))
+                self.PreferredBackBufferHeight = forceHeight;
+            string[] forceSize = Environment.GetEnvironmentVariable("XNATOFNA_DISPLAY_SIZE").Split('x');
+            if (forceSize.Length == 2) {
+                if (int.TryParse(forceSize[0], out forceWidth))
+                    self.PreferredBackBufferWidth = forceWidth;
+                if (int.TryParse(forceSize[1], out forceHeight))
+                    self.PreferredBackBufferHeight = forceHeight;
+            }
+
+            self.ApplyChanges();
+        }
         
         public static void PreUpdate(GameTime time) {
             // Don't ask me why some games use Win32 calls instead of Keyboard.GetState()...

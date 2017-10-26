@@ -34,6 +34,10 @@ namespace XnaToFna {
             Modder.RelinkMap["System.IntPtr Microsoft.Xna.Framework.GameWindow::get_Handle()"] =
                 Tuple.Create("XnaToFna.XnaToFnaHelper", "System.IntPtr GetProxyFormHandle(Microsoft.Xna.Framework.GameWindow)");
 
+            // X360 games can be larger than the screen. Allow the user to "fix" this by forcing a display resolution via env vars.
+            Modder.RelinkMap["System.Void Microsoft.Xna.Framework.GraphicsDeviceManager::ApplyChanges()"] =
+                Tuple.Create("XnaToFna.XnaToFnaHelper", "System.Void ApplyChanges(Microsoft.Xna.Framework.GraphicsDeviceManager)");
+
             // Let's just completely wreck everything.
             foreach (Type type in typeof(Form).Assembly.GetTypes()) {
                 string name = type.FullName;
