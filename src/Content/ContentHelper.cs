@@ -79,10 +79,12 @@ namespace XnaToFna {
 
         }
 
-        public static void PatchContent(string path, Action<string, BinaryReader, BinaryWriter> patcher, bool writeToTmp = true) {
-            if (writeToTmp) {
+        public static void PatchContent(string path, Action<string, BinaryReader, BinaryWriter> patcher, bool writeToTmp = true, string pathOutput = null) {
+            pathOutput = pathOutput ?? path;
+            if (writeToTmp)
                 File.Delete(path + ".tmp");
-            }
+            if (pathOutput != path)
+                File.Delete(pathOutput);
 
             using (Stream input = File.OpenRead(path))
             using (BinaryReader reader = new BinaryReader(input))
@@ -95,8 +97,9 @@ namespace XnaToFna {
                 }
 
             if (writeToTmp) {
-                File.Delete(path);
-                File.Move(path + ".tmp", path);
+                if (pathOutput == path)
+                    File.Delete(path);
+                File.Move(path + ".tmp", pathOutput);
             }
         }
 

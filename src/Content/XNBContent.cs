@@ -34,6 +34,7 @@ namespace XnaToFna {
             // This may fail horribly if the content is a ValueType (struct).
             object obj = Game.Content.Load<object>(path/*.Substring(0, path.Length - 4)*/);
             (obj as IDisposable)?.Dispose();
+            Game.Content.Unload();
 
             // Replace .xnb with .tmp
             File.Delete(path);
@@ -46,12 +47,35 @@ namespace XnaToFna {
                 stream.Position = 6;
                 writer.Write((uint) stream.Length);
             }
+
+            FNAContentManagerHooks.Enabled = false;
+
+            // If we just loaded a texture, reload and dump it as PNG.
+            /*
+            if (obj is Texture2D) {
+                // FNA can't save DXT1, DXT3 and DXT5 textures... unless we force conversion.
+                FNAContentManagerHooks.SupportsDxt1 = false;
+                FNAContentManagerHooks.SupportsS3tc = false;
+                using (Texture2D tex = Game.Content.Load<Texture2D>(path)) {
+                    Log($"[TransformContent] Dumping texture, original format: {((Texture2D) obj).Format}");
+                    if (File.Exists(path + ".png"))
+                        File.Delete(path + ".png");
+                    using (Stream stream = File.OpenWrite(path + ".png"))
+                        tex.SaveAsPng(stream, tex.Width, tex.Height);
+                }
+                FNAContentManagerHooks.SupportsDxt1 = null;
+                FNAContentManagerHooks.SupportsS3tc = null;
+            }
+            */
+
+            FNAContentManagerHooks.Enabled = true;
         }
 
         // Yo dawg, I heard you like patching...
         public static class FNAContentManagerHooks {
 
             private static bool IsHooked = false;
+            public static bool Enabled = true;
 
             public static void Hook() {
                 if (IsHooked)
@@ -71,21 +95,47 @@ namespace XnaToFna {
                     typeof(ContentTypeReaderManager).GetField("typeCreators", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
                 typeCreators["Microsoft.Xna.Framework.Content.EffectReader, Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553"]
                     = () => new EffectTransformer();
-                typeCreators["Microsoft.Xna.Framework.Content.SoundEffectReader"] // This somehow isn't the full name...
+                typeCreators["Microsoft.Xna.Framework.Content.SoundEffectReader"] // Games somehow don't use the full name for this one...
                     = () => new SoundEffectTransformer();
+
+                object gl = typeof(GraphicsDevice).GetField("GLDevice", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Game.GraphicsDevice);
+                Type t_gl = gl.GetType();
+                orig_SupportsDxt1 = (bool) t_gl.GetProperty("SupportsDxt1").GetValue(gl);
+                Hook(t_gl, "get_SupportsDxt1", out orig_get_SupportsDxt1);
+                orig_SupportsS3tc = (bool) t_gl.GetProperty("SupportsS3tc").GetValue(gl);
+                Hook(t_gl, "get_SupportsS3tc", out orig_get_SupportsS3tc);
+            }
+
+            private static MethodBase Find(Type type, string name) {
+                MethodBase found = type.GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                if (found != null)
+                    return found;
+
+                if (name.StartsWith("get_") || name.StartsWith("set_")) {
+                    PropertyInfo prop = type.GetProperty(name.Substring(4), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                    if (name[0] == 'g')
+                        found = prop.GetGetMethod(true);
+                    else
+                        found = prop.GetSetMethod(true);
+                }
+
+                return found;
             }
 
             private static void Hook<T>(Type type, string name, out T trampoline) {
                 trampoline =
-                    type.GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                    Find(type, name)
                     .Detour<T>(
-                        typeof(FNAContentManagerHooks).GetMethod(name, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                        Find(typeof(FNAContentManagerHooks), name)
                     );
             }
 
             private delegate ContentReader d_GetContentReaderFromXnb(ContentManager self, string originalAssetName, ref Stream stream, BinaryReader xnbReader, char platform, Action<IDisposable> recordDisposableObject);
             private static d_GetContentReaderFromXnb orig_GetContentReaderFromXnb;
             private static ContentReader GetContentReaderFromXnb(ContentManager self, string originalAssetName, ref Stream stream, BinaryReader xnbReader, char platform, Action<IDisposable> recordDisposableObject) {
+                if (!Enabled)
+                    return orig_GetContentReaderFromXnb(self, originalAssetName, ref stream, xnbReader, platform, recordDisposableObject);
+
                 // output will be disposed with the ContentReader.
                 Stream output = File.OpenWrite(originalAssetName + ".tmp");
 
@@ -109,9 +159,30 @@ namespace XnaToFna {
             private delegate void d_ctor_ContentReader(ContentReader self, ContentManager manager, Stream stream, GraphicsDevice graphicsDevice, string assetName, int version, char platform, Action<IDisposable> recordDisposableObject);
             private static d_ctor_ContentReader orig_ctor_ContentReader;
             private static void ctor_ContentReader(ContentReader self, ContentManager manager, Stream stream, GraphicsDevice graphicsDevice, string assetName, int version, char platform, Action<IDisposable> recordDisposableObject) {
+                if (!Enabled) {
+                    orig_ctor_ContentReader(self, manager, stream, graphicsDevice, assetName, version, platform, recordDisposableObject);
+                    return;
+                }
+
                 // What... what is this? Where am I? *Who* am I?!
                 stream = new CopyingStream(stream, null);
                 orig_ctor_ContentReader(self, manager, stream, graphicsDevice, assetName, version, platform, recordDisposableObject);
+            }
+
+            public static bool? SupportsDxt1;
+            private static bool orig_SupportsDxt1;
+            private delegate bool d_get_SupportsDxt1(object self);
+            private static d_get_SupportsDxt1 orig_get_SupportsDxt1;
+            private static bool get_SupportsDxt1(object self) {
+                return SupportsDxt1 ?? orig_SupportsDxt1;
+            }
+
+            public static bool? SupportsS3tc;
+            private static bool orig_SupportsS3tc;
+            private delegate bool d_get_SupportsS3tc(object self);
+            private static d_get_SupportsS3tc orig_get_SupportsS3tc;
+            private static bool get_SupportsS3tc(object self) {
+                return SupportsS3tc ?? orig_SupportsS3tc;
             }
 
         }
