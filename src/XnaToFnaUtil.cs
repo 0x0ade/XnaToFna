@@ -460,6 +460,9 @@ namespace XnaToFna {
                     return;
 
                 Assembly asm = Assembly.LoadFrom(ModulePaths[mod]);
+                AppDomain.CurrentDomain.TypeResolve += (object sender, ResolveEventArgs args) => {
+                    return asm.GetType(args.Name) != null ? asm : null;
+                };
                 AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) => {
                     return args.Name == asm.FullName || args.Name == asm.GetName().Name ? asm : null;
                 };
