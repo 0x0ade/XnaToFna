@@ -107,7 +107,7 @@ namespace XnaToFna.ContentTransformers {
                     // Now we can update the size field.
                     long offset = output.BaseStream.Position;
                     output.BaseStream.Seek(dataLengthPos, SeekOrigin.Begin);
-                    output.Write(offset - dataLengthPos - 4);
+                    output.Write((uint) (offset - dataLengthPos - 4));
                     output.BaseStream.Seek(offset, SeekOrigin.Begin);
 
                     goto End;

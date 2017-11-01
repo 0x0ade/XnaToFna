@@ -245,8 +245,8 @@ namespace XnaToFna {
 
 
         public static void ConvertAudio(Stream input, Stream output, Action<Process> feeder, long length)
-            // FIXME: stereo causes "Hell Yeah!" to sound horrible with pcm_u8 and OpenAL to simply fail everywhere with pcm_s16le
-            => RunFFMPEG($"-y -i - -acodec pcm_u8 -ac 1 -f wav -", input, output, feeder, length);
+            // FIXME: stereo causes "Hell Yeah!" to sound horrible with u8 and OpenAL to simply fail everywhere with s16le
+            => RunFFMPEG($"-y -i - -f u8 -ac 1 -", input, output, feeder, length);
 
         public static Action<Process> GenerateSoundEffectFeeder(
             BinaryReader reader,

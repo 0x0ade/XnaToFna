@@ -204,8 +204,13 @@ namespace XnaToFna {
 
             byte[] data = new byte[1024];
             int size;
+            /*
             while (!ffmpeg.HasExited) {
                 size = ffmpegStream.Read(data, 0, data.Length);
+                output.Write(data, 0, size);
+            }
+            */
+            while ((size = ffmpegStream.Read(data, 0, data.Length)) > 0) {
                 output.Write(data, 0, size);
             }
         }
