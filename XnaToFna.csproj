@@ -51,6 +51,9 @@
     <Compile Include="src\Content\ContentTransformers\GZIPContentReader.cs" />
     <Compile Include="src\Content\ContentTransformers\SoundEffectTransformer.cs" />
     <Compile Include="src\Content\CopyingStream.cs" />
+    <Compile Include="src\Content\FNAHooks.cs" />
+    <Compile Include="src\Content\FNAHooks.Online.cs" />
+    <Compile Include="src\Content\FNAHooks.Offline.cs" />
     <Compile Include="src\Content\XNBContent.cs" />
     <Compile Include="src\Content\WindowsMedia.cs" />
     <Compile Include="src\Content\SoundBank.cs" />
