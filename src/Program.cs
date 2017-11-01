@@ -50,6 +50,9 @@ namespace XnaToFna {
                 else if (arg == "--skip-locks" || arg == "--keep-locks")
                     xtf.DestroyLocks = false;
 
+                else if (arg == "--decompress-xnb" || arg == "--skip-gzip")
+                    ContentHelper.XNBCompressGZip = false;
+
                 else if (arg == "--anycpu" || arg == "--force-anycpu")
                     Console.WriteLine("WARNING: --anycpu / --force-anycpu is now default. To set the preferred platform, use --platform x86 / x64 instead.");
                 else if (arg == "--platform" && argq.Count >= 1)

@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -20,6 +21,10 @@ using XnaToFna.ContentTransformers;
 namespace XnaToFna {
     public static partial class ContentHelper {
 
+        public static bool XNBCompressGZip = true;
+
+        private static Type t_GZipContentReader = typeof(GZipContentReader<>);
+
         public static void TransformContent(string path) {
             if (Game == null)
                 return;
@@ -29,26 +34,53 @@ namespace XnaToFna {
 
             Log($"[TransformContent] Transforming {path}");
 
-            FNAContentManagerHooks.Hook();
+            FNAHooks.Hook();
 
             // This may fail horribly if the content is a ValueType (struct).
             object obj = Game.Content.Load<object>(path/*.Substring(0, path.Length - 4)*/);
             (obj as IDisposable)?.Dispose();
             Game.Content.Unload();
 
+            // Update the size embedded in the .xnb.
+            UpdateXNBSize(path + ".tmp");
+
             // Replace .xnb with .tmp
             File.Delete(path);
-            File.Move(path + ".tmp", path);
 
-            // Update the size embedded in the .xnb.
-            using (Stream stream = File.Open(path, FileMode.Open, FileAccess.ReadWrite))
-            using (BinaryWriter writer = new BinaryWriter(stream)) {
-                // We know that the size is always past the header, version and flags.
-                stream.Position = 6;
-                writer.Write((uint) stream.Length);
+            if (!XNBCompressGZip) {
+                File.Move(path + ".tmp", path);
+
+            } else {
+                using (Stream streamTMP = File.Open(path + ".tmp", FileMode.Open, FileAccess.Read))
+                using (Stream streamXNB = File.Open(path, FileMode.Create, FileAccess.Write)) {
+                    using (BinaryReader reader = new BinaryReader(streamTMP, Encoding.ASCII, true))
+                    using (BinaryWriter writer = new BinaryWriter(streamXNB, Encoding.ASCII, true)) {
+                        // Copy-paste the first 6 bytes.
+                        writer.Write(reader.ReadBytes(6));
+
+                        writer.Write((uint) 0); // Write size = 0 for now, will be updated later.
+
+                        // We've only got a single type reader for the container.
+                        writer.Write((byte) 1);
+                        writer.Write(t_GZipContentReader.MakeGenericType(obj.GetType()).AssemblyQualifiedName);
+                        writer.Write((uint) 0); // Version
+
+                        writer.Write((byte) 0); // No shared resources.
+
+                        writer.Write((byte) 1); // Type reader ID - 0 refers to null.
+                    }
+
+                    // Seek TMP to beginning, then GZIP all of it.
+                    streamTMP.Seek(0, SeekOrigin.Begin);
+                    using (GZipStream gzipXNB = new GZipStream(streamXNB, CompressionMode.Compress, true)) {
+                        streamTMP.CopyTo(gzipXNB);
+                    }
+                }
+                File.Delete(path + ".tmp");
+                UpdateXNBSize(path);
             }
 
-            FNAContentManagerHooks.Enabled = false;
+            FNAHooks.Enabled = false;
 
             // If we just loaded a texture, reload and dump it as PNG.
             /*
@@ -68,45 +100,52 @@ namespace XnaToFna {
             }
             */
 
-            FNAContentManagerHooks.Enabled = true;
+            FNAHooks.Enabled = true;
+        }
+
+        public static void UpdateXNBSize(string path, uint size = 0) {
+            using (Stream stream = File.Open(path, FileMode.Open, FileAccess.ReadWrite))
+            using (BinaryWriter writer = new BinaryWriter(stream)) {
+                if (size == 0)
+                    size = (uint) stream.Length;
+                // We know that the size is always past the header, version and flags.
+                stream.Position = 6;
+                writer.Write(size);
+            }
         }
 
         // Yo dawg, I heard you like patching...
-        public static class FNAContentManagerHooks {
+        public static class FNAHooks {
 
             private static bool IsHooked = false;
             public static bool Enabled = true;
 
             public static void Hook() {
-                if (IsHooked)
-                    return;
-                IsHooked = true;
+                if (!IsHooked) {
+                    Dictionary<string, Func<ContentTypeReader>> typeCreators = (Dictionary<string, Func<ContentTypeReader>>)
+                        typeof(ContentTypeReaderManager).GetField("typeCreators", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+                    typeCreators["Microsoft.Xna.Framework.Content.EffectReader, Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553"]
+                        = () => new EffectTransformer();
+                    typeCreators["Microsoft.Xna.Framework.Content.SoundEffectReader"] // Games somehow don't use the full name for this one...
+                        = () => new SoundEffectTransformer();
+                }
 
-                Hook(typeof(ContentManager), "GetContentReaderFromXnb", out orig_GetContentReaderFromXnb);
+                Hook(IsHooked, typeof(ContentManager), "GetContentReaderFromXnb", ref orig_GetContentReaderFromXnb);
 
                 // Hooking constructors? Seems to work just fine on my machine(tm).
-                orig_ctor_ContentReader =
-                    typeof(ContentReader).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)[0]
-                    .Detour<d_ctor_ContentReader>(
-                        typeof(FNAContentManagerHooks).GetMethod("ctor_ContentReader", BindingFlags.Static | BindingFlags.NonPublic)
-                    );
-
-                Dictionary<string, Func<ContentTypeReader>> typeCreators = (Dictionary<string, Func<ContentTypeReader>>)
-                    typeof(ContentTypeReaderManager).GetField("typeCreators", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
-                typeCreators["Microsoft.Xna.Framework.Content.EffectReader, Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553"]
-                    = () => new EffectTransformer();
-                typeCreators["Microsoft.Xna.Framework.Content.SoundEffectReader"] // Games somehow don't use the full name for this one...
-                    = () => new SoundEffectTransformer();
+                Hook(IsHooked, typeof(ContentReader), ".ctor[0]", ref orig_ctor_ContentReader);
 
                 object gl = typeof(GraphicsDevice).GetField("GLDevice", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Game.GraphicsDevice);
                 Type t_gl = gl.GetType();
                 orig_SupportsDxt1 = (bool) t_gl.GetProperty("SupportsDxt1").GetValue(gl);
-                Hook(t_gl, "get_SupportsDxt1", out orig_get_SupportsDxt1);
+                Hook(IsHooked, t_gl, "get_SupportsDxt1", ref orig_get_SupportsDxt1);
                 orig_SupportsS3tc = (bool) t_gl.GetProperty("SupportsS3tc").GetValue(gl);
-                Hook(t_gl, "get_SupportsS3tc", out orig_get_SupportsS3tc);
+                Hook(IsHooked, t_gl, "get_SupportsS3tc", ref orig_get_SupportsS3tc);
+
+                IsHooked = true;
             }
 
-            private static MethodBase Find(Type type, string name) {
+            internal static MethodBase Find(Type type, string name) {
                 MethodBase found = type.GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
                 if (found != null)
                     return found;
@@ -121,13 +160,35 @@ namespace XnaToFna {
 
                 return found;
             }
+            internal static void Hook<T>(bool isHooked, Type type, string name, ref T trampoline) {
+                MethodBase from;
+                MethodBase to;
+                if (name.StartsWith(".ctor[")) {
+                    ConstructorInfo[] ctors = type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    int index;
+                    if (int.TryParse(name.Substring(6, name.Length - 6 - 1), out index))
+                        from = ctors[index];
+                    else
+                        from = ctors[0];
+                    to = Find(typeof(T).DeclaringType, "ctor_" + type.Name);
+                } else {
+                    from = Find(type, name);
+                    to = Find(typeof(T).DeclaringType, name);
+                }
 
-            private static void Hook<T>(Type type, string name, out T trampoline) {
-                trampoline =
-                    Find(type, name)
+                // Keeps the detour intact. The JIT likes to revert our changes...
+                if (isHooked) {
+                    RuntimeDetour.Refresh(from);
+                    return;
+                }
+
+                T tmp =
+                    from
                     .Detour<T>(
-                        Find(typeof(FNAContentManagerHooks), name)
+                        to
                     );
+                if (trampoline == null)
+                    trampoline = tmp;
             }
 
             private delegate ContentReader d_GetContentReaderFromXnb(ContentManager self, string originalAssetName, ref Stream stream, BinaryReader xnbReader, char platform, Action<IDisposable> recordDisposableObject);
@@ -145,7 +206,11 @@ namespace XnaToFna {
 
                 using (BinaryWriter writer = new BinaryWriter(output, Encoding.ASCII, true)) {
                     writer.Write(xnbReader.ReadBytes(5));
-                    writer.Write((byte) (xnbReader.ReadByte() & ~0x80)); // Remove the compression flag.
+
+                    byte flags = xnbReader.ReadByte();
+                    flags = (byte) (flags & ~0x80); // Remove the compression flag.
+                    writer.Write(flags);
+
                     writer.Write(0); // Write size = 0 for now, will be updated later.
                 }
 

@@ -14,9 +14,14 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.Serialization;
 
 namespace XnaToFna.ContentTransformers {
     public class SoundEffectTransformer : ContentTypeReader<SoundEffect> {
+
+        private readonly static Type t_SoundEffect = typeof(SoundEffect);
+        private readonly static FieldInfo f_Instances = typeof(SoundEffect).GetField("Instances", BindingFlags.NonPublic | BindingFlags.Instance);
+        private readonly static List<WeakReference> DummyReferences = new List<WeakReference>();
 
         protected override SoundEffect Read(ContentReader input, SoundEffect existing) {
             CopyingStream mixed = (CopyingStream) input.BaseStream;
@@ -108,27 +113,29 @@ namespace XnaToFna.ContentTransformers {
                     goto End;
                 }
 
+
                 // If we've got a compatible codec, at least fix endianness.
+                {
+                    output.Write(fmtLength);
+                    output.Write(format);
 
-                output.Write(fmtLength);
-                output.Write(format);
+                    output.Write(channels);
+                    output.Write(rate);
 
-                output.Write(channels);
-                output.Write(rate);
+                    // Fix all other fields "blindly."
+                    output.Write(ContentHelper.SwapEndian(x360, input.ReadUInt32()));
+                    output.Write(ContentHelper.SwapEndian(x360, input.ReadUInt16()));
+                    output.Write(ContentHelper.SwapEndian(x360, input.ReadUInt16()));
+                    output.Write(ContentHelper.SwapEndian(x360, input.ReadUInt16()));
 
-                // Fix all other fields "blindly."
-                output.Write(ContentHelper.SwapEndian(x360, input.ReadUInt32()));
-                output.Write(ContentHelper.SwapEndian(x360, input.ReadUInt16()));
-                output.Write(ContentHelper.SwapEndian(x360, input.ReadUInt16()));
-                output.Write(ContentHelper.SwapEndian(x360, input.ReadUInt16()));
+                    // Skip any fmt extra data.
+                    output.Write(input.ReadBytes((int) fmtLength - 18));
 
-                // Skip any fmt extra data.
-                output.Write(input.ReadBytes((int) fmtLength - 18));
-
-                // Just copy the data chunk.
-                dataLength = input.ReadInt32();
-                output.Write(dataLength);
-                output.Write(input.ReadBytes(dataLength));
+                    // Just copy the data chunk.
+                    dataLength = input.ReadInt32();
+                    output.Write(dataLength);
+                    output.Write(input.ReadBytes(dataLength));
+                }
 
                 End:
                 // Write the tailing loop start, end and duration
@@ -137,7 +144,12 @@ namespace XnaToFna.ContentTransformers {
                 output.Write(input.ReadUInt32());
                 // Finaly, re-enable copying and move on.
                 mixed.Copy = true;
+
                 // Let's just not return the sound.
+                if (existing != null)
+                    return existing;
+                existing = (SoundEffect) FormatterServices.GetUninitializedObject(t_SoundEffect);
+                f_Instances.SetValue(existing, DummyReferences);
                 return existing;
             }
 
