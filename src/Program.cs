@@ -87,9 +87,9 @@ namespace XnaToFna {
                 }
 
                 else if (arg == "--content" && argq.Count >= 1)
-                    xtf.ContentDirectoryName = argq.Dequeue();
+                    xtf.ContentDirectoryNames.Add(argq.Dequeue());
                 else if (arg.StartsWith("--content="))
-                    xtf.ContentDirectoryName = arg.Substring("--content=".Length);
+                    xtf.ContentDirectoryNames.Add(arg.Substring("--content=".Length));
 
                 else if (arg == "--skip-binaryformatter" || arg == "--skip-bf")
                     xtf.HookBinaryFormatter = false;
