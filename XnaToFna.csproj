@@ -82,6 +82,8 @@
     <Compile Include="src\Helper\BinaryFormatterHelper.cs" />
     <Compile Include="src\Helper\SyncResult.cs" />
     <Compile Include="src\ILPlatform.cs" />
+    <Compile Include="src\Content\LzxDecoder.cs" />
+    <Compile Include="src\XEX\XEXImageData.cs" />
     <Compile Include="src\XnaToFnaGame.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

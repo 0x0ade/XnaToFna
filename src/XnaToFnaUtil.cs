@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using XnaToFna.XEX;
 
 namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
@@ -173,7 +174,44 @@ namespace XnaToFna {
                 return;
             }
 
-            if (!path.EndsWith(".dll") && !path.EndsWith(".exe"))
+            if (path.EndsWith(".xex")) {
+                string pathTarget = path.Substring(0, path.Length - 4);
+                if (string.IsNullOrEmpty(Path.GetExtension(pathTarget)))
+                    return;
+
+                using (Stream streamXEX = File.OpenRead(path))
+                using (BinaryReader reader = new BinaryReader(streamXEX))
+                using (Stream streamRAW = File.OpenWrite(pathTarget)) {
+                    XEXImageData data = new XEXImageData(reader);
+
+                    int offset = 0;
+                    int size = data.m_memorySize;
+
+                    // Check if this file is a PE containing an embedded PE.
+                    if (data.m_memorySize > 0x10000) { // One default segment alignment.
+                        using (MemoryStream streamMEM = new MemoryStream(data.m_memoryData))
+                        using (BinaryReader mem = new BinaryReader(streamMEM)) {
+                            if (mem.ReadUInt32() != 0x00905A4D) // MZ
+                                goto WriteRaw;
+                            // This is horrible.
+                            streamMEM.Seek(0x00000280, SeekOrigin.Begin);
+                            if (mem.ReadUInt64() != 0x000061746164692E) // ".idata\0\0"
+                                goto WriteRaw;
+                            streamMEM.Seek(0x00000288, SeekOrigin.Begin);
+                            mem.ReadInt32(); // Virtual size; It's somewhat incorrect?
+                            offset = mem.ReadInt32(); // Virtual offset.
+                            // mem.ReadInt32(); // Raw size; Still incorrect.
+                            // Let's just write everything...
+                            size = data.m_memorySize - offset;
+                        }
+                    }
+
+                    WriteRaw:
+                    streamRAW.Write(data.m_memoryData, offset, size);
+                }
+
+                path = pathTarget;
+            } else if (!path.EndsWith(".dll") && !path.EndsWith(".exe"))
                 return;
 
             // Check if .dll is CLR assembly
