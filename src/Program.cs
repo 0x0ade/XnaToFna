@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Mono.Cecil;
+using MonoMod;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -11,9 +13,13 @@ namespace XnaToFna {
     public class Program {
 
         public static void Main(string[] args) {
+            // If we haven't hooked FNA already, hook FNA and resume execution in new AppDomain.
+            if (FNAHooker.Hook(args))
+                return;
+
             XnaToFnaUtil xtf = new XnaToFnaUtil();
 
-            xtf.Log($"[Version] {MonoMod.MonoModder.Version}");
+            xtf.Log($"[Version] {MonoModder.Version}");
 
             bool updateContent = true;
 
@@ -112,6 +118,11 @@ namespace XnaToFna {
 
             if (updateContent) {
                 xtf.LoadModules();
+
+                // Free the heap from the disassembled modules.
+                xtf.Modules.Clear();
+                xtf.ModulesToStub.Clear();
+
                 xtf.UpdateContent();
             }
 

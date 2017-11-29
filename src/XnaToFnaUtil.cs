@@ -21,9 +21,11 @@ namespace XnaToFna {
 
         public readonly static Version DotNetX360Version = new Version(2, 0, 5, 0);
 
-        protected static Assembly ThisAssembly = Assembly.GetExecutingAssembly();
-        protected static string ThisAssemblyName = ThisAssembly.GetName().Name;
+        public readonly static Assembly ThisAssembly = Assembly.GetExecutingAssembly();
+        public readonly static string ThisAssemblyName = ThisAssembly.GetName().Name;
         public readonly static Version Version = ThisAssembly.GetName().Version;
+
+        public readonly ModuleDefinition ThisModule;
 
         public List<XnaToFnaMapping> Mappings = new List<XnaToFnaMapping> {
             new XnaToFnaMapping("FNA", new string[] {
@@ -70,6 +72,8 @@ namespace XnaToFna {
         };
         public List<ModuleDefinition> ModulesToStub = new List<ModuleDefinition>();
 
+        public List<string> ExtractedXEX = new List<string>();
+
         public bool HookEntryPoint = true;
 
         public bool PatchXNB = true;
@@ -99,6 +103,11 @@ namespace XnaToFna {
 
             Modder.Logger = LogMonoMod;
             Modder.MissingDependencyResolver = MissingDependencyResolver;
+
+            using (FileStream xtfStream = new FileStream(Assembly.GetExecutingAssembly().Location, FileMode.Open, FileAccess.Read))
+                ThisModule = MonoModExt.ReadModule(xtfStream, new ReaderParameters(ReadingMode.Immediate));
+            Modder.DependencyCache[ThisModule.Assembly.Name.Name] = ThisModule;
+            Modder.DependencyCache[ThisModule.Assembly.Name.FullName] = ThisModule;
         }
         public XnaToFnaUtil(params string[] paths)
             : this() {
@@ -174,6 +183,16 @@ namespace XnaToFna {
                 return;
             }
 
+            if (File.Exists(path + ".xex")) {
+                if (!ExtractedXEX.Contains(path)) {
+                    // Remove the original file - let XnaToFna unpack and handle it later.
+                    File.Delete(path);
+                } else {
+                    // XnaToFna will handle the .xex instead.
+                }
+                return;
+            }
+
             if (path.EndsWith(".xex")) {
                 string pathTarget = path.Substring(0, path.Length - 4);
                 if (string.IsNullOrEmpty(Path.GetExtension(pathTarget)))
@@ -211,6 +230,7 @@ namespace XnaToFna {
                 }
 
                 path = pathTarget;
+                ExtractedXEX.Add(pathTarget);
             } else if (!path.EndsWith(".dll") && !path.EndsWith(".exe"))
                 return;
 
@@ -494,12 +514,12 @@ namespace XnaToFna {
         }
 
         public void LoadModules() {
+            // Load all modules, except map targets and stubs.
             foreach (ModuleDefinition mod in Modules) {
-                if (Mappings.Exists(mappings => mod.Assembly.Name.Name == mappings.Target))
-                    return;
-
-                if (ModulesToStub.Contains(mod))
-                    return;
+                if (Mappings.Exists(mappings => mod.Assembly.Name.Name == mappings.Target) ||
+                    mod.Assembly.Name.Name == ThisAssemblyName ||
+                    ModulesToStub.Contains(mod))
+                    continue;
 
                 Assembly asm = Assembly.LoadFrom(ModulePaths[mod]);
                 AppDomain.CurrentDomain.TypeResolve += (object sender, ResolveEventArgs args) => {

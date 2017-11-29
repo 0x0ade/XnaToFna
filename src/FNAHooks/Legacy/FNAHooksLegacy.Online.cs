@@ -21,14 +21,14 @@ using XnaToFna.ContentTransformers;
 namespace XnaToFna {
     public static partial class ContentHelper {
         // Yo dawg, I heard you like patching...
-        public static partial class FNAHooks {
+        public static partial class FNAHooksLegacy {
             public static class Online {
 
                 public static bool Enabled = true;
                 private static bool IsHooked = false;
 
                 public static void Hook() {
-                    ContentHelper.FNAHooks.Hook(IsHooked, typeof(ContentManager), "OpenStream", ref orig_OpenStream);
+                    FNAHooksLegacy.Hook(IsHooked, typeof(ContentManager), "OpenStream", ref orig_OpenStream);
                     IsHooked = true;
                 }
 

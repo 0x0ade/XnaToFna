@@ -21,7 +21,7 @@ using XnaToFna.ContentTransformers;
 namespace XnaToFna {
     public static partial class ContentHelper {
         // Yo dawg, I heard you like patching...
-        public static partial class FNAHooks {
+        public static partial class FNAHooksLegacy {
 
             internal static MethodBase Find(Type type, string name) {
                 MethodBase found = type.GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);

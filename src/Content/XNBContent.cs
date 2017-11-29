@@ -34,12 +34,14 @@ namespace XnaToFna {
 
             Log($"[TransformContent] Transforming {path}");
 
-            FNAHooks.Offline.Hook();
+            // FNAHookBridgeXTF.Enabled = true;
 
             // This may fail horribly if the content is a ValueType (struct).
             object obj = Game.Content.Load<object>(path/*.Substring(0, path.Length - 4)*/);
-            (obj as IDisposable)?.Dispose();
-            Game.Content.Unload();
+            try {
+                (obj as IDisposable)?.Dispose();
+                Game.Content.Unload();
+            } catch { /* Fail silently. */ }
 
             // Update the size embedded in the .xnb.
             UpdateXNBSize(path + ".tmp");
@@ -80,14 +82,14 @@ namespace XnaToFna {
                 UpdateXNBSize(path);
             }
 
-            FNAHooks.Offline.Enabled = false;
+            // FNAHookBridgeXTF.Enabled = false;
 
             // If we just loaded a texture, reload and dump it as PNG.
             /*
             if (obj is Texture2D) {
                 // FNA can't save DXT1, DXT3 and DXT5 textures... unless we force conversion.
-                FNAHooks.Offline.SupportsDxt1 = false;
-                FNAHooks.Offline.SupportsS3tc = false;
+                FNAHooksBridge.SupportsDxt1 = false;
+                FNAHooksBridge.SupportsS3tc = false;
                 using (Texture2D tex = Game.Content.Load<Texture2D>(path)) {
                     Log($"[TransformContent] Dumping texture, original format: {((Texture2D) obj).Format}");
                     if (File.Exists(path + ".png"))
@@ -95,12 +97,12 @@ namespace XnaToFna {
                     using (Stream stream = File.OpenWrite(path + ".png"))
                         tex.SaveAsPng(stream, tex.Width, tex.Height);
                 }
-                FNAHooks.Offline.SupportsDxt1 = null;
-                FNAHooks.Offline.SupportsS3tc = null;
+                FNAHooksBridge.SupportsDxt1 = null;
+                FNAHooksBridge.SupportsS3tc = null;
             }
             */
 
-            FNAHooks.Offline.Enabled = true;
+            // FNAHookBridgeXTF.Enabled = true;
         }
 
         public static void UpdateXNBSize(string path, uint size = 0) {

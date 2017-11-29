@@ -23,8 +23,8 @@ namespace XnaToFna.ContentTransformers {
 
         protected override ContentType Read(ContentReader input, ContentType existing) {
             // We may need to refresh the hooks - who knows what the JIT's doing.
-            ContentHelper.FNAHooks.Online.Hook();
-            ContentHelper.FNAHooks.Online.ForcedStream = new GZipStream(input.BaseStream, CompressionMode.Decompress, true);
+            ContentHelper.FNAHooksLegacy.Online.Hook();
+            ContentHelper.FNAHooksLegacy.Online.ForcedStream = new GZipStream(input.BaseStream, CompressionMode.Decompress, true);
             return input.ContentManager.Load<ContentType>("///XNATOFNA/gzip/" + input.AssetName);
         }
 
