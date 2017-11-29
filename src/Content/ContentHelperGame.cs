@@ -34,5 +34,14 @@ namespace XnaToFna {
             Exit();
         }
 
+        protected override void Dispose(bool disposing) {
+            try {
+                base.Dispose(disposing);
+            } catch (Exception e) {
+                // Fail non-critically.
+                Console.WriteLine(GetType().FullName + " failed disposing: " + e);
+            }
+        }
+
     }
 }
