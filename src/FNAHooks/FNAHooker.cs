@@ -18,10 +18,6 @@ namespace XnaToFna {
         }
 
         public static void BootHookedAppDomain(string[] args) {
-            List<string> arglist = new List<string>(args);
-            arglist.Insert(0, "--__hooked__");
-            args = arglist.ToArray();
-
             AppDomainSetup nestInfo = new AppDomainSetup();
             nestInfo.ApplicationBase = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             AppDomain nest = AppDomain.CreateDomain(AppDomain.CurrentDomain.FriendlyName + " - FNA hooked", AppDomain.CurrentDomain.Evidence, nestInfo);
