@@ -22,9 +22,8 @@ namespace Microsoft.Xna.Framework.Content {
 
         private ContentReader orig_GetContentReaderFromXnb(string originalAssetName, ref Stream stream, BinaryReader xnbReader, char platform, Action<IDisposable> recordDisposableObject) { return null; }
         private ContentReader GetContentReaderFromXnb(string originalAssetName, ref Stream stream, BinaryReader xnbReader, char platform, Action<IDisposable> recordDisposableObject) {
-            /*if (!FNAHookBridgeFNA.Enabled || FNAHookBridgeFNA.GetContentReaderFromXnb == null)
+            if (!FNAHookBridgeFNA.Enabled || FNAHookBridgeFNA.GetContentReaderFromXnb == null)
                 return orig_GetContentReaderFromXnb(originalAssetName, ref stream, xnbReader, platform, recordDisposableObject);
-            */
             return FNAHookBridgeFNA.GetContentReaderFromXnb(this, originalAssetName, ref stream, xnbReader, platform, recordDisposableObject);
         }
 

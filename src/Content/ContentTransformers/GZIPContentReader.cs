@@ -21,11 +21,18 @@ using System.Reflection.Emit;
 namespace XnaToFna.ContentTransformers {
     public class GZipContentReader<ContentType> : ContentTypeReader<ContentType> {
 
+        private ForcedStreamContentManager WrappedContentManager;
+
         protected override ContentType Read(ContentReader input, ContentType existing) {
-            // We may need to refresh the hooks - who knows what the JIT's doing.
-            ContentHelper.FNAHooksLegacy.Online.Hook();
-            ContentHelper.FNAHooksLegacy.Online.ForcedStream = new GZipStream(input.BaseStream, CompressionMode.Decompress, true);
-            return input.ContentManager.Load<ContentType>("///XNATOFNA/gzip/" + input.AssetName);
+            if (WrappedContentManager == null) {
+                WrappedContentManager = new ForcedStreamContentManager(input.ContentManager.ServiceProvider);
+            }
+            WrappedContentManager.Stream = new GZipStream(input.BaseStream, CompressionMode.Decompress, true);
+            bool bridgeWasEnabled = FNAHookBridgeXTF.Enabled;
+            FNAHookBridgeXTF.Enabled = false;
+            ContentType result = WrappedContentManager.Load<ContentType>("///XNATOFNA/gzip/" + input.AssetName);
+            FNAHookBridgeXTF.Enabled = bridgeWasEnabled;
+            return result;
         }
 
     }

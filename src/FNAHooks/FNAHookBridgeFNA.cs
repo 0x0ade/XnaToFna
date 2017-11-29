@@ -11,7 +11,7 @@ using XnaToFna.ContentTransformers;
 namespace XnaToFna {
     [FNAHooks]
     public static class FNAHookBridgeFNA {
-        public static bool Enabled = true; // TODO: Hook FNAHookBridgeFNA.Enabled up to FNAHookBridgeXTF
+        public static bool Enabled = true;
 
         public delegate ContentReader d_GetContentReaderFromXnb(ContentManager self, string originalAssetName, ref Stream stream, BinaryReader xnbReader, char platform, Action<IDisposable> recordDisposableObject);
         public static d_GetContentReaderFromXnb orig_GetContentReaderFromXnb = patch_ContentManager.fallback_GetContentReaderFromXnb;

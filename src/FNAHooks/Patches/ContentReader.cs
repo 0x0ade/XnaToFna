@@ -20,11 +20,10 @@ namespace Microsoft.Xna.Framework.Content {
         private void orig_ctor_ContentReader(ContentManager manager, Stream stream, GraphicsDevice graphicsDevice, string assetName, int version, char platform, Action<IDisposable> recordDisposableObject) { }
         [MonoModConstructor]
         private void ctor_ContentReader(ContentManager manager, Stream stream, GraphicsDevice graphicsDevice, string assetName, int version, char platform, Action<IDisposable> recordDisposableObject) {
-            /*if (!FNAHookBridgeFNA.Enabled || FNAHookBridgeFNA.GetContentReaderFromXnb == null) {
+            if (!FNAHookBridgeFNA.Enabled || FNAHookBridgeFNA.GetContentReaderFromXnb == null) {
                 orig_ctor_ContentReader(manager, stream, graphicsDevice, assetName, version, platform, recordDisposableObject);
                 return;
             }
-            */
             FNAHookBridgeFNA.ctor_ContentReader((ContentReader) (object) this, manager, stream, graphicsDevice, assetName, version, platform, recordDisposableObject);
         }
 

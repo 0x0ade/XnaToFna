@@ -43,6 +43,13 @@ namespace XnaToFna {
             ((Proxy) nest.CreateInstanceAndUnwrap(typeof(Proxy).Assembly.FullName, typeof(Proxy).FullName)).Boot();
 
             AppDomain.Unload(nest);
+
+            // Move FNA.dll back to its original place.
+            if (File.Exists(fnaTmpPath)) {
+                if (File.Exists(fnaPath))
+                    File.Delete(fnaPath);
+                File.Move(fnaTmpPath, fnaPath);
+            }
         }
 
         public class Proxy : MarshalByRefObject {
@@ -63,12 +70,10 @@ namespace XnaToFna {
 
         public static void BootSucceeded() {
             AppDomain domain = AppDomain.CurrentDomain;
-
             Assembly[] asms = domain.GetAssemblies();
             Assembly fna = null;
             for (int i = 0; i < asms.Length; i++) {
                 Assembly asm = asms[i];
-                Console.WriteLine(asm);
                 if (asm.GetName().Name == "FNA") {
                     if (fna != null)
                         throw new InvalidProgramException("XnaToFna failed loading _only_ the hooked FNA");
@@ -77,15 +82,6 @@ namespace XnaToFna {
             }
             if (fna == null)
                 throw new InvalidProgramException("XnaToFna failed loading _any_ FNA");
-
-            // Move FNA.dll back to its original place.
-            string fnaPath = (string) domain.GetData("FNAHooker.FNALocation");
-            string fnaTmpPath = (string) domain.GetData("FNAHooker.FNATmpLocation");
-            if (File.Exists(fnaTmpPath)) {
-                if (File.Exists(fnaPath))
-                    File.Delete(fnaPath);
-                File.Move(fnaTmpPath, fnaPath);
-            }
         }
 
         public static Assembly LoadHookedFNA() {

@@ -171,6 +171,8 @@ namespace XnaToFna {
 
                                 if (File.Exists(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll")))
                                     File.Copy(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll"), Path.Combine(path, "FNA.dll"), true);
+                                else if (File.Exists(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll.tmp")))
+                                    File.Copy(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll.tmp"), Path.Combine(path, "FNA.dll"), true);
 
                             }
                         }
@@ -521,7 +523,7 @@ namespace XnaToFna {
                     ModulesToStub.Contains(mod))
                     continue;
 
-                Assembly asm = Assembly.LoadFrom(ModulePaths[mod]);
+                Assembly asm = Assembly.LoadFile(ModulePaths[mod]);
                 AppDomain.CurrentDomain.TypeResolve += (object sender, ResolveEventArgs args) => {
                     return asm.GetType(args.Name) != null ? asm : null;
                 };

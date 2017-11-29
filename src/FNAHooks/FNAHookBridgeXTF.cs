@@ -15,6 +15,7 @@ namespace XnaToFna {
         public static Assembly FNA;
         public static Type t_FNAHookBridgeFNA;
         public readonly static Type t_FNAHookBridgeXTF = typeof(FNAHookBridgeXTF);
+        private static FieldInfo f_Enabled;
 
         public static void Init(Assembly fna) {
             FNA = fna;
@@ -28,6 +29,8 @@ namespace XnaToFna {
 
             t_FNAHookBridgeFNA = FNA.GetType(typeof(FNAHookBridgeFNA).FullName);
             RuntimeHelpers.RunClassConstructor(t_FNAHookBridgeFNA.TypeHandle);
+
+            f_Enabled = t_FNAHookBridgeFNA.GetField("Enabled");
 
             Exchange<d_GetContentReaderFromXnb>();
             Exchange<d_ctor_ContentReader>();
@@ -44,6 +47,19 @@ namespace XnaToFna {
 
             f_x_orig.SetValue(null, CastDelegate(f_f_orig.GetValue(null), d_x));
             f_f_hook.SetValue(null, CastDelegate(f_x_hook.GetValue(null), d_f));
+        }
+
+        public static bool Enabled {
+            get {
+                if (f_Enabled == null)
+                    return false;
+                return (bool) f_Enabled.GetValue(null);
+            }
+            set {
+                if (f_Enabled == null)
+                    return;
+                f_Enabled.SetValue(null, value);
+            }
         }
 
         public delegate ContentReader d_GetContentReaderFromXnb(ContentManager self, string originalAssetName, ref Stream stream, BinaryReader xnbReader, char platform, Action<IDisposable> recordDisposableObject);
