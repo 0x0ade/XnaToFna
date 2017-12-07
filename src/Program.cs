@@ -100,6 +100,9 @@ namespace XnaToFna {
                 else if (arg == "--skip-binaryformatter" || arg == "--skip-bf")
                     xtf.HookBinaryFormatter = false;
 
+                else if (arg == "--skip-reflection")
+                    xtf.HookReflection = false;
+
                 else if (arg == "--fix-path-arg" && argq.Count >= 1)
                     xtf.FixPathsFor.Add(argq.Dequeue());
                 else if (arg.StartsWith("--fix-path-arg="))

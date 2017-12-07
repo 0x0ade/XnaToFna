@@ -72,6 +72,14 @@ namespace XnaToFna {
                     Tuple.Create("XnaToFna.BinaryFormatterHelper", "System.Void set_Binder(System.Runtime.Serialization.Formatters.Binary.BinaryFormatter,System.Runtime.Serialization.SerializationBinder)");
             }
 
+            if (HookReflection) {
+                Modder.RelinkMap["System.Reflection.FieldInfo System.Type::GetField(System.String,System.Reflection.BindingFlags)"] =
+                    Tuple.Create("XnaToFna.ProxyReflection.FieldInfoHelper", "System.Reflection.FieldInfo GetField(System.Type,System.String,System.Reflection.BindingFlags)");
+
+                Modder.RelinkMap["System.Reflection.FieldInfo System.Type::GetField(System.String)"] =
+                    Tuple.Create("XnaToFna.ProxyReflection.FieldInfoHelper", "System.Reflection.FieldInfo GetField(System.Type,System.String)");
+            }
+
             // X360 uses the ".NET Compact Framework", which actually ships with some additional stuff...
             Modder.RelinkMap["System.Void System.Threading.Thread::SetProcessorAffinity(System.Int32[])"] =
                 Tuple.Create("XnaToFna.X360Helper", "System.Void SetProcessorAffinity(System.Threading.Thread,System.Int32[])");

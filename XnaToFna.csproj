@@ -62,6 +62,7 @@
     <Compile Include="src\FNAHooks\FNAHooks.cs" />
     <Compile Include="src\FNAHooks\Patches\ContentReader.cs" />
     <Compile Include="src\FNAHooks\Patches\ContentManager.cs" />
+    <Compile Include="src\Helper\ProxyReflection\FieldInfoHelper.cs" />
     <Compile Include="src\Helper\ForcedStreamContentManager.cs" />
     <Compile Include="src\Helper\X360Helper.cs" />
     <Compile Include="src\Helper\StackOpHelper.cs" />

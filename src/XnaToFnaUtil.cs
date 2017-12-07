@@ -86,6 +86,7 @@ namespace XnaToFna {
         public bool StubMixedDeps = true;
         public bool HookIsTrialMode = false;
         public bool HookBinaryFormatter = true;
+        public bool HookReflection = true;
 
         public List<string> DestroyPublicKeyTokens = new List<string>();
 
