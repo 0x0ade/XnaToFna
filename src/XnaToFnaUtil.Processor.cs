@@ -51,6 +51,27 @@ namespace XnaToFna {
                 // Some XNA games use DInput... let's just substitute all DInput references with our ProxyDInput.
                 else if (name.StartsWith("XnaToFna.ProxyDInput."))
                     Modder.RelinkMap[/* no namespace */ name.Substring(9 + 12)] = name;
+
+                // Some X360 games use Microsoft.Xna.Framework.Xdk; let's just stub whatever's required in XTF.
+                else if (name.StartsWith("XnaToFna.StubXDK.")) {
+                    string nameXDK = "Microsoft.Xna.Framework." + name.Substring(9 + 8);
+                    Modder.RelinkMap[nameXDK] = name;
+                    // Unfortunately, the signatures refer to GamerServices, while XnaToFna itself can't refer to that.
+                    // Let's abuse the MonoModHook attribtue.
+                    foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)) {
+                        // Let's abuse the MonoModHook attribtue.
+                        MonoModHook hook = method.GetCustomAttribute<MonoModHook>();
+                        if (hook != null) {
+                            Modder.RelinkMap[hook.FindableID] = Tuple.Create(name, method.GetFindableID(withType: false));
+                        }
+                    }
+                    foreach (ConstructorInfo ctor in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)) {
+                        MonoModHook hook = ctor.GetCustomAttribute<MonoModHook>();
+                        if (hook != null) {
+                            Modder.RelinkMap[hook.FindableID] = Tuple.Create(name, ctor.GetFindableID(withType: false));
+                        }
+                    }
+                }
             }
 
             if (HookIsTrialMode)
@@ -94,13 +115,13 @@ namespace XnaToFna {
             // Required as some games (X360 ones) contain .GamerServices references pointing to .Game:
             // Remap all types.
             foreach (TypeDefinition type in mapping.Module.Types)
-                SetupGamerServicesType(xtf, type);
+                SetupDirectRelinkMapType(xtf, type);
         }
-        public static void SetupGamerServicesType(XnaToFnaUtil xtf, TypeDefinition type) {
+        public static void SetupDirectRelinkMapType(XnaToFnaUtil xtf, TypeDefinition type) {
             xtf.Modder.RelinkMap[type.FullName] = type;
 
             foreach (TypeDefinition nested in type.NestedTypes)
-                SetupGamerServicesType(xtf, nested);
+                SetupDirectRelinkMapType(xtf, nested);
         }
 
         public IMetadataTokenProvider DefaultRelinker(IMetadataTokenProvider mtp, IGenericParameterProvider context) {

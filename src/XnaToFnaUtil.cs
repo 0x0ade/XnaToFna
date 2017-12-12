@@ -28,6 +28,11 @@ namespace XnaToFna {
         public readonly ModuleDefinition ThisModule;
 
         public List<XnaToFnaMapping> Mappings = new List<XnaToFnaMapping> {
+            // X360 titles are weird.
+            new XnaToFnaMapping("System", new string[] {
+                "System.Net"
+            }),
+
             new XnaToFnaMapping("FNA", new string[] {
                 "Microsoft.Xna.Framework",
                 "Microsoft.Xna.Framework.Avatar",

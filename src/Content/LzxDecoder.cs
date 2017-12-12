@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using MonoMod.Detour;
+using MonoMod.InlineRT;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -24,9 +25,7 @@ namespace XnaToFna {
 
             ctor = t_orig.GetConstructor(new Type[] { typeof(int) });
 
-            t_proxy.GetMethod("_Decompress", BindingFlags.NonPublic | BindingFlags.Static).Detour(
-                t_orig.GetMethod("Decompress", BindingFlags.Public | BindingFlags.Instance)
-            );
+            _Decompress = t_orig.GetMethod("Decompress", BindingFlags.Public | BindingFlags.Instance).GetDelegate();
         }
 
         private readonly object _;
@@ -35,15 +34,11 @@ namespace XnaToFna {
             _ = ctor.Invoke(new object[] { window });
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Decompress(Stream inData, int inLen, Stream outData, int outLen) {
-            return _Decompress(_, inData, inLen, outData, outLen);
+            return (int) _Decompress(_, inData, inLen, outData, outLen);
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private int _Decompress(object self, Stream inData, int inLen, Stream outData, int outLen) {
-            throw new InvalidProgramException("Method not detoured!");
-        }
+        private static DynamicMethodDelegate _Decompress;
 
     }
 }

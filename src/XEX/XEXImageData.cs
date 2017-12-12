@@ -248,7 +248,7 @@ namespace XnaToFna.XEX {
             public byte[] block_hash = new byte[20];
             public XEXFileNormalCompressionInfo(BinaryReader reader) {
                 window_size = SwapEndian(true, reader.ReadUInt32());
-                window_bits = reader.ReadUInt32();
+                // window_bits = reader.ReadUInt32();
                 block_size = SwapEndian(true, reader.ReadUInt32());
                 reader.BaseStream.Read(block_hash, 0, block_hash.Length);
                 uint temp = window_size;
@@ -973,7 +973,7 @@ namespace XnaToFna.XEX {
             int ret;
             using (MemoryStream compressStream = new MemoryStream(compressData))
             using (MemoryStream uncompressedStream = new MemoryStream(uncompressedImage))
-                if ((ret = decoder.Decompress(null, (int) compressedSize, null, (int) uncompressedSize)) != 0)
+                if ((ret = decoder.Decompress(compressStream, compressedSize, uncompressedStream, uncompressedSize)) != 0)
                     // The original source says "Unable to decompression image data", let's just fix that. -ade
                     throw new InvalidDataException($"Unable to decompress image data: {ret}");
 
