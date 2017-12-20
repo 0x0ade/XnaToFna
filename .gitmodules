@@ -7,3 +7,6 @@
 [submodule "lib-projs/FNA"]
 	path = lib-projs/FNA
 	url = https://github.com/0x0ade/FNADroid-FNA.git
+[submodule "lib-projs/MonoGame.Net"]
+	path = lib-projs/MonoGame.Net
+	url = https://github.com/0x0ade/MonoGame.Net.git

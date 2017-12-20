@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace XnaToFna.StubXDK.GamerServices {
     // Not a XDK type, but some titles refer to signatures mismatching with our replacements.
-    public struct __LeaderboardIdentity__ {
+    public static class __LeaderboardIdentity__ {
 
         [MonoModHook("System.Void Microsoft.Xna.Framework.GamerServices.LeaderboardIdentity::set_Key(System.String)")]
         public static void set_Key(/*LeaderboardIdentity*/ ref object identity, string value) {

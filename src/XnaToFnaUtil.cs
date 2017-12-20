@@ -47,14 +47,16 @@ namespace XnaToFna {
 
             new XnaToFnaMapping("MonoGame.Framework.Net", new string[] {
                 "Microsoft.Xna.Framework.GamerServices",
-                "Microsoft.Xna.Framework.Net"
+                "Microsoft.Xna.Framework.Net",
+                "Microsoft.Xna.Framework.Xdk"
             }, SetupGSRelinkMap),
 
-            new XnaToFnaMapping("FNA.Steamworks", new string[] {
+	        new XnaToFnaMapping("FNA.Steamworks", new string[] {
                 "FNA.Steamworks",
                 "Microsoft.Xna.Framework.GamerServices",
-                "Microsoft.Xna.Framework.Net"
-            }, SetupGSRelinkMap)
+                "Microsoft.Xna.Framework.Net",
+                "Microsoft.Xna.Framework.Xdk"
+	        }, SetupGSRelinkMap)
         };
 
 

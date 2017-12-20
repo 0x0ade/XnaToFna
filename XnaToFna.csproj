@@ -67,10 +67,16 @@
     <Compile Include="src\Helper\StubXDK\GamerServices\AvatarEyebrow.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\AvatarEye.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\AvatarExpression.cs" />
+    <Compile Include="src\Helper\StubXDK\GamerServices\__LeaderboardWriter__.cs" />
+    <Compile Include="src\Helper\StubXDK\GamerServices\__LeaderboardReader__.cs" />
+    <Compile Include="src\Helper\StubXDK\Net\__LocalNetworkGamer__.cs" />
+    <Compile Include="src\Helper\StubXDK\Net\__NetworkMachine__.cs" />
+    <Compile Include="src\Helper\StubXDK\Net\__NetworkSession__.cs" />
+    <Compile Include="src\Helper\StubXDK\GamerServices\__PropertyDictionary__.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\TitleServiceConnectionStatus.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\TitleServiceDescription.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\FindServicesCompletedArgs.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\LeaderboardIdentity.cs" />
+    <Compile Include="src\Helper\StubXDK\GamerServices\__LeaderboardIdentity__.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\TitleServiceDirectory.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\TitleServiceConnection.cs" />
     <Compile Include="src\Helper\StubXDK\StubXDKHelper.cs" />
