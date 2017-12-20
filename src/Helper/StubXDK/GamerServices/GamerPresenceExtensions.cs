@@ -19,7 +19,7 @@ namespace XnaToFna.StubXDK.GamerServices {
             
         }
 
-        [MonoModHook("Microsoft.Xna.Framework.GamerServices.PropertyDictionary XnaToFna.StubXDK.GamerServices.GamerPresenceExtensions::SetPresenceModeString(Microsoft.Xna.Framework.GamerServices.GamerPresence)")]
+        [MonoModHook("Microsoft.Xna.Framework.GamerServices.PropertyDictionary XnaToFna.StubXDK.GamerServices.GamerPresenceExtensions::GetProperties(Microsoft.Xna.Framework.GamerServices.GamerPresence)")]
         public static /*PropertyDictionary*/ object GetProperties(/*GamerPresence*/ object presence) {
             // Return an empty dictionary.
             if (t_PropertyDictionary == null) {
