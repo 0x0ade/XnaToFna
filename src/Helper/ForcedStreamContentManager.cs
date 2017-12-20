@@ -21,9 +21,9 @@ namespace XnaToFna {
         }
 
         protected override Stream OpenStream(string assetName) {
-            bool isXTF = assetName.StartsWith("///XNATOFNA/");
+            bool isXTF = assetName.StartsWith("//XNATOFNA/") || assetName.StartsWith("\\\\XNATOFNA\\");
             if (isXTF)
-                assetName = assetName.Substring(17); // Removes //XNATOFNA/abcd/
+                assetName = assetName.Substring(16); // Removes //XNATOFNA/abcd/
 
             Stream stream;
             if (isXTF && Stream != null) {

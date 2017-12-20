@@ -99,8 +99,8 @@ namespace XnaToFna {
                 writer.Write(SwapEndian(x360, reader.ReadUInt32())); // variable name positions
                 uint rpcPos = SwapEndian(x360, reader.ReadUInt32());
                 writer.Write(rpcPos);
-                uint dpsPresetsPos = SwapEndian(x360, reader.ReadUInt32());
-                writer.Write(dpsPresetsPos);
+                uint dspPresetsPos = SwapEndian(x360, reader.ReadUInt32());
+                writer.Write(dspPresetsPos);
                 uint dspParamsPos = SwapEndian(x360, reader.ReadUInt32());
                 writer.Write(dspParamsPos);
 
@@ -153,6 +153,17 @@ namespace XnaToFna {
                     }
                 }
 
+                if (dspPresetsPos < dspParamsPos) {
+                    writer.Write(reader.ReadBytesUntil(dspPresetsPos));
+                    for (int i = 0; i < dspPresets; i++) {
+                        writer.Write(reader.ReadByte());
+                        // writer.Write(SwapEndian(x360, reader.ReadUInt32()));
+                        // FIXME: For whatever reason, this seems to be two shorts..?! Unless something went wrong earlier.
+                        writer.Write(SwapEndian(x360, reader.ReadUInt16()));
+                        writer.Write(SwapEndian(x360, reader.ReadUInt16()));
+                    }
+                }
+
                 if (dspParamsPos != uint.MaxValue) {
                     writer.Write(reader.ReadBytesUntil(dspParamsPos));
                     for (int i = 0; i < dspParams; i++) {
@@ -165,8 +176,8 @@ namespace XnaToFna {
                     }
                 }
 
-                if (dpsPresetsPos != uint.MaxValue) {
-                    writer.Write(reader.ReadBytesUntil(dpsPresetsPos));
+                if (dspPresetsPos > dspParamsPos && dspPresetsPos != uint.MaxValue) {
+                    writer.Write(reader.ReadBytesUntil(dspPresetsPos));
                     for (int i = 0; i < dspPresets; i++) {
                         writer.Write(reader.ReadByte());
                         writer.Write(SwapEndian(x360, reader.ReadUInt32()));

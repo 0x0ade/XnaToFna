@@ -30,7 +30,7 @@ namespace XnaToFna.ContentTransformers {
             WrappedContentManager.Stream = new GZipStream(input.BaseStream, CompressionMode.Decompress, true);
             bool bridgeWasEnabled = FNAHookBridgeXTF.Enabled;
             FNAHookBridgeXTF.Enabled = false;
-            ContentType result = WrappedContentManager.Load<ContentType>("///XNATOFNA/gzip/" + input.AssetName);
+            ContentType result = WrappedContentManager.Load<ContentType>("//XNATOFNA/gzip/" + input.AssetName);
             FNAHookBridgeXTF.Enabled = bridgeWasEnabled;
             return result;
         }

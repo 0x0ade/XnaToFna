@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace XnaToFna {
     public static partial class ContentHelper {
 
-        // Many thanks to Ethan Lee and everyone else involved for his reverse-engineering work that powers this!
+        // Many thanks to Ethan Lee and everyone else involved in reverse-engineering XACT!
         // This is heavily based on FNA / FACT.
 
         public static class XWMAInfo {
@@ -157,6 +157,7 @@ namespace XnaToFna {
                     writer.Write(seekOffsets[i]);
                 }
 
+                writer.Flush();
                 offset = (uint) writer.BaseStream.Position;
                 for (int i = 0; i < count; i++) {
                     writer.Write(reader.ReadBytesUntil(offset + seekOffsets[i]));
@@ -179,6 +180,7 @@ namespace XnaToFna {
                     continue;
                 }
 
+                writer.Flush();
                 offset = (uint) writer.BaseStream.Position;
 
                 // We need to feed FFMPEG with correctly formatted data.
@@ -193,6 +195,7 @@ namespace XnaToFna {
                 ConvertAudio(reader.BaseStream, writer.BaseStream, feeder, playLength[i]);
                 channels[i] = 1;
 
+                writer.Flush();
                 uint length = (uint) writer.BaseStream.Position - offset;
                 offset = (uint) writer.BaseStream.Position;
                 uint lengthOffset = length - (uint) playLength[i];
@@ -202,6 +205,7 @@ namespace XnaToFna {
                 depth[i] = 0; // 0: pcm_u8; 1: pcm_s16le
                 align[i] = 0;
                 if (formatPos[i] != 0) {
+                    writer.Flush();
                     writer.BaseStream.Seek(formatPos[i], SeekOrigin.Begin);
                     writer.Write(
                         ((codec[i] & ((1 << 2) - 1))    << 0) |
@@ -214,29 +218,35 @@ namespace XnaToFna {
 
                 // Update length and all subsequent positions
                 if (playLengthPos[i] != 0) {
+                    writer.Flush();
                     writer.BaseStream.Seek(playLengthPos[i], SeekOrigin.Begin);
                     writer.Write(playLengthUpdated[i] = (int) length);
                 }
                 for (int ii = i + 1; ii < count; ii++) {
                     if (playOffsetPos[ii] != 0) {
+                        writer.Flush();
                         writer.BaseStream.Seek(playOffsetPos[ii], SeekOrigin.Begin);
                         writer.Write(playOffsetUpdated[ii] += lengthOffset);
                     }
                 }
 
+                writer.Flush();
                 writer.BaseStream.Seek(offset, SeekOrigin.Begin);
             }
 
+            writer.Flush();
             offset = (uint) writer.BaseStream.Position;
 
             // Rewrite regions
             regionLengths[4] = offset - regionOffsets[4];
+            writer.Flush();
             writer.BaseStream.Seek(regionPosition, SeekOrigin.Begin);
             for (int i = 0; i < 5; i++) {
                 writer.Write(regionOffsets[i]);
                 writer.Write(regionLengths[i]);
             }
 
+            writer.Flush();
             writer.BaseStream.Seek(offset, SeekOrigin.Begin);
 
             reader.BaseStream.CopyTo(writer.BaseStream);
