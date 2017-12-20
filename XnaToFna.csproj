@@ -62,9 +62,15 @@
     <Compile Include="src\FNAHooks\FNAHooks.cs" />
     <Compile Include="src\FNAHooks\Patches\ContentReader.cs" />
     <Compile Include="src\FNAHooks\Patches\ContentManager.cs" />
+    <Compile Include="src\Helper\StubXDK\GamerServices\IAvatarAnimation.cs" />
+    <Compile Include="src\Helper\StubXDK\GamerServices\AvatarMouth.cs" />
+    <Compile Include="src\Helper\StubXDK\GamerServices\AvatarEyebrow.cs" />
+    <Compile Include="src\Helper\StubXDK\GamerServices\AvatarEye.cs" />
+    <Compile Include="src\Helper\StubXDK\GamerServices\AvatarExpression.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\TitleServiceConnectionStatus.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\TitleServiceDescription.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\FindServicesCompletedArgs.cs" />
+    <Compile Include="src\Helper\StubXDK\GamerServices\LeaderboardIdentity.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\TitleServiceDirectory.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\TitleServiceConnection.cs" />
     <Compile Include="src\Helper\StubXDK\StubXDKHelper.cs" />

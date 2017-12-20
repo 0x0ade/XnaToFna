@@ -12,7 +12,6 @@ namespace XnaToFna.StubXDK.GamerServices {
     public class FindServicesCompletedArgs : EventArgs {
 
         public ReadOnlyCollection<TitleServiceDescription> Services {
-            [MonoModHook("System.Collections.ObjectModel.ReadOnlyCollection`1<Microsoft.Xna.Framework.GamerServices.TitleServiceDescription> Microsoft.Xna.Framework.GamerServices.FindServicesCompletedArgs::get_Services()")]
             get {
                 return new ReadOnlyCollection<TitleServiceDescription>(new List<TitleServiceDescription>());
             }

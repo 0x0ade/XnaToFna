@@ -59,7 +59,6 @@ namespace XnaToFna {
                     // Unfortunately, the signatures refer to GamerServices, while XnaToFna itself can't refer to that.
                     // Let's abuse the MonoModHook attribtue.
                     foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)) {
-                        // Let's abuse the MonoModHook attribtue.
                         MonoModHook hook = method.GetCustomAttribute<MonoModHook>();
                         if (hook != null) {
                             Modder.RelinkMap[hook.FindableID] = Tuple.Create(name, method.GetFindableID(withType: false));
@@ -111,17 +110,35 @@ namespace XnaToFna {
 
         }
 
-        public static void SetupDirectRelinkMap(XnaToFnaUtil xtf, XnaToFnaMapping mapping) {
-            // Required as some games (X360 ones) contain .GamerServices references pointing to .Game:
-            // Remap all types.
-            foreach (TypeDefinition type in mapping.Module.Types)
-                SetupDirectRelinkMapType(xtf, type);
+        public static void SetupGSRelinkMap(XnaToFnaUtil xtf, XnaToFnaMapping mapping) {
+            // Required for some X360 titles.
+
+            SetupDirectRelinkMap(xtf, mapping, (_, type) => {
+                // Fix .GamerServices references pointing to .Game by creating direct type mappings.
+                xtf.Modder.RelinkMap[type.FullName] = type;
+                // Fix .GamerServices references being in the .Net namespace in our replacement assembly.
+                if (type.FullName.Contains(".Net.")) {
+                    xtf.Modder.RelinkMap[type.FullName.Replace(".Net.", ".GamerServices.")] = type;
+                }
+            });
+
         }
-        public static void SetupDirectRelinkMapType(XnaToFnaUtil xtf, TypeDefinition type) {
-            xtf.Modder.RelinkMap[type.FullName] = type;
+
+        public static void SetupDirectRelinkMap(XnaToFnaUtil xtf, XnaToFnaMapping mapping) {
+            SetupDirectRelinkMap(xtf, mapping, null);
+        }
+        public static void SetupDirectRelinkMap(XnaToFnaUtil xtf, XnaToFnaMapping mapping, Action<XnaToFnaUtil, TypeDefinition> action) {
+            foreach (TypeDefinition type in mapping.Module.Types)
+                SetupDirectRelinkMapType(xtf, type, action);
+        }
+        public static void SetupDirectRelinkMapType(XnaToFnaUtil xtf, TypeDefinition type, Action<XnaToFnaUtil, TypeDefinition> action) {
+            if (action != null)
+                action(xtf, type);
+            else
+                xtf.Modder.RelinkMap[type.FullName] = type;
 
             foreach (TypeDefinition nested in type.NestedTypes)
-                SetupDirectRelinkMapType(xtf, nested);
+                SetupDirectRelinkMapType(xtf, nested, action);
         }
 
         public IMetadataTokenProvider DefaultRelinker(IMetadataTokenProvider mtp, IGenericParameterProvider context) {

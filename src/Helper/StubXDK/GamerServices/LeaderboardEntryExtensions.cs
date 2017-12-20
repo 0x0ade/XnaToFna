@@ -10,7 +10,7 @@ namespace XnaToFna.StubXDK.GamerServices {
     // Assumed to be a static class.
     public static class LeaderboardEntryExtensions {
 
-        [MonoModHook("System.Int32 Microsoft.Xna.Framework.GamerServices.LeaderboardEntryExtensions::GetRank(Microsoft.Xna.Framework.GamerServices.LeaderboardEntry)")]
+        [MonoModHook("System.Int32 XnaToFna.StubXDK.GamerServices.LeaderboardEntryExtensions::GetRank(Microsoft.Xna.Framework.GamerServices.LeaderboardEntry)")]
         public static int GetRank(/*LeaderboardEntry*/ object entry) {
             return 0;
         }

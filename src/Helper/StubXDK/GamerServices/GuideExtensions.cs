@@ -11,13 +11,11 @@ namespace XnaToFna.StubXDK.GamerServices {
     public static class GuideExtensions {
 
         public static ConsoleRegion ConsoleRegion {
-            [MonoModHook("Microsoft.Xna.Framework.GamerServices.ConsoleRegion Microsoft.Xna.Framework.GamerServices.GuideExtensions::get_ConsoleRegion()")]
             get {
                 return 0;
             }
         }
 
-        [MonoModHook("System.Void Microsoft.Xna.Framework.GamerServices.GuideExtensions::ShowAchievements(Microsoft.Xna.Framework.GamerServices.PlayerIndex)")]
         public static void ShowAchievements(this PlayerIndex player) {
 
         }

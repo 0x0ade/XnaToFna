@@ -14,12 +14,12 @@ namespace XnaToFna.StubXDK.GamerServices {
         private static Type t_PropertyDictionary;
         private static ConstructorInfo ctor_PropertyDictionary;
 
-        [MonoModHook("System.Void Microsoft.Xna.Framework.GamerServices.GamerPresenceExtensions::SetPresenceModeString(Microsoft.Xna.Framework.GamerServices.GamerPresence,System.String)")]
+        [MonoModHook("System.Void XnaToFna.StubXDK.GamerServices.GamerPresenceExtensions::SetPresenceModeString(Microsoft.Xna.Framework.GamerServices.GamerPresence,System.String)")]
         public static void SetPresenceModeString(/*GamerPresence*/ object presence, string value) {
             
         }
 
-        [MonoModHook("Microsoft.Xna.Framework.GamerServices.PropertyDictionary Microsoft.Xna.Framework.GamerServices.GamerPresenceExtensions::SetPresenceModeString(Microsoft.Xna.Framework.GamerServices.GamerPresence)")]
+        [MonoModHook("Microsoft.Xna.Framework.GamerServices.PropertyDictionary XnaToFna.StubXDK.GamerServices.GamerPresenceExtensions::SetPresenceModeString(Microsoft.Xna.Framework.GamerServices.GamerPresence)")]
         public static /*PropertyDictionary*/ object GetProperties(/*GamerPresence*/ object presence) {
             // Return an empty dictionary.
             if (t_PropertyDictionary == null) {

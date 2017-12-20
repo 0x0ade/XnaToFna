@@ -10,7 +10,7 @@ namespace XnaToFna.StubXDK.GamerServices {
     // Assumed to be a static class.
     public static class LeaderboardWriterExtensions {
 
-        [MonoModHook("System.Void Microsoft.Xna.Framework.GamerServices.LeaderboardWriterExtensions::SetScore(Microsoft.Xna.Framework.GamerServices.LeaderboardWriter,System.Int32)")]
+        [MonoModHook("System.Void XnaToFna.StubXDK.GamerServices.LeaderboardWriterExtensions::SetScore(Microsoft.Xna.Framework.GamerServices.LeaderboardWriter,System.Int32)")]
         public static void SetScore(/*LeaderboardWriter*/ object writer, int score) {
 
         }

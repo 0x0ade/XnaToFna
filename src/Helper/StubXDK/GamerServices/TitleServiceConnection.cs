@@ -17,13 +17,11 @@ namespace XnaToFna.StubXDK.GamerServices {
         public event EventHandler<AsyncCompletedEventArgs> ConnectCompleted;
 
         public TitleServiceConnectionStatus Status {
-            [MonoModHook("Microsoft.Xna.Framework.GamerServices.TitleServiceConnectionStatus Microsoft.Xna.Framework.GamerServices.TitleServiceConnection::get_Status()")]
             get {
                 return 0;
             }
         }
 
-        [MonoModHook("System.Void Microsoft.Xna.Framework.GamerServices.TitleServiceConnection::.ctor(System.Int32,Microsoft.Xna.Framework.GamerServices.TitleServiceDescription)")]
         public TitleServiceConnection(int serviceId, TitleServiceDescription description) {
             ServiceId = serviceId;
             Description = description;
