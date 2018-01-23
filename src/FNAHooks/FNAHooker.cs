@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Security;
+using System.Security.Policy;
 
 namespace XnaToFna {
     public static class FNAHooker {
@@ -20,7 +22,13 @@ namespace XnaToFna {
         public static void BootHookedAppDomain(string[] args) {
             AppDomainSetup nestInfo = new AppDomainSetup();
             nestInfo.ApplicationBase = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            AppDomain nest = AppDomain.CreateDomain(AppDomain.CurrentDomain.FriendlyName + " - FNA hooked", AppDomain.CurrentDomain.Evidence, nestInfo);
+
+            AppDomain nest = AppDomain.CreateDomain(
+                AppDomain.CurrentDomain.FriendlyName + " - FNA hooked",
+                AppDomain.CurrentDomain.Evidence,
+                nestInfo,
+                AppDomain.CurrentDomain.PermissionSet
+            );
             nest.SetData("FNAHooker.XTFLocation", typeof(XnaToFnaUtil).Assembly.Location);
             string fnaPath = Path.Combine(Path.GetDirectoryName(typeof(XnaToFnaUtil).Assembly.Location), "FNA.dll");
             nest.SetData("FNAHooker.FNALocation", fnaPath);
