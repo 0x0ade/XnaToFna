@@ -2,6 +2,16 @@
 using System.Collections.Generic;
 
 namespace XnaToFna.ProxyForms {
+    [Flags]
+    public enum MouseButtons {
+        Left = 1 << 20,
+        None = 0,
+        Right = 1 << 21,
+        Middle = 1 << 22,
+        XButton1 = 1 << 23,
+        XButton2 = 1 << 24
+    }
+
     public enum FormBorderStyle {
         None,
         FixedSingle,

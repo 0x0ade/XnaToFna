@@ -40,6 +40,29 @@ namespace XnaToFna.ProxyForms {
 
         public virtual bool Focused { get; protected set; }
 
+        /* MSDN:
+         * Mouse events occur in the following order:
+         * MouseEnter
+         * MouseMove
+         * MouseHover / MouseDown / MouseWheel
+         * MouseUp
+         * MouseLeave
+         */
+
+        // TODO: Fire them?
+
+        public event EventHandler MouseEnter;
+
+        public event MouseEventHandler MouseMove;
+
+        public event EventHandler MouseHover;
+        public event MouseEventHandler MouseDown;
+        public event MouseEventHandler MouseWheel;
+
+        public event MouseEventHandler MouseUp;
+
+        public event EventHandler MouseLeave;
+
         protected bool _IsDisposed = false;
         public bool IsDisposed {
             get {

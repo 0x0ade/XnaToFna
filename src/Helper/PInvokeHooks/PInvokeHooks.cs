@@ -109,6 +109,21 @@ namespace XnaToFna {
 
     public static partial class PInvokeHooks {
 
+        public static IntPtr GetForegroundWindow() {
+            if (XnaToFnaHelper.Game.IsActive)
+                return GameForm.Instance.Handle;
+
+            return IntPtr.Zero;
+        }
+
+        public static bool SetForegroundWindow(IntPtr hWnd) {
+            if (GameForm.Instance.Handle != hWnd)
+                return false;
+
+            SDL.SDL_RaiseWindow(XnaToFnaHelper.Game.Window.Handle);
+            return true;
+        }
+
         public static int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong) {
             // All other nIndex values seem to be style-related.
             if (nIndex == -4) {
