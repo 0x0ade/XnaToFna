@@ -13,13 +13,11 @@ namespace XnaToFna {
     public class Program {
 
         public static void Main(string[] args) {
-            // If we haven't hooked FNA already, hook FNA and resume execution in new AppDomain.
-            if (FNAHooker.Hook(args))
-                return;
-
             XnaToFnaUtil xtf = new XnaToFnaUtil();
 
             xtf.Log($"[Version] {MonoModder.Version}");
+
+            FNAHooks.Hook();
 
             bool updateContent = true;
 

@@ -38,30 +38,38 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mono.Cecil, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>packages\Mono.Cecil.0.10.0\lib\net40\Mono.Cecil.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>packages\Mono.Cecil.0.10.0\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>packages\Mono.Cecil.0.10.0\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>packages\Mono.Cecil.0.10.0\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\cecil\MdbHelper.cs" />
-    <Compile Include="src\cecil\PdbHelper.cs" />
     <Compile Include="src\Content\ContentHelperGame.cs" />
     <Compile Include="src\Content\ContentTransformers\EffectTransformer.cs" />
     <Compile Include="src\Content\ContentTransformers\GZIPContentReader.cs" />
     <Compile Include="src\Content\ContentTransformers\SoundEffectTransformer.cs" />
     <Compile Include="src\Content\CopyingStream.cs" />
-    <Compile Include="src\FNAHooks\FNAHookBridgeFNA.cs" />
-    <Compile Include="src\FNAHooks\FNAHooker.cs" />
-    <Compile Include="src\FNAHooks\FNAHookBridgeXTF.cs" />
-    <Compile Include="src\FNAHooks\FNAModder.cs" />
+    <Compile Include="src\FNAHooks\FNAHooks.cs" />
     <Compile Include="src\Content\XNBContent.cs" />
     <Compile Include="src\Content\WindowsMedia.cs" />
     <Compile Include="src\Content\SoundBank.cs" />
     <Compile Include="src\Content\XACTGlobalSettings.cs" />
-    <Compile Include="src\FNAHooks\FNAHooks.cs" />
-    <Compile Include="src\FNAHooks\Patches\ContentReader.cs" />
-    <Compile Include="src\FNAHooks\Patches\ContentManager.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\IAvatarAnimation.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\AvatarMouth.cs" />
     <Compile Include="src\Helper\StubXDK\GamerServices\AvatarEyebrow.cs" />
@@ -123,139 +131,32 @@
     <Compile Include="src\Helper\ProxyForms\Form.cs" />
     <Compile Include="src\Helper\XnaToFnaHelper.cs" />
     <Compile Include="src\XnaToFnaMapping.cs" />
+    <Compile Include="src\XnaToFnaModder.cs" />
     <Compile Include="src\XnaToFnaUtil.Stubber.cs" />
     <Compile Include="src\XnaToFnaUtil.Processor.cs" />
     <Compile Include="src\XnaToFnaUtil.cs" />
-  </ItemGroup>
-  <!--cecil-->
-  <ItemGroup>
-    <Compile Include="lib-projs\cecil\Mono\*.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\ArrayType.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyDefinition.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyFlags.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyHashAlgorithm.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyLinkedResource.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyNameDefinition.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyNameReference.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyReader.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\AssemblyWriter.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\BaseAssemblyResolver.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\CallSite.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\CustomAttribute.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\DefaultAssemblyResolver.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\EmbeddedResource.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\EventAttributes.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\EventDefinition.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\EventReference.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\ExportedType.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\FieldAttributes.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\FieldDefinition.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\FieldReference.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\FileAttributes.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\FunctionPointerType.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\GenericInstanceMethod.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\GenericInstanceType.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\GenericParameter.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\GenericParameterAttributes.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\IConstantProvider.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\ICustomAttributeProvider.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\IGenericInstance.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\IGenericParameterProvider.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\IMarshalInfoProvider.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\IMemberDefinition.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\IMetadataScope.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\IMetadataTokenProvider.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\IMethodSignature.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\Import.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\LinkedResource.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\ManifestResourceAttributes.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MarshalInfo.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MemberDefinitionCollection.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MemberReference.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MetadataResolver.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MetadataSystem.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodAttributes.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodCallingConvention.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodDefinition.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodImplAttributes.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodReference.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodReturnType.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodSemanticsAttributes.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\MethodSpecification.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\Modifiers.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\ModuleDefinition.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\ModuleKind.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\ModuleReference.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\NativeType.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\ParameterAttributes.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\ParameterDefinition.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\ParameterDefinitionCollection.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\ParameterReference.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\PinnedType.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\PInvokeAttributes.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\PInvokeInfo.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\PointerType.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\PropertyAttributes.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\PropertyDefinition.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\PropertyReference.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\ReferenceType.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\Resource.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\SecurityDeclaration.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\SentinelType.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\TargetRuntime.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\Treatments.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeAttributes.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeDefinition.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeDefinitionCollection.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeParser.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeReference.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeSpecification.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\TypeSystem.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\VariantType.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil\WindowsRuntimeProjections.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil.Cil\*.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil.Metadata\*.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Cecil.PE\*.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Collections.Generic\*.cs" />
-    <Compile Include="lib-projs\cecil\Mono.Security.Cryptography\*.cs" />
-    <Compile Include="lib-projs\cecil\System.Security.Cryptography\*.cs" />
-  </ItemGroup>
-  <!--cecil mdb-->
-  <ItemGroup>
-    <Compile Include="lib-projs\cecil\symbols\mdb\Mono.Cecil.Mdb\MdbReader.cs" />
-    <Compile Include="lib-projs\cecil\symbols\mdb\Mono.Cecil.Mdb\MdbWriter.cs" />
-    <Compile Include="lib-projs\cecil\symbols\mdb\Mono.CompilerServices.SymbolWriter\*.cs" />
-  </ItemGroup>
-  <!--cecil pdb-->
-  <ItemGroup>
-    <Compile Include="lib-projs\cecil\symbols\pdb\Microsoft.Cci.Pdb\*.cs" />
-    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\ISymUnmanagedDocumentWriter.cs" />
-    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\ISymUnmanagedWriter2.cs" />
-    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\ModuleMetadata.cs" />
-    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\NativePdbReader.cs" />
-    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\NativePdbWriter.cs" />
-    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\PdbHelper.cs" />
-    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\SymDocumentWriter.cs" />
-    <Compile Include="lib-projs\cecil\symbols\pdb\Mono.Cecil.Pdb\SymWriter.cs" />
-  </ItemGroup>
-  <!--MonoMod-->
-  <ItemGroup>
-    <Compile Include="lib-projs\MonoMod\MonoMod\InlineRT\*.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\DebugIL\*.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Helpers\*.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Modifiers\*.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\Detour\*.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\DebugSymbolFormat.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\MonoModder.cs" />
-    <Compile Include="lib-projs\MonoMod\MonoMod\MonoModExt.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="lib-projs\FNA\FNA.csproj">
       <Project>{35253ce1-c864-4cd3-8249-4d1319748e8f}</Project>
       <Name>FNA</Name>
     </ProjectReference>
+    <ProjectReference Include="lib-projs\MonoMod\MonoMod.RuntimeDetour\MonoMod.RuntimeDetour.csproj">
+      <Project>{d0c584c0-81d7-486e-b70e-d7f9256e0909}</Project>
+      <Name>MonoMod.RuntimeDetour</Name>
+    </ProjectReference>
+    <ProjectReference Include="lib-projs\MonoMod\MonoMod.Utils\MonoMod.Utils.csproj">
+      <Project>{1839cfe2-3db0-45a8-b03d-9aa797479a3a}</Project>
+      <Name>MonoMod.Utils</Name>
+    </ProjectReference>
+    <ProjectReference Include="lib-projs\MonoMod\MonoMod\MonoMod.csproj">
+      <Project>{8a17c958-5c33-4035-af76-f94a3aa2dc4f}</Project>
+      <Name>MonoMod</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

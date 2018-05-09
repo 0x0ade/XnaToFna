@@ -38,10 +38,10 @@ namespace XnaToFna.ContentTransformers {
             }
             WrappedContentManager.RootDirectory = input.ContentManager.RootDirectory;
             WrappedContentManager.Stream = new GZipStream(input.BaseStream, CompressionMode.Decompress, true);
-            bool bridgeWasEnabled = FNAHookBridgeXTF.Enabled;
-            FNAHookBridgeXTF.Enabled = false;
+            bool bridgeWasEnabled = FNAHooks.Enabled;
+            FNAHooks.Enabled = false;
             ContentType result = WrappedContentManager.Load<ContentType>(input.AssetName);
-            FNAHookBridgeXTF.Enabled = bridgeWasEnabled;
+            FNAHooks.Enabled = bridgeWasEnabled;
             return result;
         }
 

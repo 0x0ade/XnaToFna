@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using Mono.Cecil;
 using MonoMod;
+using MonoMod.Utils;
 using SDL2;
 using System;
 using System.Collections.Generic;

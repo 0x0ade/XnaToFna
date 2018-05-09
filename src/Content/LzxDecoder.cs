@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using MonoMod.Detour;
 using MonoMod.InlineRT;
+using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,7 +26,7 @@ namespace XnaToFna {
 
             ctor = t_orig.GetConstructor(new Type[] { typeof(int) });
 
-            _Decompress = t_orig.GetMethod("Decompress", BindingFlags.Public | BindingFlags.Instance).GetDelegate();
+            _Decompress = t_orig.GetMethod("Decompress", BindingFlags.Public | BindingFlags.Instance).GetFastDelegate();
         }
 
         private readonly object _;
@@ -38,7 +39,7 @@ namespace XnaToFna {
             return (int) _Decompress(_, inData, inLen, outData, outLen);
         }
 
-        private static DynamicMethodDelegate _Decompress;
+        private static FastReflectionDelegate _Decompress;
 
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod;
+using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -59,8 +60,7 @@ namespace XnaToFna {
 	        }, SetupGSRelinkMap)
         };
 
-
-        public MonoModder Modder = new MonoModder();
+        public XnaToFnaModder Modder;
 
         public DefaultAssemblyResolver AssemblyResolver = new DefaultAssemblyResolver();
         public List<string> Directories = new List<string>();
@@ -102,6 +102,7 @@ namespace XnaToFna {
         public ILPlatform PreferredPlatform = ILPlatform.AnyCPU;
 
         public XnaToFnaUtil() {
+            Modder = new XnaToFnaModder(this);
             Modder.ReadingMode = ReadingMode.Immediate;
 
             Modder.Strict = false;
@@ -109,7 +110,6 @@ namespace XnaToFna {
             Modder.AssemblyResolver = AssemblyResolver;
             Modder.DependencyDirs = Directories;
 
-            Modder.Logger = LogMonoMod;
             Modder.MissingDependencyResolver = MissingDependencyResolver;
 
             using (FileStream xtfStream = new FileStream(Assembly.GetExecutingAssembly().Location, FileMode.Open, FileAccess.Read))
@@ -123,21 +123,13 @@ namespace XnaToFna {
             ScanPaths(paths);
         }
 
-        public void LogMonoMod(string txt) {
-            // MapDependency clutters the output too much; It's useful for MonoMod itself, but not here.
-            if (txt.StartsWith("[MapDependency]"))
-                return;
-
-            Console.Write("[XnaToFna] [MonoMod] ");
-            Console.WriteLine(txt);
-        }
         public void Log(string txt) {
             Console.Write("[XnaToFna] ");
             Console.WriteLine(txt);
         }
 
         public ModuleDefinition MissingDependencyResolver(MonoModder modder, ModuleDefinition main, string name, string fullName) {
-            LogMonoMod($"Cannot map dependency {main.Name} -> (({fullName}), ({name})) - not found");
+            Modder.Log($"Cannot map dependency {main.Name} -> (({fullName}), ({name})) - not found");
             return null;
         }
 

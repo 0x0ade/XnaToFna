@@ -10,6 +10,7 @@ using XnaToFna.ProxyForms;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Linq;
+using MonoMod.Utils;
 
 namespace XnaToFna {
     public partial class XnaToFnaUtil : IDisposable {
@@ -20,23 +21,21 @@ namespace XnaToFna {
         public static MethodInfo m_FileSystemHelper_FixPath = typeof(FileSystemHelper).GetMethod("FixPath");
 
         public void SetupHelperRelinker() {
-            Modder.Relinker = DefaultRelinker;
-
             // To use XnaToFnaGame properly, the actual game override needs to call XnaToFnaGame::.ctor as "base" instead.
             Modder.RelinkMap["System.Void Microsoft.Xna.Framework.Game::.ctor()"] =
-                Tuple.Create("XnaToFna.XnaToFnaGame", "System.Void .ctor()");
+                new RelinkMapEntry("XnaToFna.XnaToFnaGame", "System.Void .ctor()");
             foreach (MethodInfo method in typeof(XnaToFnaGame).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)) {
                 Modder.RelinkMap[method.GetFindableID(type: "Microsoft.Xna.Framework.Game")] =
-                    Tuple.Create("XnaToFna.XnaToFnaGame", method.GetFindableID(withType: false));
+                    new RelinkMapEntry("XnaToFna.XnaToFnaGame", method.GetFindableID(withType: false));
             }
 
             // XNA games expect a WinForms handle. Give it a "proxy" handle instead.
             Modder.RelinkMap["System.IntPtr Microsoft.Xna.Framework.GameWindow::get_Handle()"] =
-                Tuple.Create("XnaToFna.XnaToFnaHelper", "System.IntPtr GetProxyFormHandle(Microsoft.Xna.Framework.GameWindow)");
+                new RelinkMapEntry("XnaToFna.XnaToFnaHelper", "System.IntPtr GetProxyFormHandle(Microsoft.Xna.Framework.GameWindow)");
 
             // X360 games can be larger than the screen. Allow the user to "fix" this by forcing a display resolution via env vars.
             Modder.RelinkMap["System.Void Microsoft.Xna.Framework.GraphicsDeviceManager::ApplyChanges()"] =
-                Tuple.Create("XnaToFna.XnaToFnaHelper", "System.Void ApplyChanges(Microsoft.Xna.Framework.GraphicsDeviceManager)");
+                new RelinkMapEntry("XnaToFna.XnaToFnaHelper", "System.Void ApplyChanges(Microsoft.Xna.Framework.GraphicsDeviceManager)");
 
             // Let's just completely wreck everything.
             foreach (Type type in typeof(Form).Assembly.GetTypes()) {
@@ -61,13 +60,13 @@ namespace XnaToFna {
                     foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)) {
                         MonoModHook hook = method.GetCustomAttribute<MonoModHook>();
                         if (hook != null) {
-                            Modder.RelinkMap[hook.FindableID] = Tuple.Create(name, method.GetFindableID(withType: false));
+                            Modder.RelinkMap[hook.FindableID] = new RelinkMapEntry(name, method.GetFindableID(withType: false));
                         }
                     }
                     foreach (ConstructorInfo ctor in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)) {
                         MonoModHook hook = ctor.GetCustomAttribute<MonoModHook>();
                         if (hook != null) {
-                            Modder.RelinkMap[hook.FindableID] = Tuple.Create(name, ctor.GetFindableID(withType: false));
+                            Modder.RelinkMap[hook.FindableID] = new RelinkMapEntry(name, ctor.GetFindableID(withType: false));
                         }
                     }
                 }
@@ -75,34 +74,34 @@ namespace XnaToFna {
 
             if (HookIsTrialMode)
                 Modder.RelinkMap["System.Boolean Microsoft.Xna.Framework.GamerServices.Guide::get_IsTrialMode()"] =
-                    Tuple.Create("XnaToFna.XnaToFnaHelper", "System.IntPtr get_IsTrialMode()");
+                    new RelinkMapEntry("XnaToFna.XnaToFnaHelper", "System.IntPtr get_IsTrialMode()");
 
             if (HookBinaryFormatter) {
                 Modder.RelinkMap["System.Void System.Runtime.Serialization.Formatters.Binary.BinaryFormatter::.ctor()"] =
-                    Tuple.Create("XnaToFna.BinaryFormatterHelper", "System.Runtime.Serialization.Formatters.Binary.BinaryFormatter Create()");
+                    new RelinkMapEntry("XnaToFna.BinaryFormatterHelper", "System.Runtime.Serialization.Formatters.Binary.BinaryFormatter Create()");
 
                 // The longest relink mapping ever seen...
                 Modder.RelinkMap["System.Void System.Runtime.Serialization.Formatters.Binary.BinaryFormatter::.ctor(System.Runtime.Serialization.ISurrogateSelector,System.Runtime.Serialization.StreamingContext)"] =
-                    Tuple.Create("XnaToFna.BinaryFormatterHelper", "System.Runtime.Serialization.Formatters.Binary.BinaryFormatter Create(System.Runtime.Serialization.ISurrogateSelector,System.Runtime.Serialization.StreamingContext)");
+                    new RelinkMapEntry("XnaToFna.BinaryFormatterHelper", "System.Runtime.Serialization.Formatters.Binary.BinaryFormatter Create(System.Runtime.Serialization.ISurrogateSelector,System.Runtime.Serialization.StreamingContext)");
 
                 Modder.RelinkMap["System.Runtime.Serialization.SerializationBinder System.Runtime.Serialization.Formatters.Binary.BinaryFormatter::get_Binder()"] =
-                    Tuple.Create("XnaToFna.BinaryFormatterHelper", "System.Runtime.Serialization.SerializationBinder get_Binder(System.Runtime.Serialization.Formatters.Binary.BinaryFormatter)");
+                    new RelinkMapEntry("XnaToFna.BinaryFormatterHelper", "System.Runtime.Serialization.SerializationBinder get_Binder(System.Runtime.Serialization.Formatters.Binary.BinaryFormatter)");
 
                 Modder.RelinkMap["System.Void System.Runtime.Serialization.Formatters.Binary.BinaryFormatter::set_Binder(System.Runtime.Serialization.SerializationBinder)"] =
-                    Tuple.Create("XnaToFna.BinaryFormatterHelper", "System.Void set_Binder(System.Runtime.Serialization.Formatters.Binary.BinaryFormatter,System.Runtime.Serialization.SerializationBinder)");
+                    new RelinkMapEntry("XnaToFna.BinaryFormatterHelper", "System.Void set_Binder(System.Runtime.Serialization.Formatters.Binary.BinaryFormatter,System.Runtime.Serialization.SerializationBinder)");
             }
 
             if (HookReflection) {
                 Modder.RelinkMap["System.Reflection.FieldInfo System.Type::GetField(System.String,System.Reflection.BindingFlags)"] =
-                    Tuple.Create("XnaToFna.ProxyReflection.FieldInfoHelper", "System.Reflection.FieldInfo GetField(System.Type,System.String,System.Reflection.BindingFlags)");
+                    new RelinkMapEntry("XnaToFna.ProxyReflection.FieldInfoHelper", "System.Reflection.FieldInfo GetField(System.Type,System.String,System.Reflection.BindingFlags)");
 
                 Modder.RelinkMap["System.Reflection.FieldInfo System.Type::GetField(System.String)"] =
-                    Tuple.Create("XnaToFna.ProxyReflection.FieldInfoHelper", "System.Reflection.FieldInfo GetField(System.Type,System.String)");
+                    new RelinkMapEntry("XnaToFna.ProxyReflection.FieldInfoHelper", "System.Reflection.FieldInfo GetField(System.Type,System.String)");
             }
 
             // X360 uses the ".NET Compact Framework", which actually ships with some additional stuff...
             Modder.RelinkMap["System.Void System.Threading.Thread::SetProcessorAffinity(System.Int32[])"] =
-                Tuple.Create("XnaToFna.X360Helper", "System.Void SetProcessorAffinity(System.Threading.Thread,System.Int32[])");
+                new RelinkMapEntry("XnaToFna.X360Helper", "System.Void SetProcessorAffinity(System.Threading.Thread,System.Int32[])");
 
             foreach (XnaToFnaMapping mapping in Mappings)
                 if (mapping.IsActive && mapping.Setup != null)
@@ -141,13 +140,6 @@ namespace XnaToFna {
                 SetupDirectRelinkMapType(xtf, nested, action);
         }
 
-        public IMetadataTokenProvider DefaultRelinker(IMetadataTokenProvider mtp, IGenericParameterProvider context) {
-            // Skip MonoModLinkTo attribute handling.
-            return Modder.PostRelinker(
-                Modder.MainRelinker(mtp, context),
-                context);
-        }
-
         public void PreProcessType(TypeDefinition type) {
             foreach (MethodDefinition method in type.Methods) {
                 if (!method.HasPInvokeInfo)
@@ -159,7 +151,7 @@ namespace XnaToFna {
                 if (typeof(PInvokeHooks).GetMethod(entryPoint) != null) {
                     Log($"[PreProcess] [PInvokeHooks] Remapping call to {entryPoint} ({method.GetFindableID()})");
                     Modder.RelinkMap[method.GetFindableID(simple: true)] =
-                        Tuple.Create("XnaToFna.PInvokeHooks", entryPoint);
+                        new RelinkMapEntry("XnaToFna.PInvokeHooks", entryPoint);
                 } else {
                     Log($"[PreProcess] [PInvokeHooks] Found unhooked call to {entryPoint} ({method.GetFindableID()})");
                 }
