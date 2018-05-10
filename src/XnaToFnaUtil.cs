@@ -253,7 +253,13 @@ namespace XnaToFna {
             if (!File.Exists(path + ".mdb") && !File.Exists(Path.ChangeExtension(path, "pdb")))
                 modReaderParams.ReadSymbols = false;
             Log($"[ScanPath] Checking assembly {name.Name} ({(modReaderParams.ReadWrite ? "rw" : "r-")})");
-            ModuleDefinition mod = MonoModExt.ReadModule(path, modReaderParams);
+            ModuleDefinition mod;
+            try {
+                mod = MonoModExt.ReadModule(path, modReaderParams);
+            } catch (Exception e) {
+                Log($"[ScanPath] WARNING: Cannot load assembly: {e}");
+                return;
+            }
             bool add = !modReaderParams.ReadWrite || name.Name == ThisAssemblyName;
 
             if ((mod.Attributes & ModuleAttributes.ILOnly) != ModuleAttributes.ILOnly) {
