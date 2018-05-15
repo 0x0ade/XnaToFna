@@ -71,7 +71,7 @@ namespace XnaToFna {
                 for (int i = 0; i < method.Parameters.Count; i++) {
                     ParameterDefinition param = method.Parameters[i];
                     if (param.IsOut || param.IsReturnValue) {
-                        il.Emit(OpCodes.Ldarg, i);
+                        il.Emit(OpCodes.Ldarg, param);
                         il.EmitDefault(param.ParameterType, true);
                     }
                 }
