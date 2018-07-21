@@ -20,12 +20,26 @@ namespace XnaToFna {
             FNAHooks.Hook();
 
             bool updateContent = true;
+            bool relinkOnly = false;
 
             Queue<string> argq = new Queue<string>(args);
             while (argq.Count > 0) {
                 string arg = argq.Dequeue();
                 if (arg == "--version" || arg.ToLowerInvariant() == "-v")
                     return;
+
+                else if (arg == "--relink-only") {
+                    relinkOnly = true;
+                    updateContent = false;
+                    xtf.HookCompatHelpers = false;
+                    xtf.HookEntryPoint = false;
+                    xtf.DestroyLocks = false;
+                    xtf.StubMixedDeps = false;
+                    xtf.DestroyMixedDeps = false;
+                    xtf.HookBinaryFormatter = false;
+                    xtf.HookReflection = false;
+
+                }
 
                 else if (arg == "--mm-strict")
                     xtf.Modder.Strict = true;
@@ -110,7 +124,7 @@ namespace XnaToFna {
                     xtf.ScanPath(arg);
             }
 
-            if (!Debugger.IsAttached) // Otherwise catches XnaToFna.vshost.exe
+            if (!relinkOnly && !Debugger.IsAttached) // Otherwise catches XnaToFna.vshost.exe
                 xtf.ScanPath(Directory.GetCurrentDirectory());
 
             xtf.OrderModules();

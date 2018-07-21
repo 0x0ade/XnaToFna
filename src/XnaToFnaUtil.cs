@@ -81,6 +81,8 @@ namespace XnaToFna {
 
         public List<string> ExtractedXEX = new List<string>();
 
+        public bool HookCompatHelpers = true;
+
         public bool HookEntryPoint = true;
 
         public bool PatchXNB = true;
@@ -345,7 +347,12 @@ namespace XnaToFna {
         }
 
         public void RelinkAll() {
-            SetupHelperRelinker();
+            if (HookCompatHelpers)
+                SetupCompatHelpers();
+
+            foreach (XnaToFnaMapping mapping in Mappings)
+                if (mapping.IsActive && mapping.Setup != null)
+                    mapping.Setup(this, mapping);
 
             foreach (ModuleDefinition mod in Modules)
                 Modder.DependencyCache[mod.Assembly.Name.Name] = mod;

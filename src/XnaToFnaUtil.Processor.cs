@@ -19,7 +19,7 @@ namespace XnaToFna {
         public static MethodInfo m_XnaToFnaHelper_MainHook = typeof(XnaToFnaHelper).GetMethod("MainHook");
         public static MethodInfo m_FileSystemHelper_FixPath = typeof(FileSystemHelper).GetMethod("FixPath");
 
-        public void SetupHelperRelinker() {
+        public void SetupCompatHelpers() {
             // To use XnaToFnaGame properly, the actual game override needs to call XnaToFnaGame::.ctor as "base" instead.
             Modder.RelinkMap["System.Void Microsoft.Xna.Framework.Game::.ctor()"] =
                 new RelinkMapEntry("XnaToFna.XnaToFnaGame", "System.Void .ctor()");
@@ -101,10 +101,6 @@ namespace XnaToFna {
             // X360 uses the ".NET Compact Framework", which actually ships with some additional stuff...
             Modder.RelinkMap["System.Void System.Threading.Thread::SetProcessorAffinity(System.Int32[])"] =
                 new RelinkMapEntry("XnaToFna.X360Helper", "System.Void SetProcessorAffinity(System.Threading.Thread,System.Int32[])");
-
-            foreach (XnaToFnaMapping mapping in Mappings)
-                if (mapping.IsActive && mapping.Setup != null)
-                    mapping.Setup(this, mapping);
 
         }
 
