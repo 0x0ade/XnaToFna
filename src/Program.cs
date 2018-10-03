@@ -17,8 +17,6 @@ namespace XnaToFna {
 
             xtf.Log($"[Version] {MonoModder.Version}");
 
-            FNAHooks.Hook();
-
             bool updateContent = true;
             bool relinkOnly = false;
 
@@ -138,6 +136,8 @@ namespace XnaToFna {
                 // Free the heap from the disassembled modules.
                 xtf.Modules.Clear();
                 xtf.ModulesToStub.Clear();
+
+                FNAHooks.Hook();
 
                 xtf.UpdateContent();
             }
