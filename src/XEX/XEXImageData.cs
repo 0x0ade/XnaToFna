@@ -30,7 +30,6 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil;
 using MonoMod;
-using MonoMod.Detour;
 using MonoMod.InlineRT;
 using System;
 using System.Collections.Generic;

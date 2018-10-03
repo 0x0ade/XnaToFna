@@ -41,9 +41,15 @@ namespace XnaToFna {
                 PostProcessType(type);
 
             Log($"[Stub] Rewriting and disposing module\n");
+#if !LEGACY
             Modder.Module.Write(Modder.WriterParameters);
+#else
+            Modder.Module.Write(ModulePaths[Modder.Module], Modder.WriterParameters);
+#endif
             // Dispose the module so other modules can read it as a dependency again.
+#if !LEGACY
             Modder.Module.Dispose();
+#endif
             Modder.Module = null;
             Modder.ClearCaches(moduleSpecific: true);
         }

@@ -78,7 +78,7 @@ namespace XnaToFna {
             return Find(type, name, argTypes, false);
         }
 
-        internal static Detour Hook<T>(Type type, out T trampoline) where T : class {
+        internal static Detour Hook<T>(Type type, out T trampoline) where T : Delegate {
             MethodBase from;
             MethodBase to;
 

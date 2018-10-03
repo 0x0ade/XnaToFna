@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using MonoMod.Detour;
 using MonoMod.InlineRT;
 using MonoMod.Utils;
 using System;

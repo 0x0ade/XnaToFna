@@ -250,13 +250,16 @@ namespace XnaToFna {
 
             ReaderParameters modReaderParams = Modder.GenReaderParameters(false);
             // Don't ReadWrite if the module being read is XnaToFna or a relink target.
+            bool isReadWrite =
+#if !LEGACY
             modReaderParams.ReadWrite =
+#endif
                 path != ThisAssembly.Location &&
                 !Mappings.Exists(mappings => name.Name == mappings.Target);
             // Only read debug info if it exists
             if (!File.Exists(path + ".mdb") && !File.Exists(Path.ChangeExtension(path, "pdb")))
                 modReaderParams.ReadSymbols = false;
-            Log($"[ScanPath] Checking assembly {name.Name} ({(modReaderParams.ReadWrite ? "rw" : "r-")})");
+            Log($"[ScanPath] Checking assembly {name.Name} ({(isReadWrite ? "rw" : "r-")})");
             ModuleDefinition mod;
             try {
                 mod = MonoModExt.ReadModule(path, modReaderParams);
@@ -264,7 +267,7 @@ namespace XnaToFna {
                 Log($"[ScanPath] WARNING: Cannot load assembly: {e}");
                 return;
             }
-            bool add = !modReaderParams.ReadWrite || name.Name == ThisAssemblyName;
+            bool add = !isReadWrite || name.Name == ThisAssemblyName;
 
             if ((mod.Attributes & ModuleAttributes.ILOnly) != ModuleAttributes.ILOnly) {
                 // Mono.Cecil can't handle mixed mode assemblies.
@@ -276,12 +279,14 @@ namespace XnaToFna {
                     if (DestroyMixedDeps) {
                         RemoveDeps.Add(name.Name);
                     }
+#if !LEGACY
                     mod.Dispose();
+#endif
                     return;
                 }
             }
 
-            if (add && !modReaderParams.ReadWrite) { // XNA replacement
+            if (add && !isReadWrite) { // XNA replacement
                 foreach (XnaToFnaMapping mapping in Mappings)
                     if (name.Name == mapping.Target) {
                         mapping.IsActive = true;
@@ -304,8 +309,11 @@ namespace XnaToFna {
             if (add) {
                 Modules.Add(mod);
                 ModulePaths[mod] = path;
-            } else
+            } else {
+#if !LEGACY
                 mod.Dispose();
+#endif
+            }
 
         }
 
@@ -404,9 +412,15 @@ namespace XnaToFna {
             }
 
             Log("[Relink] Rewriting and disposing module\n");
+#if !LEGACY
             Modder.Module.Write(Modder.WriterParameters);
+#else
+            Modder.Module.Write(ModulePaths[Modder.Module], Modder.WriterParameters);
+#endif
             // Dispose the module so other modules can read it as a dependency again.
+#if !LEGACY
             Modder.Module.Dispose();
+#endif
             Modder.Module = null;
             Modder.ClearCaches(moduleSpecific: true);
         }
@@ -570,8 +584,10 @@ namespace XnaToFna {
         public void Dispose() {
             Modder?.Dispose();
 
+#if !LEGACY
             foreach (ModuleDefinition mod in Modules)
                 mod.Dispose();
+#endif
             Modules.Clear();
             ModulesToStub.Clear();
             Directories.Clear();
