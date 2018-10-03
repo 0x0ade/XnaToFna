@@ -399,9 +399,11 @@ namespace XnaToFna {
             Log("[Relink] Relinking (MonoMod PatchRefs pass)");
             Modder.PatchRefs();
 
-            Log("[Relink] Post-processing");
-            foreach (TypeDefinition type in mod.Types)
-                PostProcessType(type);
+            if (HookCompatHelpers) {
+                Log("[Relink] Post-processing");
+                foreach (TypeDefinition type in mod.Types)
+                    PostProcessType(type);
+            }
 
             if (HookEntryPoint && mod.EntryPoint != null) {
                 Log("[Relink] Injecting XnaToFna entry point hook");
