@@ -136,38 +136,42 @@ namespace XnaToFna {
         }
 
         public void PreProcessType(TypeDefinition type) {
-            foreach (MethodDefinition method in type.Methods) {
-                if (!method.HasPInvokeInfo)
-                    continue;
-                // Just check if PInvokeHooks contains the entry point, ignoring the module name, except for its end. What can go wrong?...
-                if (!method.PInvokeInfo.Module.Name.EndsWith("32.dll") && !method.PInvokeInfo.Module.Name.EndsWith("32"))
-                    continue;
-                string entryPoint = method.PInvokeInfo.EntryPoint ?? method.Name;
-                if (typeof(PInvokeHooks).GetMethod(entryPoint) != null) {
-                    Log($"[PreProcess] [PInvokeHooks] Remapping call to {entryPoint} ({method.GetFindableID()})");
-                    Modder.RelinkMap[method.GetFindableID(simple: true)] =
-                        new RelinkMapEntry("XnaToFna.PInvokeHooks", entryPoint);
-                } else {
-                    Log($"[PreProcess] [PInvokeHooks] Found unhooked call to {entryPoint} ({method.GetFindableID()})");
+            if (HookCompatHelpers) {
+                foreach (MethodDefinition method in type.Methods) {
+                    if (!method.HasPInvokeInfo)
+                        continue;
+                    // Just check if PInvokeHooks contains the entry point, ignoring the module name, except for its end. What can go wrong?...
+                    if (!method.PInvokeInfo.Module.Name.EndsWith("32.dll") && !method.PInvokeInfo.Module.Name.EndsWith("32"))
+                        continue;
+                    string entryPoint = method.PInvokeInfo.EntryPoint ?? method.Name;
+                    if (typeof(PInvokeHooks).GetMethod(entryPoint) != null) {
+                        Log($"[PreProcess] [PInvokeHooks] Remapping call to {entryPoint} ({method.GetFindableID()})");
+                        Modder.RelinkMap[method.GetFindableID(simple: true)] =
+                            new RelinkMapEntry("XnaToFna.PInvokeHooks", entryPoint);
+                    } else {
+                        Log($"[PreProcess] [PInvokeHooks] Found unhooked call to {entryPoint} ({method.GetFindableID()})");
+                    }
                 }
             }
 
-            Stack<TypeDefinition> baseTypes = new Stack<TypeDefinition>();
-            try {
-                for (TypeDefinition baseType = type.BaseType?.Resolve(); baseType != null; baseType = baseType.BaseType?.Resolve())
-                    baseTypes.Push(baseType);
-            } catch {
-                // Unresolved assembly, f.e. XNA itself
-            }
+            if (FixOldMonoXML) {
+                Stack<TypeDefinition> baseTypes = new Stack<TypeDefinition>();
+                try {
+                    for (TypeDefinition baseType = type.BaseType?.Resolve(); baseType != null; baseType = baseType.BaseType?.Resolve())
+                        baseTypes.Push(baseType);
+                } catch {
+                    // Unresolved assembly, f.e. XNA itself
+                }
 
-            foreach (FieldDefinition field in type.Fields) {
-                string name = field.Name;
+                foreach (FieldDefinition field in type.Fields) {
+                    string name = field.Name;
 
-                if (FixOldMonoXML && baseTypes.Any(baseType => baseType.FindField(name) != null || baseType.FindProperty(name) != null)) {
-                    // Field name collision found. Mono 4.4+ handles them well, while Xamarin.Android still fails.
-                    Log($"[PreProcess] Renaming field name collison {name} in {type.FullName}");
-                    field.Name = $"{name}_{type.Name}";
-                    Modder.RelinkMap[$"{type.FullName}::{name}"] = field.FullName;
+                    if (baseTypes.Any(baseType => baseType.FindField(name) != null || baseType.FindProperty(name) != null)) {
+                        // Field name collision found. Mono 4.4+ handles them well, while Xamarin.Android still fails.
+                        Log($"[PreProcess] Renaming field name collison {name} in {type.FullName}");
+                        field.Name = $"{name}_{type.Name}";
+                        Modder.RelinkMap[$"{type.FullName}::{name}"] = field.FullName;
+                    }
                 }
             }
 

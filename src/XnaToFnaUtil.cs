@@ -97,6 +97,8 @@ namespace XnaToFna {
         public bool HookBinaryFormatter = true;
         public bool HookReflection = true;
 
+        public bool AddAssemblyReference = true;
+
         public List<string> DestroyPublicKeyTokens = new List<string>();
 
         public List<string> FixPathsFor = new List<string>();
@@ -474,7 +476,7 @@ namespace XnaToFna {
                 NextDep:
                 continue;
             }
-            if (!mod.AssemblyReferences.Any(dep => dep.Name == ThisAssemblyName)) {
+            if (AddAssemblyReference && !mod.AssemblyReferences.Any(dep => dep.Name == ThisAssemblyName)) {
                 // Add XnaToFna as dependency
                 Log($"[{tag}] Adding dependency XnaToFna");
                 mod.AssemblyReferences.Add(Modder.DependencyCache[ThisAssemblyName].Assembly.Name);

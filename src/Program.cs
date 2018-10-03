@@ -38,6 +38,7 @@ namespace XnaToFna {
                     xtf.DestroyMixedDeps = false;
                     xtf.HookBinaryFormatter = false;
                     xtf.HookReflection = false;
+                    xtf.AddAssemblyReference = false;
 
                 }
 
