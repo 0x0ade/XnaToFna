@@ -37,6 +37,9 @@ namespace XnaToFna {
                     xtf.HookBinaryFormatter = false;
                     xtf.HookReflection = false;
                     xtf.AddAssemblyReference = false;
+                    xtf.PatchXNB = false;
+                    xtf.PatchXACT = false;
+                    xtf.PreferredPlatform = ILPlatform.x86;
 
                 }
 
