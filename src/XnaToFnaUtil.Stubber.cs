@@ -43,13 +43,13 @@ namespace XnaToFna {
             }
 
             Log($"[Stub] Rewriting and disposing module\n");
-#if !LEGACY
+#if !CECIL0_9
             Modder.Module.Write(Modder.WriterParameters);
 #else
             Modder.Module.Write(ModulePaths[Modder.Module], Modder.WriterParameters);
 #endif
             // Dispose the module so other modules can read it as a dependency again.
-#if !LEGACY
+#if !CECIL0_9
             Modder.Module.Dispose();
 #endif
             Modder.Module = null;

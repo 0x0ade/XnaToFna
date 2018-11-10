@@ -251,7 +251,7 @@ namespace XnaToFna {
             ReaderParameters modReaderParams = Modder.GenReaderParameters(false);
             // Don't ReadWrite if the module being read is XnaToFna or a relink target.
             bool isReadWrite =
-#if !LEGACY
+#if !CECIL0_9
             modReaderParams.ReadWrite =
 #endif
                 path != ThisAssembly.Location &&
@@ -279,7 +279,7 @@ namespace XnaToFna {
                     if (DestroyMixedDeps) {
                         RemoveDeps.Add(name.Name);
                     }
-#if !LEGACY
+#if !CECIL0_9
                     mod.Dispose();
 #endif
                     return;
@@ -310,7 +310,7 @@ namespace XnaToFna {
                 Modules.Add(mod);
                 ModulePaths[mod] = path;
             } else {
-#if !LEGACY
+#if !CECIL0_9
                 mod.Dispose();
 #endif
             }
@@ -414,13 +414,13 @@ namespace XnaToFna {
             }
 
             Log("[Relink] Rewriting and disposing module\n");
-#if !LEGACY
+#if !CECIL0_9
             Modder.Module.Write(Modder.WriterParameters);
 #else
             Modder.Module.Write(ModulePaths[Modder.Module], Modder.WriterParameters);
 #endif
             // Dispose the module so other modules can read it as a dependency again.
-#if !LEGACY
+#if !CECIL0_9
             Modder.Module.Dispose();
 #endif
             Modder.Module = null;
@@ -586,7 +586,7 @@ namespace XnaToFna {
         public void Dispose() {
             Modder?.Dispose();
 
-#if !LEGACY
+#if !CECIL0_9
             foreach (ModuleDefinition mod in Modules)
                 mod.Dispose();
 #endif
