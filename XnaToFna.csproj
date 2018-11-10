@@ -1,177 +1,89 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Standard properties. -->
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{11CE9AC5-C2D3-456D-8132-8A8FD9B78D1E}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>XnaToFna</RootNamespace>
     <AssemblyName>XnaToFna</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFramework>net452</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile />
+
+    <Version Condition="'$(BUILD_BUILDNUMBER)' != ''">$(BUILD_BUILDNUMBER)</Version>
+
+    <OutputType Condition="'$(OutputType)' == ''">Library</OutputType>
+    <RootNamespace Condition="'$(RootNamespace)' == ''">$(AssemblyName)</RootNamespace>
+
+    <Configurations>Debug;Release;DebugLegacy;ReleaseLegacy</Configurations>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+    <OutputPath>bin\$(Configuration)</OutputPath>
+
+    <LangVersion>7.3</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<EnableDefaultItems>false</EnableDefaultItems>
+
+    <Cecil Condition="'$(Cecil)' == ''">true</Cecil>
+    <CecilLegacy>false</CecilLegacy>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU' Or '$(Configuration)|$(Platform)' == 'DebugLegacy|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+
+  <!-- Debug -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'DebugLegacy'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <DefineConstants Condition=" '$(Configuration)' == 'DebugLegacy' ">LEGACY;DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>7.3</LangVersion>
+    <DefineConstants>DEBUG;TRACE;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU' Or '$(Configuration)|$(Platform)' == 'ReleaseLegacy|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+
+  <!-- Release -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' Or '$(Configuration)' == 'ReleaseLegacy'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <DefineConstants Condition=" '$(Configuration)' == 'ReleaseLegacy' ">LEGACY;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>7.3</LangVersion>
+    <DefineConstants>TRACE;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'DebugLegacy' Or '$(Configuration)' == 'ReleaseLegacy' ">
-    <CecilLegacy>Legacy</CecilLegacy>
+
+  <!-- Legacy -->
+  <PropertyGroup Condition="'$(Configuration)' == 'DebugLegacy' Or '$(Configuration)' == 'ReleaseLegacy'">
+    <CecilLegacy>true</CecilLegacy>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugLegacy|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
+  <PropertyGroup>
+	<DefineConstants Condition="$(CecilLegacy)">CECIL0_9;$(DefineConstants)</DefineConstants>
+	<CecilVersion Condition="$(CecilLegacy) And '$(CecilVersion)' == ''">0.9.6</CecilVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseLegacy|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
+  <!-- References. -->
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.XML" />
+    <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="src\Content\ContentHelperGame.cs" />
-    <Compile Include="src\Content\ContentTransformers\EffectTransformer.cs" />
-    <Compile Include="src\Content\ContentTransformers\GZIPContentReader.cs" />
-    <Compile Include="src\Content\ContentTransformers\SoundEffectTransformer.cs" />
-    <Compile Include="src\Content\CopyingStream.cs" />
-    <Compile Include="src\FNAHooks\FNAHooks.cs" />
-    <Compile Include="src\Content\XNBContent.cs" />
-    <Compile Include="src\Content\WindowsMedia.cs" />
-    <Compile Include="src\Content\SoundBank.cs" />
-    <Compile Include="src\Content\XACTGlobalSettings.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\IAvatarAnimation.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\AvatarMouth.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\AvatarEyebrow.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\AvatarEye.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\AvatarExpression.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\__LeaderboardWriter__.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\__LeaderboardReader__.cs" />
-    <Compile Include="src\Helper\StubXDK\Net\__LocalNetworkGamer__.cs" />
-    <Compile Include="src\Helper\StubXDK\Net\__NetworkMachine__.cs" />
-    <Compile Include="src\Helper\StubXDK\Net\__NetworkSession__.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\__PropertyDictionary__.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\TitleServiceConnectionStatus.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\TitleServiceDescription.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\FindServicesCompletedArgs.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\__LeaderboardIdentity__.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\TitleServiceDirectory.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\TitleServiceConnection.cs" />
-    <Compile Include="src\Helper\StubXDK\StubXDKHelper.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\GamerPresenceExtensions.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\LeaderboardWriterExtensions.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\LeaderboardEntryExtensions.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\GamerExtensions.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\GuideExtensions.cs" />
-    <Compile Include="src\Helper\StubXDK\GamerServices\ConsoleRegion.cs" />
-    <Compile Include="src\Helper\ProxyReflection\FieldInfoHelper.cs" />
-    <Compile Include="src\Helper\ForcedStreamContentManager.cs" />
-    <Compile Include="src\Helper\X360Helper.cs" />
-    <Compile Include="src\Helper\StackOpHelper.cs" />
-    <Compile Include="src\Helper\FileSystemHelper.cs" />
-    <Compile Include="src\Helper\PInvokeHooks\DeviceEvents.cs" />
-    <Compile Include="src\Helper\FakeMonitor.cs" />
-    <Compile Include="src\Helper\PInvokeHooks\MouseEvents.cs" />
-    <Compile Include="src\Helper\PInvokeHooks\PInvokeHelper.cs" />
-    <Compile Include="src\Helper\ProxyDInput\DInputState.cs" />
-    <Compile Include="src\Helper\ProxyDInput\DInput.cs" />
-    <Compile Include="src\Helper\ProxyDrawing\Point.cs" />
-    <Compile Include="src\Helper\ProxyForms\Application.cs" />
-    <Compile Include="src\Helper\ProxyDrawing\Rectangle.cs" />
-    <Compile Include="src\Helper\ProxyForms\Cursor.cs" />
-    <Compile Include="src\Helper\ProxyForms\Delegates.cs" />
-    <Compile Include="src\Helper\ProxyForms\Enums.cs" />
-    <Compile Include="src\Helper\ProxyForms\Events.cs" />
-    <Compile Include="src\Helper\ProxyForms\Control.cs" />
-    <Compile Include="src\Helper\ProxyForms\GameForm.cs" />
-    <Compile Include="src\Helper\ProxyForms\Message.cs" />
-    <Compile Include="src\Helper\PInvokeHooks\PInvokeHooks.cs" />
-    <Compile Include="src\Helper\PInvokeHooks\KeyboardEvents.cs" />
-    <Compile Include="src\Helper\BinaryFormatterHelper.cs" />
-    <Compile Include="src\Helper\SyncResult.cs" />
-    <Compile Include="src\ILPlatform.cs" />
-    <Compile Include="src\Content\LzxDecoder.cs" />
-    <Compile Include="src\XEX\XEXImageData.cs" />
-    <Compile Include="src\XnaToFnaGame.cs" />
-    <Compile Include="src\Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\XnaToFnaExt.cs" />
-    <Compile Include="src\Content\ContentHelper.cs" />
-    <Compile Include="src\Content\WaveBank.cs" />
-    <Compile Include="src\Helper\ProxyForms\Form.cs" />
-    <Compile Include="src\Helper\XnaToFnaHelper.cs" />
-    <Compile Include="src\XnaToFnaMapping.cs" />
-    <Compile Include="src\XnaToFnaModder.cs" />
-    <Compile Include="src\XnaToFnaUtil.Stubber.cs" />
-    <Compile Include="src\XnaToFnaUtil.Processor.cs" />
-    <Compile Include="src\XnaToFnaUtil.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="lib-projs\FNA\FNA.csproj">
-      <Project>{35253ce1-c864-4cd3-8249-4d1319748e8f}</Project>
-      <Name>FNA</Name>
-    </ProjectReference>
-    <ProjectReference Include="lib-projs\MonoMod\MonoMod.RuntimeDetour\MonoMod.RuntimeDetour.csproj">
-      <Project>{d0c584c0-81d7-486e-b70e-d7f9256e0909}</Project>
-      <Name>MonoMod.RuntimeDetour</Name>
-    </ProjectReference>
-    <ProjectReference Include="lib-projs\MonoMod\MonoMod.Utils\MonoMod.Utils.csproj">
-      <Project>{1839cfe2-3db0-45a8-b03d-9aa797479a3a}</Project>
-      <Name>MonoMod.Utils</Name>
-    </ProjectReference>
-    <ProjectReference Include="lib-projs\MonoMod\MonoMod\MonoMod.csproj">
-      <Project>{8a17c958-5c33-4035-af76-f94a3aa2dc4f}</Project>
-      <Name>MonoMod</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
+  <PropertyGroup>
+    <CecilVersion Condition="'$(CecilVersion)' == ''">0.10.0</CecilVersion>
+  </PropertyGroup>
+  <ItemGroup Condition="$(Cecil)">
     <PackageReference Include="Mono.Cecil">
-      <Version Condition="'$(CecilLegacy)' == ''">0.10.0</Version>
-      <Version Condition="'$(CecilLegacy)' == 'Legacy'">0.9.6</Version>
+      <Version>$(CecilVersion)</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <ProjectReference Include="lib-projs\FNA\FNA.csproj" />
+    <ProjectReference Include="lib-projs\MonoMod\MonoMod.RuntimeDetour\MonoMod.RuntimeDetour.csproj" />
+    <ProjectReference Include="lib-projs\MonoMod\MonoMod.Utils\MonoMod.Utils.csproj" />
+    <ProjectReference Include="lib-projs\MonoMod\MonoMod\MonoMod.csproj" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  
+  <!-- Files. -->
+  <ItemGroup>
+    <Compile Include="src/**/*$(DefaultLanguageSourceExtension)" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <EmbeddedResource Include="src/**/*.resx" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+  </ItemGroup>
 </Project>
