@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XnaToFna {
+namespace XnaToFna.XEX {
     public class LzxDecoder {
 
         private readonly static Type t_orig;

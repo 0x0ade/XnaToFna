@@ -64,8 +64,6 @@ namespace XnaToFna {
 
         public DefaultAssemblyResolver AssemblyResolver = new DefaultAssemblyResolver();
         public List<string> Directories = new List<string>();
-        public List<string> ContentDirectoryNames = new List<string>() { "Content" };
-        public List<string> ContentDirectories = new List<string>();
         public List<ModuleDefinition> Modules = new List<ModuleDefinition>();
         public Dictionary<ModuleDefinition, string> ModulePaths = new Dictionary<ModuleDefinition, string>();
 
@@ -84,10 +82,6 @@ namespace XnaToFna {
         public bool HookCompatHelpers = true;
 
         public bool HookEntryPoint = true;
-
-        public bool PatchXNB = true;
-        public bool PatchXACT = true;
-        public bool PatchWindowsMedia = true;
 
         public bool DestroyLocks = true;
         public bool FixOldMonoXML = false;
@@ -155,34 +149,25 @@ namespace XnaToFna {
                 Directories.Add(path);
                 AssemblyResolver.AddSearchDirectory(path); // Needs to be added manually as DependencyDirs was already added
 
-                foreach (string contentDirName in ContentDirectoryNames) {
-                    string contentDir;
-                    if (Directory.Exists(contentDir = Path.Combine(path, contentDirName))) {
-                        if (ContentDirectories.Count == 0) {
-                            // Most probably the actual game directory - let's just copy XnaToFna.exe to there to be referenced properly.
-                            string xtfPath = Path.Combine(path, Path.GetFileName(ThisAssembly.Location));
-                            if (Path.GetDirectoryName(ThisAssembly.Location) != path) {
-                                Log($"[ScanPath] Found separate game directory - copying XnaToFna.exe and FNA.dll");
-                                File.Copy(ThisAssembly.Location, xtfPath, true);
+                // Most probably the actual game directory - let's just copy XnaToFna.exe to there to be referenced properly.
+                string xtfPath = Path.Combine(path, Path.GetFileName(ThisAssembly.Location));
+                if (Path.GetDirectoryName(ThisAssembly.Location) != path) {
+                    Log($"[ScanPath] Found separate game directory - copying XnaToFna.exe and FNA.dll");
+                    File.Copy(ThisAssembly.Location, xtfPath, true);
 
-                                string dbExt = null;
-                                if (File.Exists(Path.ChangeExtension(ThisAssembly.Location, "pdb")))
-                                    dbExt = "pdb";
-                                if (File.Exists(Path.ChangeExtension(ThisAssembly.Location, "mdb")))
-                                    dbExt = "mdb";
-                                if (dbExt != null)
-                                    File.Copy(Path.ChangeExtension(ThisAssembly.Location, dbExt), Path.ChangeExtension(xtfPath, dbExt), true);
+                    string dbExt = null;
+                    if (File.Exists(Path.ChangeExtension(ThisAssembly.Location, "pdb")))
+                        dbExt = "pdb";
+                    if (File.Exists(Path.ChangeExtension(ThisAssembly.Location, "mdb")))
+                        dbExt = "mdb";
+                    if (dbExt != null)
+                        File.Copy(Path.ChangeExtension(ThisAssembly.Location, dbExt), Path.ChangeExtension(xtfPath, dbExt), true);
 
-                                if (File.Exists(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll")))
-                                    File.Copy(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll"), Path.Combine(path, "FNA.dll"), true);
-                                else if (File.Exists(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll.tmp")))
-                                    File.Copy(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll.tmp"), Path.Combine(path, "FNA.dll"), true);
+                    if (File.Exists(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll")))
+                        File.Copy(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll"), Path.Combine(path, "FNA.dll"), true);
+                    else if (File.Exists(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll.tmp")))
+                        File.Copy(Path.Combine(Path.GetDirectoryName(ThisAssembly.Location), "FNA.dll.tmp"), Path.Combine(path, "FNA.dll"), true);
 
-                            }
-                        }
-                        Log($"[ScanPath] Found Content directory: {contentDir}");
-                        ContentDirectories.Add(contentDir);
-                    }
                 }
 
                 ScanPaths(Directory.GetFiles(path));
@@ -544,43 +529,6 @@ namespace XnaToFna {
             // MonoMod needs to relink some types (f.e. XnaToFnaHelper) via FindType, which requires a dependency map.
             Log($"[{tag}] Mapping dependencies for MonoMod");
             Modder.MapDependencies(mod);
-        }
-
-        public void LoadModules() {
-            // Load all modules, except map targets and stubs.
-            foreach (ModuleDefinition mod in Modules) {
-                if (Mappings.Exists(mappings => mod.Assembly.Name.Name == mappings.Target) ||
-                    mod.Assembly.Name.Name == ThisAssemblyName ||
-                    ModulesToStub.Contains(mod))
-                    continue;
-
-                Assembly asm = Assembly.LoadFile(ModulePaths[mod]);
-                AppDomain.CurrentDomain.TypeResolve += (object sender, ResolveEventArgs args) => {
-                    return asm.GetType(args.Name) != null ? asm : null;
-                };
-                AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) => {
-                    return args.Name == asm.FullName || args.Name == asm.GetName().Name ? asm : null;
-                };
-            }
-        }
-
-        public void UpdateContent() {
-            if (ContentDirectories.Count == 0) {
-                Log("[UpdateContent] No content directory found!");
-                return;
-            }
-
-            // Since we're patching XNBs, we need to do this inside a game.
-            using (ContentHelper.Game = new ContentHelperGame()) {
-                ContentHelper.Game.ActionQueue.Enqueue(() => {
-                    // List all content files and update accordingly.
-                    foreach (string dir in ContentDirectories)
-                        foreach (string path in Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories))
-                            ContentHelper.UpdateContent(path, PatchXNB, PatchXACT, PatchWindowsMedia);
-                });
-                ContentHelper.Game.Run();
-            }
-            ContentHelper.Game = null;
         }
 
         public void Dispose() {

@@ -17,7 +17,6 @@ namespace XnaToFna {
 
             xtf.Log($"[Version] {MonoModder.Version}");
 
-            bool updateContent = true;
             bool relinkOnly = false;
 
             Queue<string> argq = new Queue<string>(args);
@@ -28,7 +27,6 @@ namespace XnaToFna {
 
                 else if (arg == "--relink-only") {
                     relinkOnly = true;
-                    updateContent = false;
                     xtf.HookCompatHelpers = false;
                     xtf.HookEntryPoint = false;
                     xtf.DestroyLocks = false;
@@ -37,8 +35,6 @@ namespace XnaToFna {
                     xtf.HookBinaryFormatter = false;
                     xtf.HookReflection = false;
                     xtf.AddAssemblyReference = false;
-                    xtf.PatchXNB = false;
-                    xtf.PatchXACT = false;
                     xtf.PreferredPlatform = ILPlatform.x86;
 
                 }
@@ -51,27 +47,8 @@ namespace XnaToFna {
                     xtf.HookEntryPoint = false;
                 }
 
-                else if (arg == "--skip-content")
-                    updateContent = false;
-                else if (arg == "--skip-xnb")
-                    xtf.PatchXNB = false;
-                else if (arg == "--skip-xact")
-                    xtf.PatchXACT = false;
-                else if (arg == "--skip-windowsmedia" || arg == "--skip-wm")
-                    xtf.PatchWindowsMedia = false;
-                else if (
-                    arg == "--skip-wavebanks" || arg == "--skip-xwb" ||
-                    arg == "--skip-soundbanks" || arg == "--skip-xsb" ||
-                    arg == "--skip-xactsettings" || arg == "--skip-xgs")
-                    Console.WriteLine("WARNING: --skip-xwb, --skip-xsb and --skip-xsg have been replaced with --skip-xact.");
-                else if (arg == "--skip-video" || arg == "--skip-wma")
-                    Console.WriteLine("WARNING: --skip-video and --skip-wma have been replaced with --skip-wm.");
-
                 else if (arg == "--skip-locks" || arg == "--keep-locks")
                     xtf.DestroyLocks = false;
-
-                else if (arg == "--decompress-xnb" || arg == "--skip-gzip")
-                    ContentHelper.XNBCompressGZip = false;
 
                 else if (arg == "--anycpu" || arg == "--force-anycpu")
                     Console.WriteLine("WARNING: --anycpu / --force-anycpu is now default. To set the preferred platform, use --platform x86 / x64 instead.");
@@ -106,11 +83,6 @@ namespace XnaToFna {
                     xtf.HookIsTrialMode = true;
                 }
 
-                else if (arg == "--content" && argq.Count >= 1)
-                    xtf.ContentDirectoryNames.Add(argq.Dequeue());
-                else if (arg.StartsWith("--content="))
-                    xtf.ContentDirectoryNames.Add(arg.Substring("--content=".Length));
-
                 else if (arg == "--skip-binaryformatter" || arg == "--skip-bf")
                     xtf.HookBinaryFormatter = false;
 
@@ -132,18 +104,6 @@ namespace XnaToFna {
             xtf.OrderModules();
 
             xtf.RelinkAll();
-
-            if (updateContent) {
-                xtf.LoadModules();
-
-                // Free the heap from the disassembled modules.
-                xtf.Modules.Clear();
-                xtf.ModulesToStub.Clear();
-
-                FNAHooks.Hook();
-
-                xtf.UpdateContent();
-            }
 
             xtf.Log("[Main] Done!");
 
