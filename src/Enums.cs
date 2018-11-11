@@ -12,4 +12,15 @@ namespace XnaToFna {
         AnyCPU,
         x86Pref
     }
+
+    public enum MixedDepAction {
+        Keep,
+        Stub,
+        Remove
+    }
+
+    public enum BaseConfig {
+        Minimal,
+        Linux
+    }
 }

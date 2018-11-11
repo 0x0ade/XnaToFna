@@ -1,4 +1,5 @@
 ﻿using Mono.Cecil;
+using Mono.Options;
 using MonoMod;
 using System;
 using System.Collections.Generic;
@@ -15,88 +16,59 @@ namespace XnaToFna {
         public static void Main(string[] args) {
             XnaToFnaUtil xtf = new XnaToFnaUtil();
 
-            xtf.Log($"[Version] {MonoModder.Version}");
+            Console.WriteLine($"XnaToFna {XnaToFnaUtil.Version}");
+            Console.WriteLine($"using MonoMod {MonoModder.Version}");
 
+            bool showHelp = false;
+            bool showVersion = false;
             bool relinkOnly = false;
 
-            Queue<string> argq = new Queue<string>(args);
-            while (argq.Count > 0) {
-                string arg = argq.Dequeue();
-                if (arg == "--version" || arg.ToLowerInvariant() == "-v")
-                    return;
+            OptionSet options = new OptionSet {
+                { "h|help", "Show this message and exit.", v => showHelp = v != null },
+                { "v|version", "Show the version and exit.", v => showVersion = v != null },
+                { "defaults=", "Choose between multiple default configs:\nminimal, linux", (bool v) => relinkOnly = v },
+                { "relinkonly=", "Only read and write the assemblies listed.", (bool v) => relinkOnly = v },
 
-                else if (arg == "--relink-only") {
-                    relinkOnly = true;
-                    xtf.HookCompatHelpers = false;
-                    xtf.HookEntryPoint = false;
-                    xtf.DestroyLocks = false;
-                    xtf.StubMixedDeps = false;
-                    xtf.DestroyMixedDeps = false;
-                    xtf.HookBinaryFormatter = false;
-                    xtf.HookReflection = false;
-                    xtf.AddAssemblyReference = false;
-                    xtf.PreferredPlatform = ILPlatform.x86;
+                { "hook-compat=", "Toggle Forms and P/Invoke compatibility hooks.", (bool v) => xtf.HookCompat = v },
+                { "hook-hacks=", "Toggle some hack hooks, f.e.\nXNATOFNA_DISPLAY_FULLSCREEN", (bool v) => xtf.HookEntryPoint = v },
+                { "hook-locks=", "Toggle if locks should be \"destroyed\" or not.", (bool v) => xtf.HookLocks = v },
+                { "hook-oldmonoxml=", "Toggle basic XML serialization fixes.\nPlease try updating mono first!", (bool v) => xtf.FixOldMonoXML = v },
+                { "hook-binaryformatter=", "Toggle BinaryFormatter-related fixes.", (bool v) => xtf.HookBinaryFormatter = v },
+                { "hook-reflection=", "Toggle reflection-related fixes.", (bool v) => xtf.HookBinaryFormatter = v },
+                { "hook-patharg=", "Hook the given method to receive fixed paths.\nCan be used multiple times.", v => xtf.FixPathsFor.Add(v) },
 
-                }
+                { "ilplatform=", "Choose the target IL platform:\nkeep, x86, x64, anycpu, x86pref", v => xtf.PreferredPlatform = ParseEnum(v, ILPlatform.Keep) },
+                { "mixeddeps=", "Choose the action performed to mixed dependencies:\nkeep, stub, remove", v => xtf.MixedDeps = ParseEnum(v, MixedDepAction.Keep) },
+                { "removepublickeytoken=", "Remove the public key token of a dependency.\nCan be used multiple times.", v => xtf.DestroyPublicKeyTokens.Add(v) },
+            };
 
-                else if (arg == "--mm-strict")
-                    xtf.Modder.Strict = true;
-
-                else if (arg == "--skip-entrypoint") {
-                    Console.WriteLine("Skipping entry point hook. This will limit and even disable some runtime features.");
-                    xtf.HookEntryPoint = false;
-                }
-
-                else if (arg == "--skip-locks" || arg == "--keep-locks")
-                    xtf.DestroyLocks = false;
-
-                else if (arg == "--anycpu" || arg == "--force-anycpu")
-                    Console.WriteLine("WARNING: --anycpu / --force-anycpu is now default. To set the preferred platform, use --platform x86 / x64 instead.");
-                else if (arg == "--platform" && argq.Count >= 1)
-                    xtf.PreferredPlatform = ParseEnum(argq.Dequeue(), ILPlatform.AnyCPU);
-                else if (arg.StartsWith("--platform="))
-                    xtf.PreferredPlatform = ParseEnum(arg.Substring("--platform=".Length), ILPlatform.AnyCPU);
-
-                else if (arg == "--keep-mixed-deps") {
-                    xtf.StubMixedDeps = false;
-                    xtf.DestroyMixedDeps = false;
-                } else if (arg == "--stub-mixed-deps") {
-                    xtf.StubMixedDeps = true;
-                    xtf.DestroyMixedDeps = false;
-                } else if (arg == "--remove-mixed-deps") {
-                    xtf.StubMixedDeps = false;
-                    xtf.DestroyMixedDeps = true;
-                } else if (arg == "--remove-public-key-token" && argq.Count >= 1)
-                    xtf.DestroyPublicKeyTokens.Add(argq.Dequeue());
-                else if (arg.StartsWith("--remove-public-key-token="))
-                    xtf.DestroyPublicKeyTokens.Add(arg.Substring("--remove-public-key-token=".Length));
-
-                else if (arg == "--fix-old-mono-xml") {
-                    Console.WriteLine("YOU SHOULD REALLY UPDATE YOUR COPY OF MONO!... Unless you're stuck with Xamarin.Android.");
-                    xtf.FixOldMonoXML = true;
-
-                } else if (arg == "--update-xna" || arg == "--xna3" || arg == "--enable-flux-capacitor") {
-                    Console.WriteLine("Please get yourself a copy of XnaToFna from the \"timemachine\" branch to enable the time machine.");
-                    return;
-                } else if (arg == "--hook-istrialmode") {
-                    Console.WriteLine("Do what you want cause a pirate is free! You are a pirate!");
-                    xtf.HookIsTrialMode = true;
-                }
-
-                else if (arg == "--skip-binaryformatter" || arg == "--skip-bf")
-                    xtf.HookBinaryFormatter = false;
-
-                else if (arg == "--skip-reflection")
-                    xtf.HookReflection = false;
-
-                else if (arg == "--fix-path-arg" && argq.Count >= 1)
-                    xtf.FixPathsFor.Add(argq.Dequeue());
-                else if (arg.StartsWith("--fix-path-arg="))
-                    xtf.FixPathsFor.Add(arg.Substring("--fix-path-arg=".Length));
-
-                else
-                    xtf.ScanPath(arg);
+            void WriteHelp(TextWriter writer) {
+                writer.WriteLine("Usage: <mono> XnaToFna.exe [options] <--> FileOrDir <FileOrDir> <...>");
+                options.WriteOptionDescriptions(writer);
             }
+
+            List<string> extra;
+            try {
+                extra = options.Parse(args);
+            } catch (OptionException e) {
+                Console.Error.Write("Command parse error: ");
+                Console.Error.WriteLine(e.Message);
+                Console.Error.WriteLine();
+                WriteHelp(Console.Error);
+                return;
+            }
+
+            if (showVersion) {
+                return;
+            }
+
+            if (showHelp) {
+                WriteHelp(Console.Out);
+                return;
+            }
+
+            foreach (string arg in extra)
+                xtf.ScanPath(arg);
 
             if (!relinkOnly && !Debugger.IsAttached) // Otherwise catches XnaToFna.vshost.exe
                 xtf.ScanPath(Directory.GetCurrentDirectory());

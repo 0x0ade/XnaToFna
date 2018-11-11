@@ -19,32 +19,38 @@ namespace XnaToFna {
         public static MethodInfo m_XnaToFnaHelper_MainHook = typeof(XnaToFnaHelper).GetMethod("MainHook");
         public static MethodInfo m_FileSystemHelper_FixPath = typeof(FileSystemHelper).GetMethod("FixPath");
 
-        public void SetupCompatHelpers() {
+        public void SetupHooks() {
             // To use XnaToFnaGame properly, the actual game override needs to call XnaToFnaGame::.ctor as "base" instead.
             Modder.RelinkMap["System.Void Microsoft.Xna.Framework.Game::.ctor()"] =
                 new RelinkMapEntry("XnaToFna.XnaToFnaGame", "System.Void .ctor()");
+            Modder.ForceCallMap["System.Void Microsoft.Xna.Framework.Game::.ctor()"] = OpCodes.Call;
             foreach (MethodInfo method in typeof(XnaToFnaGame).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)) {
                 Modder.RelinkMap[method.GetFindableID(type: "Microsoft.Xna.Framework.Game")] =
                     new RelinkMapEntry("XnaToFna.XnaToFnaGame", method.GetFindableID(withType: false));
+                Modder.ForceCallMap[method.GetFindableID(type: "Microsoft.Xna.Framework.Game")] = OpCodes.Call;
             }
 
             // XNA games expect a WinForms handle. Give it a "proxy" handle instead.
-            Modder.RelinkMap["System.IntPtr Microsoft.Xna.Framework.GameWindow::get_Handle()"] =
-                new RelinkMapEntry("XnaToFna.XnaToFnaHelper", "System.IntPtr GetProxyFormHandle(Microsoft.Xna.Framework.GameWindow)");
+            if (HookCompat) {
+                Modder.RelinkMap["System.IntPtr Microsoft.Xna.Framework.GameWindow::get_Handle()"] =
+                    new RelinkMapEntry("XnaToFna.XnaToFnaHelper", "System.IntPtr GetProxyFormHandle(Microsoft.Xna.Framework.GameWindow)");
+            }
 
             // X360 games can be larger than the screen. Allow the user to "fix" this by forcing a display resolution via env vars.
-            Modder.RelinkMap["System.Void Microsoft.Xna.Framework.GraphicsDeviceManager::ApplyChanges()"] =
-                new RelinkMapEntry("XnaToFna.XnaToFnaHelper", "System.Void ApplyChanges(Microsoft.Xna.Framework.GraphicsDeviceManager)");
+            if (HookHacks) {
+                Modder.RelinkMap["System.Void Microsoft.Xna.Framework.GraphicsDeviceManager::ApplyChanges()"] =
+                    new RelinkMapEntry("XnaToFna.XnaToFnaHelper", "System.Void ApplyChanges(Microsoft.Xna.Framework.GraphicsDeviceManager)");
+            }
 
             // Let's just completely wreck everything.
             foreach (Type type in typeof(Form).Assembly.GetTypes()) {
                 string name = type.FullName;
 
                 // Substitute WinForms for ProxyForms
-                if (name.StartsWith("XnaToFna.ProxyForms."))
+                if (HookCompat && name.StartsWith("XnaToFna.ProxyForms."))
                     Modder.RelinkMap["System.Windows.Forms." + name.Substring(9 + 11)] = name;
                 // Substitute common Drawing classes (f.e. Rectangle) with our own for Drawing-less environments (f.e. Android)
-                else if (name.StartsWith("XnaToFna.ProxyDrawing."))
+                else if (HookCompat && name.StartsWith("XnaToFna.ProxyDrawing."))
                     Modder.RelinkMap["System.Drawing." + name.Substring(9 + 13)] = name;
                 // Some XNA games use DInput... let's just substitute all DInput references with our ProxyDInput.
                 else if (name.StartsWith("XnaToFna.ProxyDInput."))
@@ -71,7 +77,7 @@ namespace XnaToFna {
                 }
             }
 
-            if (HookIsTrialMode)
+            if (HookHacks)
                 Modder.RelinkMap["System.Boolean Microsoft.Xna.Framework.GamerServices.Guide::get_IsTrialMode()"] =
                     new RelinkMapEntry("XnaToFna.XnaToFnaHelper", "System.IntPtr get_IsTrialMode()");
 
@@ -136,7 +142,7 @@ namespace XnaToFna {
         }
 
         public void PreProcessType(TypeDefinition type) {
-            if (HookCompatHelpers) {
+            if (HookCompat) {
                 foreach (MethodDefinition method in type.Methods) {
                     if (!method.HasPInvokeInfo)
                         continue;
@@ -210,7 +216,7 @@ namespace XnaToFna {
                         instr.OpCode = OpCodes.Call;
                     }
 
-                    if (DestroyLocks)
+                    if (HookLocks)
                         CheckAndDestroyLock(method, i);
 
                     if (FixPathsFor.Count != 0)

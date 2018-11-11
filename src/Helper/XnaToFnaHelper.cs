@@ -27,9 +27,6 @@ namespace XnaToFna {
             Game = game;
 
             TextInputEXT.TextInput += KeyboardEvents.CharEntered;
-            // Immediately shows the on-screen keyboard on Android
-            if (Environment.GetEnvironmentVariable("FNADROID") != "1")
-                TextInputEXT.StartTextInput();
 
             game.Window.ClientSizeChanged += SDLWindowSizeChanged;
 

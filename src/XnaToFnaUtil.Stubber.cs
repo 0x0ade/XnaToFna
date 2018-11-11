@@ -36,11 +36,9 @@ namespace XnaToFna {
             Log($"[Stub] Relinking (MonoMod PatchRefs pass)");
             Modder.PatchRefs();
 
-            if (HookCompatHelpers) {
-                Log($"[Stub] Post-processing");
-                foreach (TypeDefinition type in mod.Types)
-                    PostProcessType(type);
-            }
+            Log($"[Stub] Post-processing");
+            foreach (TypeDefinition type in mod.Types)
+                PostProcessType(type);
 
             Log($"[Stub] Rewriting and disposing module\n");
 #if !CECIL0_9

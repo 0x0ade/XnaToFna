@@ -79,15 +79,11 @@ namespace XnaToFna {
 
         public List<string> ExtractedXEX = new List<string>();
 
-        public bool HookCompatHelpers = true;
-
-        public bool HookEntryPoint = true;
-
-        public bool DestroyLocks = true;
+        public bool HookCompat = true;
+        public bool HookHacks = false;
+        public bool HookEntryPoint = false;
+        public bool HookLocks = false;
         public bool FixOldMonoXML = false;
-        public bool DestroyMixedDeps = false;
-        public bool StubMixedDeps = true;
-        public bool HookIsTrialMode = false;
         public bool HookBinaryFormatter = true;
         public bool HookReflection = true;
 
@@ -98,6 +94,7 @@ namespace XnaToFna {
         public List<string> FixPathsFor = new List<string>();
 
         public ILPlatform PreferredPlatform = ILPlatform.AnyCPU;
+        public MixedDepAction MixedDeps = MixedDepAction.Stub;
 
         public XnaToFnaUtil() {
             Modder = new XnaToFnaModder(this);
@@ -257,11 +254,11 @@ namespace XnaToFna {
             if ((mod.Attributes & ModuleAttributes.ILOnly) != ModuleAttributes.ILOnly) {
                 // Mono.Cecil can't handle mixed mode assemblies.
                 Log($"[ScanPath] WARNING: Cannot handle mixed mode assembly {name.Name}");
-                if (StubMixedDeps) {
+                if (MixedDeps == MixedDepAction.Stub) {
                     ModulesToStub.Add(mod);
                     add = true;
                 } else {
-                    if (DestroyMixedDeps) {
+                    if (MixedDeps == MixedDepAction.Remove) {
                         RemoveDeps.Add(name.Name);
                     }
 #if !CECIL0_9
@@ -342,8 +339,7 @@ namespace XnaToFna {
         }
 
         public void RelinkAll() {
-            if (HookCompatHelpers)
-                SetupCompatHelpers();
+            SetupHooks();
 
             foreach (XnaToFnaMapping mapping in Mappings)
                 if (mapping.IsActive && mapping.Setup != null)
@@ -384,11 +380,9 @@ namespace XnaToFna {
             Log("[Relink] Relinking (MonoMod PatchRefs pass)");
             Modder.PatchRefs();
 
-            if (HookCompatHelpers) {
-                Log("[Relink] Post-processing");
-                foreach (TypeDefinition type in mod.Types)
-                    PostProcessType(type);
-            }
+            Log("[Relink] Post-processing");
+            foreach (TypeDefinition type in mod.Types)
+                PostProcessType(type);
 
             if (HookEntryPoint && mod.EntryPoint != null) {
                 Log("[Relink] Injecting XnaToFna entry point hook");
