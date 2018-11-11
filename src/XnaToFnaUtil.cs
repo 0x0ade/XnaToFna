@@ -93,7 +93,7 @@ namespace XnaToFna {
 
         public List<string> FixPathsFor = new List<string>();
 
-        public ILPlatform PreferredPlatform = ILPlatform.AnyCPU;
+        public ILPlatform PreferredPlatform = ILPlatform.Keep;
         public MixedDepAction MixedDeps = MixedDepAction.Stub;
 
         public XnaToFnaUtil() {

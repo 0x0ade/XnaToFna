@@ -23,11 +23,11 @@ namespace XnaToFna {
             // To use XnaToFnaGame properly, the actual game override needs to call XnaToFnaGame::.ctor as "base" instead.
             Modder.RelinkMap["System.Void Microsoft.Xna.Framework.Game::.ctor()"] =
                 new RelinkMapEntry("XnaToFna.XnaToFnaGame", "System.Void .ctor()");
-            Modder.ForceCallMap["System.Void Microsoft.Xna.Framework.Game::.ctor()"] = OpCodes.Call;
+            Modder.ForceCallMap["System.Void XnaToFna.XnaToFnaGame::.ctor()"] = OpCodes.Call;
             foreach (MethodInfo method in typeof(XnaToFnaGame).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)) {
                 Modder.RelinkMap[method.GetFindableID(type: "Microsoft.Xna.Framework.Game")] =
                     new RelinkMapEntry("XnaToFna.XnaToFnaGame", method.GetFindableID(withType: false));
-                Modder.ForceCallMap[method.GetFindableID(type: "Microsoft.Xna.Framework.Game")] = OpCodes.Call;
+                Modder.ForceCallMap[method.GetFindableID(withType: true)] = OpCodes.Call;
             }
 
             // XNA games expect a WinForms handle. Give it a "proxy" handle instead.
