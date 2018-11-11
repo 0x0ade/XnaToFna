@@ -5,15 +5,15 @@
 ----
 
 #### TL;DR:
-Relinker making <sup>an untested bunch of</sup> games using XNA 4.0 run on Linux with FNA<sup>, as long as they don't do ugly stuff and you clean up the mess</sup>.
+Relinker making some games using XNA 4.0 run with FNA. It goes as far as booting some X360 games on Android.
 
 * [Download release](https://github.com/0x0ade/XnaToFna/releases) OR compile using Visual Studio, MonoDevelop, `xbuild` or something that compiles C# code.
 * Put `XnaToFna.exe` into the game directory.
 * Put `FNA.dll` and the [native libs](http://fna.flibitijibibo.com/archive/fnalibs.tar.bz2) into the game directory.
 * Run `XnaToFna.exe` with Mono on Linux / macOS or .NET Framework on Windows.
 * Keep `XnaToFna.exe` in the game directory because the game now also links to the `XnaToFnaHelper` inside it, whoops.
-* For games that may require it (f.e. Stardew Valley), update Mono / use (ironically) the precompiled Mono part of [MonoGame/MonoKickstart.](https://github.com/MonoGame/MonoKickstart/tree/mono4.4)
-* Complain about broken paths, ~~unconverted sound / video assets,~~ ~~Windows-specific P/Invokes~~ and unsupported, closed-source native libraries.
+* Update Mono or [MonoKickstart.](https://github.com/flibitijibibo/MonoKickstart)
+* Complain about broken paths, unconverted sound / video assets, Windows-specific `DllImport`s and unsupported, closed-source native libraries.
 
 
 [![how gamers think ports work vs how ports actually work](https://pbs.twimg.com/media/DDVhTJBXYAE11uA.jpg:large)](https://twitter.com/ADAMATOMIC/status/879716288599347200)
@@ -25,6 +25,7 @@ Relinker making <sup>an untested bunch of</sup> games using XNA 4.0 run on Linux
 * [Iced Lizard Games](http://icedlizardgames.com/) for donating a good bunch of X360 titles and sources, some even unreleased!
 * My [Patrons on Patreon](https://www.patreon.com/0x0ade), both current and former ones:
     * [Chad Yates](https://twitter.com/ChadCYates)
+    * [KyleTheScientist](https://www.twitch.tv/kylethescientist)
     * razing32
     * Merlijn Sebrechts
 	* Ryan Kistner
@@ -34,17 +35,13 @@ Relinker making <sup>an untested bunch of</sup> games using XNA 4.0 run on Linux
 
 #### How?
 
-It uses [MonoMod](https://github.com/0x0ade/MonoMod/), which uses [Mono.Cecil](https://github.com/jbevain/cecil) under the hood.
-
-#### How exactly?
-
-It sets up the relinking map in MonoMod to relink all `Microsoft.Xna.Framework` references to `FNA` instead.
+Using [MonoMod](https://github.com/0x0ade/MonoMod/), it sets up the relinking map in MonoMod to relink all `Microsoft.Xna.Framework` references to `FNA` instead.
 
 It can relink from `Microsoft.Xna.Framework.Net` and `Microsoft.Xna.Framework.GamerServices` to either `MonoGame.Framework.Net` or `FNA.Steamworks`, depending on which of those two exists in the game directory.
 
 For convenience, XnaToFna contains a fork of MonoGame.Framework.Net as a submodule. You'll still need to compile it and copy it to the game directory on your own. Take a look at [this diff](https://github.com/flibitijibibo/MonoGame.Net/compare/master...0x0ade:master) to see what changed.
 
-Finally, it applies some pepper and salt here and there (`XmlIgnore` this, `XnaToFnaHelper.GetProxyFormHandle` that).
+Finally, it applies some optional salt and pepper here and there (`XmlIgnore` this, `XnaToFnaHelper.GetProxyFormHandle` that).
 
 #### What's up with XnaToFna-Legacy?
 
