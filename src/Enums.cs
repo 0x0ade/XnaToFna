@@ -18,9 +18,4 @@ namespace XnaToFna {
         Stub,
         Remove
     }
-
-    public enum BaseConfig {
-        Minimal,
-        Linux
-    }
 }

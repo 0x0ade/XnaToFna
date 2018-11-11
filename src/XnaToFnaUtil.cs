@@ -80,8 +80,8 @@ namespace XnaToFna {
         public List<string> ExtractedXEX = new List<string>();
 
         public bool HookCompat = true;
-        public bool HookHacks = false;
-        public bool HookEntryPoint = false;
+        public bool HookHacks = true;
+        public bool HookEntryPoint = true;
         public bool HookLocks = false;
         public bool FixOldMonoXML = false;
         public bool HookBinaryFormatter = true;

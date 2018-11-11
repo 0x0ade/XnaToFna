@@ -26,7 +26,40 @@ namespace XnaToFna {
             OptionSet options = new OptionSet {
                 { "h|help", "Show this message and exit.", v => showHelp = v != null },
                 { "v|version", "Show the version and exit.", v => showVersion = v != null },
-                { "defaults=", "Choose between multiple default configs:\nminimal, linux", (bool v) => relinkOnly = v },
+                { "base=", "Choose between multiple default configs:\ndefault, minimal, forms", v => {
+                    switch (v.ToLowerInvariant()) {
+                        case "default":
+                            xtf.HookCompat = true;
+                            xtf.HookHacks = true;
+                            xtf.HookEntryPoint = false;
+                            xtf.HookLocks = false;
+                            xtf.FixOldMonoXML = false;
+                            xtf.HookBinaryFormatter = true;
+                            xtf.HookReflection = true;
+                            break;
+
+                        case "minimal":
+                            xtf.HookCompat = false;
+                            xtf.HookHacks = false;
+                            xtf.HookEntryPoint = false;
+                            xtf.HookLocks = false;
+                            xtf.FixOldMonoXML = false;
+                            xtf.HookBinaryFormatter = false;
+                            xtf.HookReflection = false;
+                            break;
+
+                        case "forms":
+                            xtf.HookCompat = true;
+                            xtf.HookHacks = false;
+                            xtf.HookEntryPoint = true;
+                            xtf.HookLocks = false;
+                            xtf.FixOldMonoXML = false;
+                            xtf.HookBinaryFormatter = false;
+                            xtf.HookReflection = false;
+                            break;
+                    }
+                } },
+
                 { "relinkonly=", "Only read and write the assemblies listed.", (bool v) => relinkOnly = v },
 
                 { "hook-compat=", "Toggle Forms and P/Invoke compatibility hooks.", (bool v) => xtf.HookCompat = v },
