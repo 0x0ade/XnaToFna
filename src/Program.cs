@@ -26,7 +26,7 @@ namespace XnaToFna {
             OptionSet options = new OptionSet {
                 { "h|help", "Show this message and exit.", v => showHelp = v != null },
                 { "v|version", "Show the version and exit.", v => showVersion = v != null },
-                { "base=", "Choose between multiple default configs:\ndefault, minimal, forms", v => {
+                { "profile=", "Choose between multiple base profiles:\ndefault, minimal, forms", v => {
                     switch (v.ToLowerInvariant()) {
                         case "default":
                             xtf.HookCompat = true;
