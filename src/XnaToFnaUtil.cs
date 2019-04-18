@@ -46,18 +46,11 @@ namespace XnaToFna {
                 "Microsoft.Xna.Framework.Xact"
             }),
 
-            new XnaToFnaMapping("MonoGame.Framework.Net", new string[] {
+            new XnaToFnaMapping("FNA.NetStub", new string[] {
                 "Microsoft.Xna.Framework.GamerServices",
                 "Microsoft.Xna.Framework.Net",
                 "Microsoft.Xna.Framework.Xdk"
             }, SetupGSRelinkMap),
-
-	        new XnaToFnaMapping("FNA.Steamworks", new string[] {
-                "FNA.Steamworks",
-                "Microsoft.Xna.Framework.GamerServices",
-                "Microsoft.Xna.Framework.Net",
-                "Microsoft.Xna.Framework.Xdk"
-	        }, SetupGSRelinkMap)
         };
 
         public XnaToFnaModder Modder;

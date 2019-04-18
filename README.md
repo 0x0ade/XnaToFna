@@ -37,9 +37,7 @@ Relinker making some games using XNA 4.0 run with FNA. It goes as far as booting
 
 Using [MonoMod](https://github.com/0x0ade/MonoMod/), it sets up the relinking map in MonoMod to relink all `Microsoft.Xna.Framework` references to `FNA` instead.
 
-It can relink from `Microsoft.Xna.Framework.Net` and `Microsoft.Xna.Framework.GamerServices` to either `MonoGame.Framework.Net` or `FNA.Steamworks`, depending on which of those two exists in the game directory.
-
-For convenience, XnaToFna contains a fork of MonoGame.Framework.Net as a submodule. You'll still need to compile it and copy it to the game directory on your own. Take a look at [this diff](https://github.com/flibitijibibo/MonoGame.Net/compare/master...0x0ade:master) to see what changed.
+It can also relink from `Microsoft.Xna.Framework.Net` and `Microsoft.Xna.Framework.GamerServices` to `FNA.NetStub`, if it exists in the game directory.
 
 Finally, it applies some optional salt and pepper here and there (`XmlIgnore` this, `XnaToFnaHelper.GetProxyFormHandle` that).
 
