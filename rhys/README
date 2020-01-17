@@ -1,0 +1,13 @@
+This is Rhys, a Steam compatibility tool that runs XNA games with FNA, using
+XnaToFna to fix up various Windows-dependent features found in XNA games.
+
+Dependencies
+------------
+- Mono 6.4 or newer
+- NuGet
+- Roslyn
+- MSBuild
+
+How to Build
+------------
+Run ./build.sh!
