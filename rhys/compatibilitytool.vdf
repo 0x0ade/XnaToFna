@@ -1,0 +1,13 @@
+"compatibilitytools"
+{
+	"compat_tools"
+	{
+		"rhys"
+		{
+			"install_path"	"."
+			"display_name"	"FNA (native)"
+			"from_oslist"	"windows"
+			"to_oslist"	"linux"
+		}
+	}
+}

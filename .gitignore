@@ -10,6 +10,11 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+# Rhys files
+rhys/fna/
+rhys/fnalibs/
+rhys/fnalibs.tar.bz2
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

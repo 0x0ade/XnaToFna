@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+
+basedir = os.path.dirname(sys.argv[0])
+libdir = basedir + "/dist/fnalibs"
+gacdir = basedir + "/dist/fna"
+mono_path = "/usr/bin/mono"
+
+ld_path_var = "LD_LIBRARY_PATH"
+mono_path_var = "MONO_PATH"
+
+def run():
+        if ld_path_var in os.environ:
+            self.env[ld_path_var] = libdir + ":" + os.environ[ld_path_var]
+        else:
+            self.env[ld_path_var] = libdir
+        if mono_path_var in os.environ:
+            self.env[mono_path_var] = gacdir + ":" + os.environ[mono_path_var]
+        else:
+            self.env[mono_path_var] = gacdir
+        self.env["MONO_IOMAP"] = "all"
+	subprocess.call(mono_path + sys.argv[2])
+
+if sys.argv[1] == "run":
+	run()
+elif sys.argv[1] == "waitforexitandrun":
+	# Nothing special?
+	run()
+elif sys.argv[1] == "getcompatpath":
+	# Anything to do here?
+	sys.exit(1)
+elif sys.argv[1] == "getnativepath":
+	# Anything to do here?
+	sys.exit(1)
+else:
+	log("Need a verb.")
+	sys.exit(1)
+
+sys.exit(0)
+
+# vim: set syntax=python:
