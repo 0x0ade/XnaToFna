@@ -13,33 +13,39 @@ ld_path_var = "LD_LIBRARY_PATH"
 mono_path_var = "MONO_PATH"
 
 def nonzero(s):
-    return len(s) > 0 and s != "0"
+	return len(s) > 0 and s != "0"
+
+def firsttime(log_file):
+	# TODO: Find base directory
+	# TODO: Check for RHYS_PROCESSED FILE
+	# If DNE, XnaToFna.exe Windows Mode with wmpcvt.sh
+	return
 
 def run():
-        log_file = None
-        if "SteamGameId" in os.environ:
-            if "RHYS_LOG" in os.environ and nonzero(os.environ["RHYS_LOG"]):
-                lfile_path = os.environ["HOME"] + "/steam-" + os.environ["SteamGameId"] + ".log"
-                if os.path.exists(lfile_path):
-                    os.remove(lfile_path)
-                log_file = open(lfile_path, "w+")
-                log_file.write("======================\n")
-                log_file.write("Rhys: 20.02\n")
-                log_file.write("SteamGameId: " + os.environ["SteamGameId"] + "\n")
-                log_file.write("Command: " + str(sys.argv[2:]) + "\n")
-                log_file.write("======================\n")
-                log_file.flush()
-
-        if ld_path_var in os.environ:
-            os.environ[ld_path_var] = libdir + ":" + os.environ[ld_path_var]
-        else:
-            os.environ[ld_path_var] = libdir
-        if mono_path_var in os.environ:
-            os.environ[mono_path_var] = gacdir + ":" + os.environ[mono_path_var]
-        else:
-            os.environ[mono_path_var] = gacdir
-        os.environ["MONO_IOMAP"] = "all"
-        subprocess.call([mono_path, sys.argv[2]], stderr=log_file, stdout=log_file)
+	log_file = None
+	if "SteamGameId" in os.environ:
+		if "RHYS_LOG" in os.environ and nonzero(os.environ["RHYS_LOG"]):
+			lfile_path = os.environ["HOME"] + "/steam-" + os.environ["SteamGameId"] + ".log"
+		if os.path.exists(lfile_path):
+			os.remove(lfile_path)
+		log_file = open(lfile_path, "w+")
+		log_file.write("======================\n")
+		log_file.write("Rhys: 20.02\n")
+		log_file.write("SteamGameId: " + os.environ["SteamGameId"] + "\n")
+		log_file.write("Command: " + str(sys.argv[2:]) + "\n")
+		log_file.write("======================\n")
+		log_file.flush()
+	firsttime(log_file)
+	if ld_path_var in os.environ:
+		os.environ[ld_path_var] = libdir + ":" + os.environ[ld_path_var]
+	else:
+		os.environ[ld_path_var] = libdir
+	if mono_path_var in os.environ:
+		os.environ[mono_path_var] = gacdir + ":" + os.environ[mono_path_var]
+	else:
+		os.environ[mono_path_var] = gacdir
+	os.environ["MONO_IOMAP"] = "all"
+	subprocess.call([mono_path, sys.argv[2]], stderr=log_file, stdout=log_file)
 
 if sys.argv[1] == "run":
 	run()
