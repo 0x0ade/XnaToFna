@@ -41,7 +41,7 @@ def steamworks():
 		sw_path_var = swversionpath
 		append_ldpath(sw_path_var)
 
-def firsttime(log_file):
+def firsttime():
 	# If this file exists, we've been here before
 	processed = os.path.join(gamedir, "RHYS_PROCESSED")
 	if os.path.exists(processed):
@@ -79,7 +79,7 @@ def run():
 	# Check for Steamworks.NET...
 	steamworks()
 	# ... then do any initial setup...
-	firsttime(log_file)
+	firsttime()
 	# ... add fnalibs to the search path...
 	append_ldpath(libdir)
 	# ... set up the Mono environment variables...
