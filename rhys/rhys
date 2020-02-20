@@ -1,27 +1,47 @@
 #!/usr/bin/env python3
 
 import os
+import shutil
 import subprocess
 import sys
 
 rhys_version = "20.02"
 basedir = os.path.dirname(sys.argv[0])
+gamedir = os.path.dirname(sys.argv[2])
 libdir = basedir + "/fnalibs"
 gacdir = basedir + "/fna"
 mono_path = "/usr/bin/mono"
 
 ld_path_var = "LD_LIBRARY_PATH"
 mono_path_var = "MONO_PATH"
+sw_path_var = ""
 
 def nonzero(s):
 	return len(s) > 0 and s != "0"
 
+def append_ldpath(path):
+	if ld_path_var in os.environ:
+		os.environ[ld_path_var] = path + ":" + os.environ[ld_path_var]
+	else:
+		os.environ[ld_path_var] = path
+
+def steamworks():
+	swversion = None
+	# TODO: Detect Steamworks.NET version
+	if (swversion == None):
+		return
+	sw_path_var = os.path.join(swdir, swversion)
+	append_ldpath(sw_path_var)
+
 def firsttime(log_file):
-	gamedir = os.path.dirname(str(sys.argv[2]))
 	processed = os.path.join(gamedir, "RHYS_PROCESSED")
 	if os.path.exists(processed):
 		return
 	# TODO: XnaToFna Windows Mode, wmpcvt.sh
+	if (len(sw_path_var) > 0):
+		swsrc = os.path.join(sw_path_var, "Steamworks.NET.dll")
+		swdst = os.path.join(gamedir, "Steamworks.NET.dll")
+		shutil.copyfile(swsrc, swdst)
 	processed_file = open(processed, "w+")
 	processed_file.write(rhys_version)
 	processed_file.close()
@@ -42,11 +62,9 @@ def run():
 		log_file.write("Command: " + str(sys.argv[2:]) + "\n")
 		log_file.write("======================\n")
 		log_file.flush()
+	steamworks()
 	firsttime(log_file)
-	if ld_path_var in os.environ:
-		os.environ[ld_path_var] = libdir + ":" + os.environ[ld_path_var]
-	else:
-		os.environ[ld_path_var] = libdir
+	append_ldpath(libdir)
 	if mono_path_var in os.environ:
 		os.environ[mono_path_var] = gacdir + ":" + os.environ[mono_path_var]
 	else:
