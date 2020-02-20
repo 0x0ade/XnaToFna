@@ -37,7 +37,8 @@ def firsttime(log_file):
 	processed = os.path.join(gamedir, "RHYS_PROCESSED")
 	if os.path.exists(processed):
 		return
-	# TODO: XnaToFna Windows Mode, wmpcvt.sh
+	# TODO: XnaToFna Windows Mode
+	subprocess.call([os.path.join(basedir, "wmpcvt.sh"), gamedir])
 	if (len(sw_path_var) > 0):
 		swsrc = os.path.join(sw_path_var, "Steamworks.NET.dll")
 		swdst = os.path.join(gamedir, "Steamworks.NET.dll")
