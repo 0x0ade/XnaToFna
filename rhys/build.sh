@@ -29,6 +29,9 @@ cp ../bin/Release/* fna/
 msbuild ../lib-projs/FNA/abi/Microsoft.Xna.Framework.sln /p:Configuration=Release
 cp ../lib-projs/FNA/abi/bin/Release/* fna/
 
+# GetAssemblyVersion
+csc GetAssemblyVersion.cs -out:fna/GetAssemblyVersion.exe
+
 # fnalibs
 curl -O http://fna.flibitijibibo.com/archive/fnalibs.tar.bz2
 tar xvfj fnalibs.tar.bz2 lib64

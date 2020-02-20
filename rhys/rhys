@@ -8,9 +8,12 @@ import sys
 rhys_version = "20.02"
 basedir = os.path.dirname(sys.argv[0])
 gamedir = os.path.dirname(sys.argv[2])
+gamesw = os.path.join(gamedir, "Steamworks.NET.dll")
 libdir = basedir + "/fnalibs"
 gacdir = basedir + "/fna"
+swdir = basedir + "/Steamworks.NET"
 mono_path = "/usr/bin/mono"
+gav_path = os.path.join(gacdir, "GetAssemblyVersion.exe")
 
 ld_path_var = "LD_LIBRARY_PATH"
 mono_path_var = "MONO_PATH"
@@ -26,30 +29,41 @@ def append_ldpath(path):
 		os.environ[ld_path_var] = path
 
 def steamworks():
-	swversion = None
-	# TODO: Detect Steamworks.NET version
-	if (swversion == None):
-		return
-	sw_path_var = os.path.join(swdir, swversion)
-	append_ldpath(sw_path_var)
+	# Does this game use Steamworks.NET?
+	if not os.path.exists(gamesw):
+		return;
+	# Dump AssemblyVersion from game's DLL
+	gav = subprocess.Popen([mono_path, gav_path, gamesw], stdout=subprocess.PIPE)
+	swversion = gav.stdout.read().decode('ascii')
+	# Do we have a match? If so, use our version!
+	swversionpath = os.path.join(swdir, swversion)
+	if os.path.exists(swversionpath):
+		sw_path_var = swversionpath
+		append_ldpath(sw_path_var)
 
 def firsttime(log_file):
+	# If this file exists, we've been here before
 	processed = os.path.join(gamedir, "RHYS_PROCESSED")
 	if os.path.exists(processed):
 		return
 	# TODO: XnaToFna Windows Mode
+	# Convert WMV/WMA to OGV/OGG, if user has their own codecs
 	subprocess.call([os.path.join(basedir, "wmpcvt.sh"), gamedir])
+	# Replace Steamworks.NET.dll, if applicable
 	if (len(sw_path_var) > 0):
 		swsrc = os.path.join(sw_path_var, "Steamworks.NET.dll")
 		swdst = os.path.join(gamedir, "Steamworks.NET.dll")
 		shutil.copyfile(swsrc, swdst)
+	# We're done, leave evidence that we've been in the game folder!
 	processed_file = open(processed, "w+")
 	processed_file.write(rhys_version)
 	processed_file.close()
 
 def run():
+	# Hi Wine!
 	if os.path.basename(str(sys.argv[2])) == "iscriptevaluator.exe":
 		return
+	# RHYS_LOG writes to ~/steam-$appid.log
 	log_file = None
 	if "SteamGameId" in os.environ:
 		if "RHYS_LOG" in os.environ and nonzero(os.environ["RHYS_LOG"]):
@@ -63,14 +77,19 @@ def run():
 		log_file.write("Command: " + str(sys.argv[2:]) + "\n")
 		log_file.write("======================\n")
 		log_file.flush()
+	# Check for Steamworks.NET...
 	steamworks()
+	# ... then do any initial setup...
 	firsttime(log_file)
+	# ... add fnalibs to the search path...
 	append_ldpath(libdir)
+	# ... set up the Mono environment variables...
 	if mono_path_var in os.environ:
 		os.environ[mono_path_var] = gacdir + ":" + os.environ[mono_path_var]
 	else:
 		os.environ[mono_path_var] = gacdir
 	os.environ["MONO_IOMAP"] = "all"
+	# ... run, finally.
 	subprocess.call([mono_path, sys.argv[2]], stderr=log_file, stdout=log_file)
 
 if sys.argv[1] == "run":
