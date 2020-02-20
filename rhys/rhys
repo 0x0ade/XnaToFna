@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 
+rhys_version = "20.02"
 basedir = os.path.dirname(sys.argv[0])
 libdir = basedir + "/fnalibs"
 gacdir = basedir + "/fna"
@@ -16,12 +17,18 @@ def nonzero(s):
 	return len(s) > 0 and s != "0"
 
 def firsttime(log_file):
-	# TODO: Find base directory
-	# TODO: Check for RHYS_PROCESSED FILE
-	# If DNE, XnaToFna.exe Windows Mode with wmpcvt.sh
-	return
+	basedir = os.path.dirname(str(sys.argv[2]))
+	processed = os.path.join(basedir, "RHYS_PROCESSED")
+	if os.path.exists(processed):
+		return
+	# TODO: XnaToFna Windows Mode, wmpcvt.sh
+	processed_file = open(processed, "w+")
+	processed_file.write(rhys_version)
+	processed_file.close()
 
 def run():
+	if os.path.basename(str(sys.argv[2])) == "iscriptevaluator.exe":
+		return
 	log_file = None
 	if "SteamGameId" in os.environ:
 		if "RHYS_LOG" in os.environ and nonzero(os.environ["RHYS_LOG"]):
@@ -30,7 +37,7 @@ def run():
 			os.remove(lfile_path)
 		log_file = open(lfile_path, "w+")
 		log_file.write("======================\n")
-		log_file.write("Rhys: 20.02\n")
+		log_file.write("Rhys: " + rhys_version + "\n")
 		log_file.write("SteamGameId: " + os.environ["SteamGameId"] + "\n")
 		log_file.write("Command: " + str(sys.argv[2:]) + "\n")
 		log_file.write("======================\n")
