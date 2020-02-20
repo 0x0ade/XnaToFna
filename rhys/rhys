@@ -1,24 +1,45 @@
 #!/usr/bin/env python3
 
+import os
+import subprocess
+import sys
+
 basedir = os.path.dirname(sys.argv[0])
-libdir = basedir + "/dist/fnalibs"
-gacdir = basedir + "/dist/fna"
+libdir = basedir + "/fnalibs"
+gacdir = basedir + "/fna"
 mono_path = "/usr/bin/mono"
 
 ld_path_var = "LD_LIBRARY_PATH"
 mono_path_var = "MONO_PATH"
 
+def nonzero(s):
+    return len(s) > 0 and s != "0"
+
 def run():
+        log_file = None
+        if "SteamGameId" in os.environ:
+            if "RHYS_LOG" in os.environ and nonzero(os.environ["RHYS_LOG"]):
+                lfile_path = os.environ["HOME"] + "/steam-" + os.environ["SteamGameId"] + ".log"
+                if os.path.exists(lfile_path):
+                    os.remove(lfile_path)
+                log_file = open(lfile_path, "w+")
+                log_file.write("======================\n")
+                log_file.write("Rhys: 20.02\n")
+                log_file.write("SteamGameId: " + os.environ["SteamGameId"] + "\n")
+                log_file.write("Command: " + str(sys.argv[2:]) + "\n")
+                log_file.write("======================\n")
+                log_file.flush()
+
         if ld_path_var in os.environ:
-            self.env[ld_path_var] = libdir + ":" + os.environ[ld_path_var]
+            os.environ[ld_path_var] = libdir + ":" + os.environ[ld_path_var]
         else:
-            self.env[ld_path_var] = libdir
+            os.environ[ld_path_var] = libdir
         if mono_path_var in os.environ:
-            self.env[mono_path_var] = gacdir + ":" + os.environ[mono_path_var]
+            os.environ[mono_path_var] = gacdir + ":" + os.environ[mono_path_var]
         else:
-            self.env[mono_path_var] = gacdir
-        self.env["MONO_IOMAP"] = "all"
-	subprocess.call(mono_path + sys.argv[2])
+            os.environ[mono_path_var] = gacdir
+        os.environ["MONO_IOMAP"] = "all"
+        subprocess.call([mono_path, sys.argv[2]], stderr=log_file, stdout=log_file)
 
 if sys.argv[1] == "run":
 	run()
