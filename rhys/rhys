@@ -17,8 +17,8 @@ def nonzero(s):
 	return len(s) > 0 and s != "0"
 
 def firsttime(log_file):
-	basedir = os.path.dirname(str(sys.argv[2]))
-	processed = os.path.join(basedir, "RHYS_PROCESSED")
+	gamedir = os.path.dirname(str(sys.argv[2]))
+	processed = os.path.join(gamedir, "RHYS_PROCESSED")
 	if os.path.exists(processed):
 		return
 	# TODO: XnaToFna Windows Mode, wmpcvt.sh
