@@ -5,7 +5,7 @@
 		"rhys"
 		{
 			"install_path"	"."
-			"display_name"	"FNA (native)"
+			"display_name"	"Rhys 20.02"
 			"from_oslist"	"windows"
 			"to_oslist"	"linux"
 		}
