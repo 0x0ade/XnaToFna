@@ -9,7 +9,9 @@ cd "`dirname "$0"`"
 # Clean up previous builds
 rm -rf fna
 rm -rf fnalibs
+rm -rf Steamworks.NET
 rm -f fnalibs.tar.bz2
+rm -f Steamworks.NET.Linux64.tar.bz2
 
 # For all the managed files...
 mkdir fna
@@ -31,3 +33,7 @@ cp ../lib-projs/FNA/abi/bin/Release/* fna/
 curl -O http://fna.flibitijibibo.com/archive/fnalibs.tar.bz2
 tar xvfj fnalibs.tar.bz2 lib64
 mv lib64 fnalibs
+
+# Steamworks.NET
+curl -O http://fna.flibitijibibo.com/Steamworks.NET.Linux64.tar.bz2
+tar xvfj Steamworks.NET.Linux64.tar.bz2
