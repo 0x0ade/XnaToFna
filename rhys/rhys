@@ -52,8 +52,7 @@ def firsttime(log_file):
 	# Replace Steamworks.NET.dll, if applicable
 	if (len(sw_path_var) > 0):
 		swsrc = os.path.join(sw_path_var, "Steamworks.NET.dll")
-		swdst = os.path.join(gamedir, "Steamworks.NET.dll")
-		shutil.copyfile(swsrc, swdst)
+		shutil.copyfile(swsrc, gamesw)
 	# We're done, leave evidence that we've been in the game folder!
 	processed_file = open(processed, "w+")
 	processed_file.write(rhys_version)
