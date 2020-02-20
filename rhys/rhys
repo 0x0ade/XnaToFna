@@ -64,18 +64,17 @@ def run():
 		return
 	# RHYS_LOG writes to ~/steam-$appid.log
 	log_file = None
-	if "SteamGameId" in os.environ:
-		if "RHYS_LOG" in os.environ and nonzero(os.environ["RHYS_LOG"]):
-			lfile_path = os.environ["HOME"] + "/steam-" + os.environ["SteamGameId"] + ".log"
-			if os.path.exists(lfile_path):
-				os.remove(lfile_path)
-			log_file = open(lfile_path, "w+")
-			log_file.write("======================\n")
-			log_file.write("Rhys: " + rhys_version + "\n")
-			log_file.write("SteamGameId: " + os.environ["SteamGameId"] + "\n")
-			log_file.write("Command: " + str(sys.argv[2:]) + "\n")
-			log_file.write("======================\n")
-			log_file.flush()
+	if "SteamGameId" in os.environ and "RHYS_LOG" in os.environ and nonzero(os.environ["RHYS_LOG"]):
+		lfile_path = os.environ["HOME"] + "/steam-" + os.environ["SteamGameId"] + ".log"
+		if os.path.exists(lfile_path):
+			os.remove(lfile_path)
+		log_file = open(lfile_path, "w+")
+		log_file.write("======================\n")
+		log_file.write("Rhys: " + rhys_version + "\n")
+		log_file.write("SteamGameId: " + os.environ["SteamGameId"] + "\n")
+		log_file.write("Command: " + str(sys.argv[2:]) + "\n")
+		log_file.write("======================\n")
+		log_file.flush()
 	# Check for Steamworks.NET...
 	steamworks()
 	# ... then do any initial setup...
