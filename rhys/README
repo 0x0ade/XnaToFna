@@ -3,7 +3,7 @@ XnaToFna to fix up various Windows-dependent features found in XNA games.
 
 Runtime Dependencies
 --------------------
-- Mono 6.4 or newer
+- Mono 5.20 or older (6.0+ is missing MONO_IOMAP)
 
 Build Dependencies
 ------------------
