@@ -40,3 +40,6 @@ mv lib64 fnalibs
 # Steamworks.NET
 curl -O http://fna.flibitijibibo.com/Steamworks.NET.Linux64.tar.bz2
 tar xvfj Steamworks.NET.Linux64.tar.bz2
+
+# Package, finally
+tar cvfj Rhys.tar.bz2 fna/* fnalibs/* Steamworks.NET/* rhys wmpcvt.sh compatibilitytool.vdf toolmanifest.vdf
